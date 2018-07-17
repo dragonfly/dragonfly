@@ -112,7 +112,7 @@ $ python demos/branin/in_code_demo.py
 
 Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
 [webpage](http://www.cs.cmu.edu/~kkandasa/)  
-Karun Raju Vysyraju: [github](https://github.com/karunraju),
+Karun Raju Vysyaraju: [github](https://github.com/karunraju),
 [linkedin](https://www.linkedin.com/in/karunrajuvysyaraju)  
 Willie Neiswanger: [github](https://github.com/willieneis),
 [webpage](http://www.cs.cmu.edu/~wdn/)
