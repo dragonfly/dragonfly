@@ -81,8 +81,8 @@ If using protocol buffers, you might need to install this package via
 
 The branin demo can be run via following commands:
 ```bash
-$ python dragonfly.py --config demos/branin_json/config.json --options demos/branin_json/options.txt
-$ python dragonfly.py --config demos/branin_json/config.pb --options demos/branin_json/options.txt
+$ python dragonfly.py --config demos/branin/config.json --options demos/branin/options.txt
+$ python dragonfly.py --config demos/branin/config.pb --options demos/branin/options.txt
 ```
 
 **In python code**:
