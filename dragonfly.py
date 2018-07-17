@@ -1,5 +1,5 @@
 """
-  Command line too for GP Bandit Optimisation.
+  Command line tool for GP Bandit Optimisation.
   -- kvysyara@andrew.cmu.edu
   -- kandasamy@cs.cmu.edu
 
@@ -24,10 +24,10 @@ from maximise_function import maximise_function
 dragonfly_args = [ \
   get_option_specs('config', False, None, 'Path to the json or pb config file. '),
   get_option_specs('options', False, None, 'Path to the options file. '),
-  get_option_specs('max_capital', False, None,
-    'Maximum capital to be used in the experiment. '),
-  get_option_specs('budget', False, None,
-    'The budget of evaluations. If max_capital is none, will use this as max_capital.'),
+  get_option_specs('max_capital', False, 0.0,
+                   'Maximum capital to be used in the experiment. '),
+  get_option_specs('budget', False, 0.0, \
+      'The budget of evaluations. If max_capital is none, will use this as max_capital.'),
                  ]
 
 def main():
@@ -52,11 +52,10 @@ def main():
   if prob['method'] == 'slice' or prob['method'] == 'nuts':
     options.gpb_hp_tune_criterion = 'post_sampling'
     options.gpb_post_hp_tune_method = prob['method']
-  if options.max_capital is None:
-    if options.budget is None:
+  if options.max_capital == 0.0:
+    if options.budget == 0.0:
       raise ValueError('Specify the budget in budget or max_capital.')
     options.max_capital = options.budget
-  options.max_capital = float(options.max_capital)
 
   # Domain bounds
   domain_bounds = [None] * len(parameters)

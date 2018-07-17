@@ -15,7 +15,14 @@ class LoadFromFile(argparse.Action):
 
 def get_option_specs(name, required=False, default=None, help_str='', **kwargs):
   """ A wrapper function to get a specification as a dictionary. """
-  ret = {'name':name, 'required':required, 'default':default, 'help':help_str}
+  if isinstance(default, int):
+    ret = {'name':name, 'required':required, 'default':default, 'help':help_str,
+           'type':int}
+  elif isinstance(default, float):
+    ret = {'name':name, 'required':required, 'default':default, 'help':help_str,
+           'type':float}
+  else:
+    ret = {'name':name, 'required':required, 'default':default, 'help':help_str}
   for key, value in list(kwargs.items()):
     ret[key] = value
   return ret
@@ -45,9 +52,9 @@ def load_options(list_of_options, descr='Algorithm', reporter=None, cmd_line=Fal
     if not opt_name.startswith('--'):
       opt_name = '--' + opt_name
     if opt_name == '--options':
-      parser.add_argument(opt_name, type=open, action=LoadFromFile, **opt_dict)
-    else:
-      parser.add_argument(opt_name, **opt_dict)
+      opt_dict['type'] = open
+      opt_dict['action'] = LoadFromFile
+    parser.add_argument(opt_name, **opt_dict)
   if cmd_line:
     args, _ = parser.parse_known_args()
   else:

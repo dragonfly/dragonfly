@@ -1,4 +1,4 @@
 --acq ei
---post_hp_tune_burn 170
---post_hp_tune_offset 35
+--gpb_post_hp_tune_burn 170
+--gpb_post_hp_tune_offset 35
 --budget 50

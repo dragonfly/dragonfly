@@ -14,7 +14,7 @@ message Experiment {
   message ParameterSpec {
     required string name = 1;
     optional Type   type = 2 [default = FLOAT];
-    optional uint32 size = 3 [default = 1];
+    optional uint32 dim  = 3 [default = 1];
     optional double min  = 4 [default = -inf];
     optional double max  = 5 [default = inf];
 

@@ -426,6 +426,7 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
     # Kernel scale
     self.scale_log_bounds = [np.log(0.1 * self.Y_var), np.log(10 * self.Y_var)]
     self.cts_hp_bounds.append(self.scale_log_bounds)
+    self.param_order.append(["scale", "cts"])
     # Fidelity kernel
     if self.options.fidel_kernel_type == 'se':
       self._fidel_se_kernel_setup()
@@ -460,6 +461,7 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
     # Set optimisation values for the nu parameter
     if self.options.fidel_matern_nu < 0:
       self.dscr_hp_vals.append([0.5, 1.5, 2.5])
+      self.param_order.append(["nu", "dscr"])
 
   def _fidel_se_matern_kernel_setup_common(self):
     """ Common operators for setting up as a SE or Matern kernel. """
@@ -470,6 +472,11 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
       self.fidel_bandwidth_log_bounds = self._get_bandwidth_log_bounds(
         self.fidel_dim, self.ZX_std_norm, self.options.fidel_use_same_bandwidth)
     self.cts_hp_bounds.extend(self.fidel_bandwidth_log_bounds)
+    if self.options.fidel_use_same_bandwidth:
+      self.param_order.append(["same_dim_bandwidths", "cts"])
+    else:
+      for _ in range(self.fidel_dim):
+        self.param_order.append(["dim_bandwidths", "cts"])
 
   def _fidel_poly_kernel_setup(self):
     """ Sets up the fidelity kernel as a Poly kernel. """
@@ -510,6 +517,7 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
     # Set optimisation values for the nu parameter
     if self.options.domain_matern_nu < 0:
       self.dscr_hp_vals.append([0.5, 1.5, 2.5])
+      self.param_order.append(["nu", "dscr"])
 
   def _domain_se_matern_kernel_setup_common(self):
     """ Sets up the domain kernel as a SE kernel. """
@@ -520,6 +528,11 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
       self.domain_bandwidth_log_bounds = self._get_bandwidth_log_bounds(
          self.domain_dim, self.ZX_std_norm, self.options.domain_use_same_bandwidth)
     self.cts_hp_bounds.extend(self.domain_bandwidth_log_bounds)
+    if self.options.fidel_use_same_bandwidth:
+      self.param_order.append(["same_dim_bandwidths", "cts"])
+    else:
+      for _ in range(self.domain_dim):
+        self.param_order.append(["dim_bandwidths", "cts"])
 
   def _domain_poly_kernel_setup(self):
     """ Sets up the domain kernel as a Poly kernel. """

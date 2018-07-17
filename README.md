@@ -1,6 +1,7 @@
 # dragonfly
 
 dragonfly is a python library for scalable Bayesian optimisation.
+The library is in alpha version.
 
 Bayesian optimisation is used for optimising black-box functions whose evaluations are
 usually expensive.
@@ -106,6 +107,15 @@ To execute this file, simply run
 ```bash
 $ python demos/branin/in_code_demo.py
 ```
+
+### Contributors
+
+Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
+[webpage](http://www.cs.cmu.edu/~kkandasa/)  
+Karun Raju Vysyraju: [github](https://github.com/karunraju),
+[linkedin](https://www.linkedin.com/in/karunrajuvysyaraju)  
+Willie Neiswanger: [github](https://github.com/willieneis),
+[webpage](http://www.cs.cmu.edu/~wdn/)
 
 ### Citation
 If you use any part of this code in your work, please cite

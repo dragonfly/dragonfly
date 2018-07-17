@@ -11,12 +11,11 @@ import json
 from collections import OrderedDict
 import numpy as np
 
-#Local
-from parser import config_pb2
-
 def unicode_to_str(data):
   """ Unicode to string conversion. """
-  return data.encode('utf-8')
+  if not isinstance(data, str):
+    return data.encode('utf-8')
+  return data
 
 def load_parameters_json(config):
   """ Parses all the parameters from json config file. """
@@ -26,33 +25,33 @@ def load_parameters_json(config):
     raise ValueError('Experiment name is required')
   prob_params['num_trials'] = config.get('num_trials', 1)
   prob_params['num_workers'] = config.get('num_workers', 1)
-  prob_params['time_distro'] = unicode_to_str(config.get('time_distro', 'const'))
+  prob_params['time_distro'] = unicode_to_str(config.get('time_distro', 'const').lower())
   prob_params['results_dir'] = unicode_to_str(config.get('results_dir', 'results'))
-  prob_params['method'] = unicode_to_str(config.get('method', 'slice'))
+  prob_params['method'] = unicode_to_str(config.get('method', 'slice').lower())
   prob_params['noisy_evals'] = config.get('noisy_evals', True)
   prob_params['noise_scale'] = config.get('noise_scale', 0.1)
   prob_params['reporter'] = config.get('reporter', 'default')
   prob_params['initial_pool_size'] = config.get('initial_pool_size', 20)
 
   parameters = []
-  _parameters = config['Parameters']
+  _parameters = config['parameters']
   order = 0
   for key in list(_parameters.keys()):
     _name = _parameters[key].get('name', key)
     if _name is None:
       raise ValueError('Parameter name is required')
     _type = _parameters[key].get('type', 'float')
-    _size = _parameters[key].get('size', 1)
+    _dim = _parameters[key].get('dim', 1)
     _min = _parameters[key].get('min', -np.inf)
     _max = _parameters[key].get('max', np.inf)
 
-    for i in range(_size):
+    for i in range(_dim):
       param = {}
-      if _size == 1:
+      if _dim == 1:
         param['name'] = unicode_to_str(_name)
       else:
         param['name'] = unicode_to_str(_name) + str(i)
-      param['type'] = unicode_to_str(_type)
+      param['type'] = unicode_to_str(_type).lower()
       param['min'] = _min
       param['max'] = _max
       param['order'] = order
@@ -68,9 +67,9 @@ def load_parameters_pb(config):
   prob_params['name'] = unicode_to_str(config.name)
   prob_params['num_trials'] = config.num_trials
   prob_params['num_workers'] = config.num_workers
-  prob_params['time_distro'] = unicode_to_str(config.time_distro)
+  prob_params['time_distro'] = unicode_to_str(config.time_distro).lower()
   prob_params['results_dir'] = unicode_to_str(config.results_dir)
-  prob_params['method'] = unicode_to_str(config.method)
+  prob_params['method'] = unicode_to_str(config.method).lower()
   prob_params['noisy_evals'] = config.noisy_evals
   prob_params['noise_scale'] = config.noise_scale
   prob_params['reporter'] = config.reporter
@@ -79,9 +78,9 @@ def load_parameters_pb(config):
   parameters = []
   order = 0
   for var in config.variable:
-    for i in range(var.size):
+    for i in range(var.dim):
       param = {}
-      if var.size == 1:
+      if var.dim == 1:
         param['name'] = unicode_to_str(var.name)
       else:
         param['name'] = unicode_to_str(var.name) + str(i)
@@ -122,6 +121,7 @@ def read_pb(config_file):
   except ImportError:
     raise ImportError('Protocol Buffer library is not installed')
 
+  from parser import config_pb2
   config = config_pb2.Experiment()
 
   _file = open(config_file, "rb")

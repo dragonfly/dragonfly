@@ -1,13 +1,13 @@
 {
 "name": "branin",
 
-"Parameters" : {
+"parameters" : {
   "x1" : {
     "name":"x1",
     "type":"float",
     "min":-5,
     "max":10,
-    "size":1
+    "dim":1
   },
 
   "x2" : {
@@ -15,7 +15,7 @@
     "type":"float",
     "min":0,
     "max":15,
-    "size":1
+    "dim":1
   }
 }
 }
