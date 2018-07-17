@@ -1,0 +1,58 @@
+"""
+  A harness to load options.
+  -- kandasamy@cs.cmu.edu
+"""
+
+import argparse
+from copy import deepcopy
+
+class LoadFromFile(argparse.Action):
+  """ Argparse Action class to read from file. """
+  def __call__(self, parser, namespace, values, option_string=None):
+    with values as _file:
+      parser.parse_args(_file.read().split(), namespace)
+
+
+def get_option_specs(name, required=False, default=None, help_str='', **kwargs):
+  """ A wrapper function to get a specification as a dictionary. """
+  ret = {'name':name, 'required':required, 'default':default, 'help':help_str}
+  for key, value in list(kwargs.items()):
+    ret[key] = value
+  return ret
+
+def _print_options(ondp, desc, reporter):
+  """ Prints the options out. """
+  if reporter is None:
+    return
+  title_str = 'Hyper-parameters for %s '%(desc)
+  title_str = title_str + '-'*(80 - len(title_str))
+  reporter.writeln(title_str)
+  for key, value in sorted(ondp.items()):
+    is_changed_str = '*' if value[0] != value[1] else ' '
+    reporter.writeln('  %s %s %s'%(key.ljust(30), is_changed_str, str(value[1])))
+
+
+def load_options(list_of_options, descr='Algorithm', reporter=None, cmd_line=False):
+  """ Given a list of options, this reads them from the command line and returns
+      a namespace with the values.
+  """
+  parser = argparse.ArgumentParser(description=descr)
+  opt_names_default_parsed = {}
+  for elem in list_of_options:
+    opt_dict = deepcopy(elem)
+    opt_name = opt_dict.pop('name')
+    opt_names_default_parsed[opt_name] = [opt_dict['default'], None]
+    if not opt_name.startswith('--'):
+      opt_name = '--' + opt_name
+    if opt_name == '--options':
+      parser.add_argument(opt_name, type=open, action=LoadFromFile, **opt_dict)
+    else:
+      parser.add_argument(opt_name, **opt_dict)
+  if cmd_line:
+    args, _ = parser.parse_known_args()
+  else:
+    args = parser.parse_args(args=[])
+  for key in opt_names_default_parsed:
+    opt_names_default_parsed[key][1] = getattr(args, key)
+  _print_options(opt_names_default_parsed, descr, reporter)
+  return args
