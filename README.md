@@ -88,6 +88,9 @@ $ python dragonfly.py --config demos/branin/config.pb --options demos/branin/opt
 ```
 
 The face recognition demo can be run via following commands.
+You will need to install 
+[`scikit-learn`](http://scikit-learn.org), which can be done via
+`pip install -U scikit-learn`.
 Running this demo the first time will be slow since the dataset needs to be downloaded.
 
 ```bash
