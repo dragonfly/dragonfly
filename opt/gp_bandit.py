@@ -9,7 +9,6 @@ from __future__ import division
 # pylint: disable=redefined-builtin
 
 from argparse import Namespace
-from builtins import zip
 import numpy as np
 
 # Local imports

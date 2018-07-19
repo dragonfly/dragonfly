@@ -7,7 +7,6 @@ from __future__ import division
 
 # pylint: disable=invalid-name
 
-from builtins import zip
 import numpy as np
 # Local imports
 import utils.euclidean_synthetic_functions as esf

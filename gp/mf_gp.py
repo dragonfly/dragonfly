@@ -7,7 +7,6 @@ from __future__ import division
 # pylint: disable=invalid-name
 # pylint: disable=abstract-class-not-used
 
-from builtins import zip
 # Local imports
 import gp.kernel as gp_kernel
 from gp.gp_core import GP, GPFitter

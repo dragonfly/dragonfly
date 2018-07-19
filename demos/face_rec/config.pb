@@ -18,20 +18,28 @@
 #                                                       #
 # -- kvysyara@andrew.cmu.edu                            #
 #########################################################
-name: "branin"
+name: "face_rec"
 
 variable {
- name: "x1"
- type: "float"
- min: -5.0
- max: 10.0
+ name: "N"
+ type: "int"
+ min: 1
+ max: 500
  dim: 1
 }
 
 variable {
- name: "x2"
+ name: "C"
  type: "float"
- min: 0.0
- max: 15.0
+ min: 0
+ max: 1000
+ dim: 1
+}
+
+variable {
+ name: "gamma"
+ type: "float"
+ min: 0
+ max: 1
  dim: 1
 }

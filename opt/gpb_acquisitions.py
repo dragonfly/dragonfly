@@ -9,7 +9,6 @@ from __future__ import division
 # pylint: disable=invalid-name
 # pylint: disable=star-args
 
-from builtins import zip
 from argparse import Namespace
 import numpy as np
 from scipy.stats import norm as normal_distro

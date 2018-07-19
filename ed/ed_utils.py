@@ -8,7 +8,6 @@
 # pylint: disable=relative-import
 # pylint: disable=super-on-old-class
 
-from builtins import zip
 from argparse import Namespace
 import numpy as np
 # Local imports

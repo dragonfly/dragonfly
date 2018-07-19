@@ -8,7 +8,6 @@
 # pylint: disable=invalid-name
 # pylint: disable=relative-import
 
-from builtins import zip
 import numpy as np
 
 

@@ -1,4 +1,4 @@
 """
-  Library for Black-box Optimisation.
+  Library for Scalable Bayesian Optimisation.
   -- kandasamy@cs.cmu.edu
 """

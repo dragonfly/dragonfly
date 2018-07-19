@@ -6,7 +6,6 @@
 # pylint: disable=invalid-name
 # pylint: disable=arguments-differ
 
-from builtins import zip
 from builtins import object
 import numpy as np
 

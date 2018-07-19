@@ -1,14 +1,13 @@
 {
 "name": "face_rec",
-"max_capital": 10,
 
-"Parameters" : {
+"parameters" : {
   "N" : {
     "name":"N",
     "type":"int",
     "min":1,
     "max":500,
-    "size":1
+    "dim":1
   },
 
  "C" : {
@@ -16,7 +15,7 @@
     "type":"float",
     "min":0,
     "max":1000,
-    "size":1
+    "dim":1
   },
 
  "gamma" : {
@@ -24,7 +23,7 @@
     "type":"float",
     "min":0,
     "max":1,
-    "size":1
+    "dim":1
   }
 }
 }

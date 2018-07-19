@@ -85,7 +85,7 @@ def load_parameters_pb(config):
       else:
         param['name'] = unicode_to_str(var.name) + str(i)
 
-      param['type'] = var.type
+      param['type'] = unicode_to_str(var.type)
 
       if var.min == '-inf':
         param['min'] = -np.inf

@@ -13,15 +13,9 @@ message Experiment {
 
   message ParameterSpec {
     required string name = 1;
-    optional Type   type = 2 [default = FLOAT];
-    optional uint32 dim  = 3 [default = 1];
-    optional double min  = 4 [default = -inf];
-    optional double max  = 5 [default = inf];
-
-    enum Type {
-      FLOAT = 1;
-      INT   = 2;
-      ENUM  = 3;
-    }
+    optional string type = 2 [default = "float"];
+    optional double min  = 3 [default = -inf];
+    optional double max  = 4 [default = inf];
+    optional uint32 dim  = 5 [default = 1];
   }
 }

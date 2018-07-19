@@ -9,7 +9,6 @@ from __future__ import division
 # pylint: disable=invalid-name
 # pylint: disable=abstract-method
 
-from builtins import zip
 from builtins import object
 import numpy as np
 # Local imports

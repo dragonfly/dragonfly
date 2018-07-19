@@ -10,7 +10,15 @@ class LoadFromFile(argparse.Action):
   """ Argparse Action class to read from file. """
   def __call__(self, parser, namespace, values, option_string=None):
     with values as _file:
-      parser.parse_args(_file.read().split(), namespace)
+      options = []
+      for line in _file.read().splitlines():
+        if len(line) <= 2 or line[0:2] != '--':
+          continue
+        args_ = line.split()
+        if len(args_) <= 1:
+          continue
+        options.extend(args_[0:2])
+      parser.parse_args(options, namespace)
 
 
 def get_option_specs(name, required=False, default=None, help_str='', **kwargs):

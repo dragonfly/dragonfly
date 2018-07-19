@@ -18,37 +18,11 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='config.proto',
   package='',
-  serialized_pb=_b('\n\x0c\x63onfig.proto\"\xe6\x03\n\nExperiment\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x15\n\nnum_trials\x18\x02 \x01(\r:\x01\x31\x12\x16\n\x0bnum_workers\x18\x03 \x01(\r:\x01\x31\x12\x1a\n\x0btime_distro\x18\x04 \x01(\t:\x05\x63onst\x12\x1c\n\x0bresults_dir\x18\x05 \x01(\t:\x07results\x12\x15\n\x06method\x18\x06 \x01(\t:\x05slice\x12\x19\n\x0bnoisy_evals\x18\x07 \x01(\x08:\x04true\x12\x18\n\x0bnoise_scale\x18\x08 \x01(\x02:\x03\x30.1\x12\x19\n\x08reporter\x18\t \x01(\t:\x07\x64\x65\x66\x61ult\x12\x1d\n\x11initial_pool_size\x18\n \x01(\r:\x02\x32\x30\x12+\n\x08variable\x18\x0b \x03(\x0b\x32\x19.Experiment.ParameterSpec\x1a\xad\x01\n\rParameterSpec\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x33\n\x04type\x18\x02 \x01(\x0e\x32\x1e.Experiment.ParameterSpec.Type:\x05\x46LOAT\x12\x0e\n\x03\x64im\x18\x03 \x01(\r:\x01\x31\x12\x11\n\x03min\x18\x04 \x01(\x01:\x04-inf\x12\x10\n\x03max\x18\x05 \x01(\x01:\x03inf\"$\n\x04Type\x12\t\n\x05\x46LOAT\x10\x01\x12\x07\n\x03INT\x10\x02\x12\x08\n\x04\x45NUM\x10\x03')
+  serialized_pb=_b('\n\x0c\x63onfig.proto\"\x9f\x03\n\nExperiment\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x15\n\nnum_trials\x18\x02 \x01(\r:\x01\x31\x12\x16\n\x0bnum_workers\x18\x03 \x01(\r:\x01\x31\x12\x1a\n\x0btime_distro\x18\x04 \x01(\t:\x05\x63onst\x12\x1c\n\x0bresults_dir\x18\x05 \x01(\t:\x07results\x12\x15\n\x06method\x18\x06 \x01(\t:\x05slice\x12\x19\n\x0bnoisy_evals\x18\x07 \x01(\x08:\x04true\x12\x18\n\x0bnoise_scale\x18\x08 \x01(\x02:\x03\x30.1\x12\x19\n\x08reporter\x18\t \x01(\t:\x07\x64\x65\x66\x61ult\x12\x1d\n\x11initial_pool_size\x18\n \x01(\r:\x02\x32\x30\x12+\n\x08variable\x18\x0b \x03(\x0b\x32\x19.Experiment.ParameterSpec\x1ag\n\rParameterSpec\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x13\n\x04type\x18\x02 \x01(\t:\x05\x66loat\x12\x11\n\x03min\x18\x03 \x01(\x01:\x04-inf\x12\x10\n\x03max\x18\x04 \x01(\x01:\x03inf\x12\x0e\n\x03\x64im\x18\x05 \x01(\r:\x01\x31')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
-
-_EXPERIMENT_PARAMETERSPEC_TYPE = _descriptor.EnumDescriptor(
-  name='Type',
-  full_name='Experiment.ParameterSpec.Type',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='FLOAT', index=0, number=1,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='INT', index=1, number=2,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='ENUM', index=2, number=3,
-      options=None,
-      type=None),
-  ],
-  containing_type=None,
-  options=None,
-  serialized_start=467,
-  serialized_end=503,
-)
-_sym_db.RegisterEnumDescriptor(_EXPERIMENT_PARAMETERSPEC_TYPE)
 
 
 _EXPERIMENT_PARAMETERSPEC = _descriptor.Descriptor(
@@ -67,29 +41,29 @@ _EXPERIMENT_PARAMETERSPEC = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='type', full_name='Experiment.ParameterSpec.type', index=1,
-      number=2, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=True, default_value=_b("float").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='dim', full_name='Experiment.ParameterSpec.dim', index=2,
-      number=3, type=13, cpp_type=3, label=1,
-      has_default_value=True, default_value=1,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='min', full_name='Experiment.ParameterSpec.min', index=3,
-      number=4, type=1, cpp_type=5, label=1,
+      name='min', full_name='Experiment.ParameterSpec.min', index=2,
+      number=3, type=1, cpp_type=5, label=1,
       has_default_value=True, default_value=-1e10000,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='max', full_name='Experiment.ParameterSpec.max', index=4,
-      number=5, type=1, cpp_type=5, label=1,
+      name='max', full_name='Experiment.ParameterSpec.max', index=3,
+      number=4, type=1, cpp_type=5, label=1,
       has_default_value=True, default_value=1e10000,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='dim', full_name='Experiment.ParameterSpec.dim', index=4,
+      number=5, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -98,15 +72,14 @@ _EXPERIMENT_PARAMETERSPEC = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
-    _EXPERIMENT_PARAMETERSPEC_TYPE,
   ],
   options=None,
   is_extendable=False,
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=330,
-  serialized_end=503,
+  serialized_start=329,
+  serialized_end=432,
 )
 
 _EXPERIMENT = _descriptor.Descriptor(
@@ -205,12 +178,10 @@ _EXPERIMENT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=17,
-  serialized_end=503,
+  serialized_end=432,
 )
 
-_EXPERIMENT_PARAMETERSPEC.fields_by_name['type'].enum_type = _EXPERIMENT_PARAMETERSPEC_TYPE
 _EXPERIMENT_PARAMETERSPEC.containing_type = _EXPERIMENT
-_EXPERIMENT_PARAMETERSPEC_TYPE.containing_type = _EXPERIMENT_PARAMETERSPEC
 _EXPERIMENT.fields_by_name['variable'].message_type = _EXPERIMENT_PARAMETERSPEC
 DESCRIPTOR.message_types_by_name['Experiment'] = _EXPERIMENT
 
