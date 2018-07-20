@@ -162,6 +162,48 @@ class ProdDiscreteDomain(Domain):
     return 'Prod Discrete Domain(d=%d, size=%d)'%(self.dim, self.size)
 
 
+# Compound Domains ------------------------------------------
+# Implementing a series of domains derived from the above
+
+class CartesianProductDomain(Domain):
+  """ The cartesian product of several domains. """
+
+  def __init__(self, list_of_domains):
+    """ Constructor.
+        list_of_domains is a list of domain objects.
+        An element in this domain is represented by a list whose ith element
+        belongs to list_of_domains[i].
+    """
+    self.list_of_domains = list_of_domains
+    self._num_of_domains = len(list_of_domains)
+    try:
+      self.dim = sum([dom.get_dim() for dom in self.list_of_domains])
+    except TypeError:
+      self.dim = None
+
+  def get_type(self):
+    """ Returns the type of the domain. """
+    return 'cartesian_product'
+
+  def get_dim(self):
+    """ Returns the dimension. """
+    return self.dim
+
+  def is_a_member(self, point):
+    """ Returns true if the point is in the domain. """
+    if not hasattr(point, '__iter__') or len(point) != self._num_of_domains:
+      return False
+    for dom_pt, dom in zip(point, self.list_of_domains):
+      if not dom.is_a_member(dom_pt): # check if each element is in the respective domain.
+        return False
+    return True
+
+  def __str__(self):
+    """ Returns a string representation of the domain. """
+    list_of_domains_str = ' ,'.join([str(dom) for dom in self.list_of_domains])
+    return 'Cart-Product(d=%d)::[%s]'%(self.dim, list_of_domains_str)
+
+
 # Utilities we will need for the above ------------------------------------------
 def is_within_bounds(bounds, point):
   """ Returns true if point is within bounds. point is a d-array and bounds is a

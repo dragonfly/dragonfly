@@ -31,7 +31,7 @@ class OptimisersTestCase(BaseTestClass):
   def setUp(self):
     """ Sets up attributes. """
     self.problems = []
-    self.max_evals = 200 #1e4
+    self.max_evals = 20000 #1e4
     # First problem
     obj = lambda x: np.dot(x-1, x)
     dim = 4

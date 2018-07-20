@@ -14,8 +14,8 @@ to speed up the optimisation process).
 
 By default, dragonfly *maximises* functions.
 To minimise a function, simply pass the negative of the function.
-dragonfly is compatible with python2.7 and python3 and has been tested on Linux and
-Mac OS platforms.
+dragonfly is compatible with python2.7 and python3 and has been tested on Linux,
+Mac OS, and Windows platforms.
 
 For questions and bug reports please email kandasamy@cs.cmu.edu
 
@@ -90,7 +90,7 @@ $ python dragonfly.py --config demos/branin/config.pb --options demos/branin/opt
 The face recognition demo can be run via following commands.
 You will need to install 
 [`scikit-learn`](http://scikit-learn.org), which can be done via
-`pip install -U scikit-learn`.
+`pip install scikit-learn`.
 Running this demo the first time will be slow since the dataset needs to be downloaded.
 
 ```bash
