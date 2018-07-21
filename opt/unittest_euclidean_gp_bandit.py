@@ -30,8 +30,8 @@ class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
              mode=mode, is_mf=False, *args, **kwargs)
 
 
-# class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
-class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase):
+class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
+# class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase):
   """ Unit tests for Additive GP Bandit in Euclidean spaces. """
 
   @classmethod
@@ -72,8 +72,8 @@ class MFEuclideanGPBanditTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestCla
                                           *args, **kwargs)
 
 
-# class MFEuclideanAddGPBanditTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):
-class MFEuclideanAddGPBanditTestCase(MFEuclideanOptimisersBaseTestCase):
+class MFEuclideanAddGPBanditTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):
+# class MFEuclideanAddGPBanditTestCase(MFEuclideanOptimisersBaseTestCase):
   """ Unit tests for Additive GP Bandit in MF Euclidean spaces. """
 
   @classmethod
@@ -96,6 +96,5 @@ class MFEuclideanAddGPBanditTestCase(MFEuclideanOptimisersBaseTestCase):
 
 
 if __name__ == '__main__':
-  execute_tests(23456)
-#   execute_tests()
+  execute_tests()
 

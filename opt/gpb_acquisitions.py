@@ -4,27 +4,42 @@
 """
 from __future__ import division
 
-# pylint: disable=no-member
-# pylint: disable=no-name-in-module
 # pylint: disable=invalid-name
-# pylint: disable=star-args
 
 from argparse import Namespace
+from copy import copy
 import numpy as np
 from scipy.stats import norm as normal_distro
 # Local
 from utils.general_utils import solve_lower_triangular
 from gp.gp_core import get_post_covar_from_raw_covar
 from ed.domains import EuclideanDomain
+from utils.oper_utils import maximise_with_method
 
-def _optimise_acquisition(acq_fn, acq_optimiser, anc_data):
-  """ All methods will just call this. """
+
+def _maximise_acquisition(acq_fn, anc_data):
+  """ Maximises the acquisition and returns the highest point. acq_fn is the acquisition
+      function to be maximised. anc_data is a namespace which contains ancillary data.
+  """
+  # pylint: disable=unbalanced-tuple-unpacking
   if anc_data.acq_opt_method in ['direct', 'pdoo']:
     acquisition = lambda x: acq_fn(x.reshape((1, -1)))
   else:
     acquisition = acq_fn
-  _, opt_pt = acq_optimiser(acquisition, anc_data.max_evals)
+  _, opt_pt = maximise_with_method(anc_data.acq_opt_method, acquisition, anc_data.domain,
+                                   anc_data.max_evals)
   return opt_pt
+
+
+# def _optimise_acquisition(acq_fn, anc_data):
+#   """ All methods will just call this. """
+#   if anc_data.acq_opt_method in ['direct', 'pdoo']:
+#     acquisition = lambda x: acq_fn(x.reshape((1, -1)))
+#   else:
+#     acquisition = acq_fn
+#   _, opt_pt = acq_optimiser(acquisition, anc_data.max_evals)
+#   return opt_pt
+
 
 def _get_halluc_points(_, halluc_pts):
   """ Re-formats halluc_pts if necessary. """
@@ -34,24 +49,24 @@ def _get_halluc_points(_, halluc_pts):
     return halluc_pts
 
 # Thompson sampling ---------------------------------------------------------------
-def asy_ts(gp, acq_optimiser, anc_data):
+def asy_ts(gp, anc_data):
   """ Returns a recommendation via TS in the asyuential setting. """
   gp_sample = lambda x: gp.draw_samples(1, X_test=x, mean_vals=None, covar=None).ravel()
-  return _optimise_acquisition(gp_sample, acq_optimiser, anc_data)
+  return _maximise_acquisition(gp_sample, anc_data)
 
-def asy_hts(gp, acq_optimiser, anc_data):
+def asy_hts(gp, anc_data):
   """ Returns a recommendation via TS using hallucinated observaitons in the asynchronus
       setting. """
   halluc_pts = _get_halluc_points(gp, anc_data.evals_in_progress)
   gp_sample = lambda x: gp.draw_samples_with_hallucinated_observations(1, x,
                                                                        halluc_pts).ravel()
-  return _optimise_acquisition(gp_sample, acq_optimiser, anc_data)
+  return _maximise_acquisition(gp_sample, anc_data)
 
-def syn_ts(num_workers, gp, acq_optimiser, anc_data, **kwargs):
+def syn_ts(num_workers, gp, anc_data, **kwargs):
   """ Returns a batch of recommendations via TS in the synchronous setting. """
   recommendations = []
   for _ in range(num_workers):
-    rec_j = asy_ts(gp, acq_optimiser, anc_data, **kwargs)
+    rec_j = asy_ts(gp, anc_data, **kwargs)
     recommendations.append(rec_j)
   return recommendations
 
@@ -61,13 +76,6 @@ def _get_add_ucb_beta_th(dim, time_step):
   return np.sqrt(0.2 * dim * np.log(2 * dim * time_step + 1))
 
 # TODO: add hallucinated observations for parallelisation.
-
-# Set up an acquisition optimiser which can take domain as an argument.
-def _get_add_acq_optimiser(group_bounds, acq_opt_method):
-  """ Get an acquisition optimiser. """
-  group_domain = EuclideanDomain(group_bounds)
-  return lambda obj, max_evals: group_domain.maximise_obj(acq_opt_method,
-                                                          obj, max_evals)
 
 def _add_ucb(gp, add_kernel, mean_funcs, anc_data):
   """ Common functionality for Additive UCB acquisition under various settings.
@@ -108,9 +116,9 @@ def _add_ucb(gp, add_kernel, mean_funcs, anc_data):
       post_std_j = np.sqrt(np.diag(post_covar_j))
       return pred_mean_j + betath_j * post_std_j
     # Objatin the jth group
-    acq_optimiser_j = _get_add_acq_optimiser(domain_bounds[group_j],
-                                             anc_data.acq_opt_method)
-    point_j = _optimise_acquisition(_add_ucb_acq_j, acq_optimiser_j, anc_data)
+    anc_data_j = copy(anc_data)
+    anc_data_j.domain = EuclideanDomain(domain_bounds[group_j])
+    point_j = _maximise_acquisition(_add_ucb_acq_j, anc_data_j)
     group_points.append(point_j)
     num_coordinates += len(point_j)
 
@@ -121,11 +129,11 @@ def _add_ucb(gp, add_kernel, mean_funcs, anc_data):
     ret[group_j] = point_j
   return ret
 
-def asy_add_ucb(gp, _, anc_data):
+def asy_add_ucb(gp, anc_data):
   """ Asynchronous Add UCB. """
   return _add_ucb(gp, gp.kernel, None, anc_data)
 
-def syn_add_ucb(num_workers, gp, acq_optimiser, anc_data):
+def syn_add_ucb(num_workers, gp, anc_data):
   """ Synchronous Add UCB. """
   # pylint: disable=unused-argument
   raise NotImplementedError('Not implemented Synchronous Add UCB yet.')
@@ -144,16 +152,16 @@ def _get_ucb_beta_th(dim, time_step):
   """ Computes the beta t for UCB based methods. """
   return np.sqrt(0.5 * dim * np.log(2 * dim * time_step + 1))
 
-def asy_ucb(gp, acq_optimiser, anc_data):
+def asy_ucb(gp, anc_data):
   """ Returns a recommendation via UCB in the asyuential setting. """
   beta_th = _get_ucb_beta_th(_get_gp_ucb_dim(gp), anc_data.t)
   def _ucb_acq(x):
     """ Computes the GP-UCB acquisition. """
     mu, sigma = gp.eval(x, uncert_form='std')
     return mu + beta_th * sigma
-  return _optimise_acquisition(_ucb_acq, acq_optimiser, anc_data)
+  return _maximise_acquisition(_ucb_acq, anc_data)
 
-def _halluc_ucb(gp, acq_optimiser, anc_data):
+def _halluc_ucb(gp, anc_data):
   """ Returns a recommendation via UCB using hallucinated inputs in the asynchronous
       setting. """
   beta_th = _get_ucb_beta_th(_get_gp_ucb_dim(gp), anc_data.t)
@@ -162,22 +170,22 @@ def _halluc_ucb(gp, acq_optimiser, anc_data):
     """ Computes GP-UCB acquisition with hallucinated observations. """
     mu, sigma = gp.eval_with_hallucinated_observations(x, halluc_pts, uncert_form='std')
     return mu + beta_th * sigma
-  return _optimise_acquisition(_ucb_halluc_acq, acq_optimiser, anc_data)
+  return _maximise_acquisition(_ucb_halluc_acq, anc_data)
 
-def asy_hucb(gp, acq_optimiser, anc_data):
+def asy_hucb(gp, anc_data):
   """ Returns a recommendation via UCB using hallucinated inputs in the asynchronous
       setting. """
-  return _halluc_ucb(gp, acq_optimiser, anc_data)
+  return _halluc_ucb(gp, anc_data)
 
-def syn_hucb(num_workers, gp, acq_optimiser, anc_data):
+def syn_hucb(num_workers, gp, anc_data):
   """ Returns a recommendation via Batch UCB in the synchronous setting. """
-  recommendations = [asy_ucb(gp, acq_optimiser, anc_data)]
+  recommendations = [asy_ucb(gp, anc_data)]
   for _ in range(1, num_workers):
     anc_data.evals_in_progress = recommendations
-    recommendations.append(_halluc_ucb(gp, acq_optimiser, anc_data))
+    recommendations.append(_halluc_ucb(gp, anc_data))
   return recommendations
 
-def syn_ucbpe(num_workers, gp, acq_optimiser, anc_data):
+def syn_ucbpe(num_workers, gp, anc_data):
   """ Returns a recommendation via UCB-PE in the synchronous setting. """
   # Define some internal functions.
   beta_th = _get_ucb_beta_th(_get_gp_ucb_dim(gp), anc_data.t)
@@ -199,17 +207,17 @@ def syn_ucbpe(num_workers, gp, acq_optimiser, anc_data):
     return (_ucbpe_2ucb(x) > yt_dot).astype(np.double) * halluc_stds
 
   # Now the algorithm
-  yt_dot_arg = _optimise_acquisition(_ucbpe_lcb, acq_optimiser, anc_data)
+  yt_dot_arg = _maximise_acquisition(_ucbpe_lcb, anc_data)
   yt_dot = _ucbpe_lcb(yt_dot_arg.reshape((-1, _get_gp_ucb_dim(gp))))
-  recommendations = [asy_ucb(gp, acq_optimiser, anc_data)]
+  recommendations = [asy_ucb(gp, anc_data)]
   for _ in range(1, num_workers):
     curr_acq = lambda x: _ucbpe_acq(x, yt_dot, np.array(recommendations))
-    new_rec = _optimise_acquisition(curr_acq, acq_optimiser, anc_data)
+    new_rec = _maximise_acquisition(curr_acq, anc_data)
     recommendations.append(new_rec)
   return recommendations
 
 # EI stuff ----------------------------------------------------------------------------
-def asy_ei(gp, acq_optimiser, anc_data):
+def asy_ei(gp, anc_data):
   """ Returns a recommendation based on GP-EI. """
   curr_best = anc_data.curr_max_val
   def _ei_acq(x):
@@ -217,9 +225,9 @@ def asy_ei(gp, acq_optimiser, anc_data):
     mu, sigma = gp.eval(x, uncert_form='std')
     Z = (mu - curr_best) / sigma
     return (mu - curr_best)*normal_distro.cdf(Z) + sigma*normal_distro.pdf(Z)
-  return _optimise_acquisition(_ei_acq, acq_optimiser, anc_data)
+  return _maximise_acquisition(_ei_acq, anc_data)
 
-def _halluc_ei(gp, acq_optimiser, anc_data):
+def _halluc_ei(gp, anc_data):
   """ Returns a recommendation based on GP-HEI using hallucinated points. """
   halluc_pts = _get_halluc_points(gp, anc_data.evals_in_progress)
   curr_best = anc_data.curr_max_val
@@ -228,37 +236,37 @@ def _halluc_ei(gp, acq_optimiser, anc_data):
     mu, sigma = gp.eval_with_hallucinated_observations(x, halluc_pts, uncert_form='std')
     Z = (mu - curr_best) / sigma
     return (mu - curr_best)*normal_distro.cdf(Z) + sigma*normal_distro.pdf(Z)
-  return _optimise_acquisition(_ei_halluc_acq, acq_optimiser, anc_data)
+  return _maximise_acquisition(_ei_halluc_acq, anc_data)
 
-def asy_hei(gp, acq_optimiser, anc_data):
+def asy_hei(gp, anc_data):
   """ Returns a recommendation via EI using hallucinated inputs in the asynchronous
       setting. """
-  return _halluc_ei(gp, acq_optimiser, anc_data)
+  return _halluc_ei(gp, anc_data)
 
-def syn_hei(num_workers, gp, acq_optimiser, anc_data):
+def syn_hei(num_workers, gp, anc_data):
   """ Returns a recommendation via EI in the synchronous setting. """
-  recommendations = [asy_ei(gp, acq_optimiser, anc_data)]
+  recommendations = [asy_ei(gp, anc_data)]
   for _ in range(1, num_workers):
     anc_data.evals_in_progress = recommendations
-    recommendations.append(_halluc_ei(gp, acq_optimiser, anc_data))
+    recommendations.append(_halluc_ei(gp, anc_data))
   return recommendations
 
 # Random --------------------------------------------------------------------------------
-def asy_rand(_, acq_optimiser, anc_data):
+def asy_rand(_, anc_data):
   """ Returns random values for the acquisition. """
   def _rand_eval(_):
     """ Acquisition for asy_rand. """
     return np.random.random((1,))
-  return _optimise_acquisition(_rand_eval, acq_optimiser, anc_data)
+  return _maximise_acquisition(_rand_eval, anc_data)
 
-def syn_rand(num_workers, gp, acq_optimiser, anc_data):
+def syn_rand(num_workers, gp, anc_data):
   """ Returns random values for the acquisition. """
-  return [asy_rand(gp, acq_optimiser, anc_data) for _ in range(num_workers)]
+  return [asy_rand(gp, anc_data) for _ in range(num_workers)]
 
 
 # Multi-fidelity Strategies ==============================================================
 def _get_fidel_to_opt_gp(mfgp, fidel_to_opt):
-  """ Returns a GP for Boca that can passed to acq_optimise to optimise acquisition
+  """ Returns a GP for Boca that can be used to optimise the acquisition
       at fidel_to_opt. """
   boca_gp = Namespace()
   boca_gp.eval = lambda x, *args, **kwargs: mfgp.eval_at_fidel([fidel_to_opt] * len(x),
@@ -308,9 +316,10 @@ def _add_ucb_for_boca(mfgp, fidel_to_opt, mean_funcs, anc_data):
       post_std_j = np.sqrt(np.diag(post_covar_j))
       return pred_mean_j + betath_j * post_std_j
     # Objatin the jth group
-    acq_optimiser_j = _get_add_acq_optimiser(domain_bounds[group_j],
-                                             anc_data.acq_opt_method)
-    point_j = _optimise_acquisition(_mf_add_ucb_acq_j, acq_optimiser_j, anc_data)
+    anc_data_j = copy(anc_data)
+    anc_data_j.domain = EuclideanDomain(domain_bounds[group_j])
+    point_j = _maximise_acquisition(_mf_add_ucb_acq_j, anc_data_j)
+
     group_points.append(point_j)
     num_coordinates += len(point_j)
 
@@ -330,7 +339,7 @@ def syn_add_ucb_for_boca(mfgp, fidel_to_opt, anc_data):
   # pylint: disable=unused-argument
   raise NotImplementedError('Not implemented Synchronous Add UCB yet.')
 
-def boca(select_pt_func, acq_optimise, mfgp, anc_data, func_caller):
+def boca(select_pt_func, mfgp, anc_data, func_caller):
   """ Uses the BOCA strategy to pick the next point and fidelity as described in
       Kandasamy et al. 2017 "Multi-fidelity Bayesian Optimisation with Continuous
       Approximations (https://arxiv.org/pdf/1703.06240.pdf).
@@ -340,7 +349,7 @@ def boca(select_pt_func, acq_optimise, mfgp, anc_data, func_caller):
     next_eval_point = asy_add_ucb_for_boca(mfgp, func_caller.fidel_to_opt, anc_data)
   else:
     fidel_to_opt_gp = _get_fidel_to_opt_gp(mfgp, func_caller.fidel_to_opt)
-    next_eval_point = select_pt_func(fidel_to_opt_gp, acq_optimise, anc_data)
+    next_eval_point = select_pt_func(fidel_to_opt_gp, anc_data)
   candidate_fidels, cost_ratios = func_caller.get_candidate_fidels_and_cost_ratios(
                                     next_eval_point, filter_by_cost=True)
   num_candidates = len(candidate_fidels)

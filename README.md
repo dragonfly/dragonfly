@@ -1,6 +1,6 @@
 # Dragonfly
 
-Dragonfly is a python library for scalable Bayesian optimisation.
+Dragonfly is an open source python library for scalable Bayesian optimisation.
 The library is in alpha version.
 
 Bayesian optimisation is used for optimising black-box functions whose evaluations are

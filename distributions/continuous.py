@@ -3,7 +3,7 @@
   -- kvysyara@andrew.cmu.edu
 """
 from __future__ import absolute_import
-from __future__ import division 
+from __future__ import division
 
 # pylint: disable=invalid-name
 # pylint: disable=unused-argument
@@ -13,7 +13,7 @@ import numpy as np
 
 # Local imports
 from distributions.distribution import Continuous
-from distributions import domains
+from ed import domains
 
 # Univariate Normal Distribution
 class Normal(Continuous):

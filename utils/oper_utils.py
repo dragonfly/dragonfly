@@ -31,6 +31,7 @@ from utils.general_utils import map_to_bounds
 from utils.doo import DOOFunction
 from utils.doo import pdoo_wrap
 
+
 # Optimal transport and Earth mover's distance ===========================================
 def opt_transport(supply, demand, costs):
   """ A wrapper for the EMD computation using the Optimal Transport (ot) package.
@@ -50,18 +51,40 @@ def opt_transport(supply, demand, costs):
   emd = min_val/tot_supply
   return T, min_val, emd
 
+
 # Various utilities for global optimisation of *cheap* functions on Euclidean domains ====
-# A wrapper for all methods
-def maximise_with_method(method, obj, bounds, max_evals, return_history=False,
+# Some wrappers for all methods
+def maximise_with_method(method, obj, domain, max_evals, return_history=False,
                          *args, **kwargs):
-  """ A wrapper which calls one of the functions below based on the method. """
-  if method.lower.startswith('rand'):
+  """ A wrapper which optimises obj over the domain domain. """
+  # If the method itself is a function, just use it.
+  if hasattr(method, '__call__'):
+    return method(obj, domain, max_evals, return_history, *args, **kwargs)
+  # The common use case is that the method is a string.
+  if domain.get_type() == 'euclidean':
+    return maximise_with_method_on_euclidean_domain(method, obj, domain.bounds, max_evals,
+                                                    return_history, *args, **kwargs)
+  elif domain.get_type() == 'integral':
+    return maximise_with_method_on_integral_domain(method, obj, domain.bounds, max_evals,
+                                                   return_history, *args, **kwargs)
+  elif domain.get_type() == 'prod_discrete':
+    return maximise_with_method_on_prod_discrete_domain(method, obj, domain, max_evals,
+                                                        return_history, *args, **kwargs)
+  else:
+    raise ValueError('Unknown domain type %s.'%(domain.get_type()))
+
+
+def maximise_with_method_on_euclidean_domain(method, obj, bounds, max_evals,
+                                             return_history=False, *args, **kwargs):
+  """ A wrapper for euclidean spaces which calls one of the functions below based on the
+      method. """
+  if method.lower().startswith('rand'):
     max_val, max_pt, history = \
       random_maximise(obj, bounds, max_evals, return_history, *args, **kwargs)
-  elif method.lower.startswith('direct'):
+  elif method.lower().startswith('direct'):
     max_val, max_pt, history = \
       direct_ft_maximise(obj, bounds, max_evals, return_history, *args, **kwargs)
-  elif method.lower.startswith('pdoo'):
+  elif method.lower().startswith('pdoo'):
     max_val, max_pt, history = \
       pdoo_maximise(obj, bounds, max_evals, *args, **kwargs)
   else:
@@ -69,7 +92,23 @@ def maximise_with_method(method, obj, bounds, max_evals, return_history=False,
   if return_history:
     return max_val, max_pt, history
   else:
+#     print(bounds, max_pt, max_val)
     return max_val, max_pt
+
+
+def maximise_with_method_on_integral_domain(method, obj, bounds, max_evals,
+                                            return_history=False, *args, **kwargs):
+  """ A wrapper for integral spaces which calls one of the functions below based on the
+      method. """
+  raise NotImplementedError('Not implemented integral domain optimisers yet.')
+
+
+def maximise_with_method_on_prod_discrete_domain(method, obj, domain, max_evals,
+                                                 return_history=False, *args, **kwargs):
+  """ A wrapper for discrete spaces which calls one of the functions below based on the
+      method. """
+  raise NotImplementedError('Not implemented discrete domain optimisers yet.')
+
 
 # Random sampling -------------------------------
 def random_sample(obj, bounds, max_evals, vectorised=True):

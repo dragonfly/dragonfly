@@ -10,8 +10,8 @@ import numpy as np
 import warnings
 
 # Local imports
-from distributions.continuous import Normal, MultivariateGaussian, Exponential
-from distributions.continuous import Exponential, ContinuousUniform, Beta
+from distributions.continuous import Beta, ContinuousUniform, Exponential, \
+                                     Normal, MultivariateGaussian
 from utils.base_test_class import BaseTestClass, execute_tests
 
 class ContinuousDistributionsTestCase(BaseTestClass):

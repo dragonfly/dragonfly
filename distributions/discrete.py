@@ -11,7 +11,7 @@ import numpy as np
 
 # Local imports
 from distributions.distribution import Discrete
-from distributions import domains
+from ed import domains
 
 # Bernoulli Distribution
 class Bernoulli(Discrete):

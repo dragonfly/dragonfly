@@ -38,8 +38,8 @@ gp_bandit_args = [ \
     'Number of evaluations when maximising acquisition. If negative uses default value.'),
   # The following are for managing GP hyper-parameters. They override hp_tune_criterion
   # and ml_hp_tune_opt from the GP args.
-  get_option_specs('gpb_hp_tune_criterion', False, 'post_sampling',
-#   get_option_specs('gpb_hp_tune_criterion', False, 'ml',
+#   get_option_specs('gpb_hp_tune_criterion', False, 'post_sampling',
+  get_option_specs('gpb_hp_tune_criterion', False, 'ml',
                    'Which criterion to use when tuning hyper-parameters. Other ' +
                    'options are post_sampling and post_mean.'),
   get_option_specs('gpb_ml_hp_tune_opt', False, 'direct',
@@ -179,7 +179,7 @@ class GPBandit(BlackboxOptimiser):
       raise NotImplementedError('Not implemented acquisition optimisation for %s yet.'%( \
                                 self.options.acq_opt_method))
 
-  # Any of these three functions can be overridden by a child class -------------------
+  # Any of these set up methods can be overridden by a child class -------------------
   def _set_up_acq_opt_direct(self):
     """ Sets up optimisation for acquisition using direct/pdoo. """
     if self.get_acq_opt_max_evals is None:
@@ -187,7 +187,6 @@ class GPBandit(BlackboxOptimiser):
       self.get_acq_opt_max_evals = lambda t: np.clip(lead_const * np.sqrt(min(t, 1000)),
                                                      1000, 3e4)
 
-  # Any of these three functions can be overridden by a child class -------------------
   def _set_up_acq_opt_pdoo(self):
     """ Sets up optimisation for acquisition using direct/pdoo. """
     if self.get_acq_opt_max_evals is None:
@@ -226,9 +225,6 @@ class GPBandit(BlackboxOptimiser):
       # printing multiple times every model build is a way to check that rand_exp_sampling
       # is picking different hyper-parameters.
       self._report_current_gp()
-#     self._report_current_gp()
-#     self.reporter.writeln('Num data in GP: %d, %d, %s'%(len(self.gp.X), len(self.gp.Y),
-#                                                         self.gp.L.shape))
 
   def _child_set_gp_data(self, reg_data):
     """ Set data in child. Can be overridden by a child class. """
@@ -359,28 +355,13 @@ class GPBandit(BlackboxOptimiser):
     """ No additional initialisation for GP bandit. """
     self._build_new_gp()
 
-  # Obtain the acquisition optimiser ---------------------------------------
-  def _get_acq_optimise_func(self):
-    """ Returns a function that can optimise the acquisition. In all cases, this will
-        return a function that can optimise over the domain. If you are looking for
-        something else (esp. in a MF method), override this method.
-    """
-    acq_opt_method = self._get_acq_opt_method()
-    if acq_opt_method in ['ga', 'rand_ga']:
-      ret = lambda obj, max_evals: self.domain.maximise_obj(acq_opt_method, \
-                                     obj, max_evals, mutation_op=self.ga_mutation_op, \
-                                     init_pool=self.ga_init_pool)
-    elif acq_opt_method in ['rand', 'direct', 'pdoo']:
-      ret = lambda obj, max_evals: self.domain.maximise_obj(acq_opt_method,
-                                                            obj, max_evals)
-    return ret
-
   # Methods needed for optimisation ----------------------------------------
   def _get_ancillary_data_for_acquisition(self):
     """ Returns ancillary data for the acquisitions. """
     max_num_acq_opt_evals = self.get_acq_opt_max_evals(self.step_idx)
     ret = Namespace(max_evals=max_num_acq_opt_evals,
                     t=self.step_idx,
+                    domain=self.domain,
                     curr_max_val=self.curr_opt_val,
                     evals_in_progress=self.eval_points_in_progress,
                     acq_opt_method=self.options.acq_opt_method,
@@ -396,18 +377,17 @@ class GPBandit(BlackboxOptimiser):
     """ Determine the next point for evaluation. """
     anc_data = self._get_ancillary_data_for_acquisition()
     select_pt_func = getattr(gpb_acquisitions.asy, self.options.acq.lower())
-    acq_optimise = self._get_acq_optimise_func()
     qinfo = Namespace()
     if self.is_an_mf_method():
       if self.options.mf_strategy == 'boca':
         next_eval_fidel, next_eval_point = gpb_acquisitions.boca(select_pt_func, \
-          acq_optimise, self.gp, anc_data, self.func_caller)
+          self.gp, anc_data, self.func_caller)
         qinfo.fidel = next_eval_fidel
         qinfo.point = next_eval_point
       else:
         raise ValueError('Unknown mf_strategy: %s.'%(self.options.mf_strategy))
     else:
-      next_eval_point = select_pt_func(self.gp, acq_optimise, anc_data)
+      next_eval_point = select_pt_func(self.gp, anc_data)
       qinfo.point = next_eval_point
     return qinfo
 
@@ -415,12 +395,10 @@ class GPBandit(BlackboxOptimiser):
     """ Determine the next batch of eavluation points. """
     anc_data = self._get_ancillary_data_for_acquisition()
     select_pt_func = getattr(gpb_acquisitions.syn, self.options.acq.lower())
-    acq_optimise = self._get_acq_optimise_func()
     if self.is_an_mf_method():
       raise NotImplementedError('Not Implemented synchronous mf yet!')
     else:
-      next_batch_of_eval_points = select_pt_func(batch_size, self.gp,
-                                                 acq_optimise, anc_data)
+      next_batch_of_eval_points = select_pt_func(batch_size, self.gp, anc_data)
       qinfos = [Namespace(point=pt) for pt in next_batch_of_eval_points]
     return qinfos
 

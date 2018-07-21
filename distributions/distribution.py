@@ -11,10 +11,14 @@ from sampling.slice import Slice
 from sampling.metropolis import Metropolis, BinaryMetropolis
 from sampling.nuts import NoUTurnSamplerDA as NUTS, LeapFrog
 
+
 class Distribution(object):
   """ An abstract class which implements probability distributions """
 
   def __init__(self):
+    """ Constructor. """
+    self.domain = None
+    self.dim = None
     super(Distribution, self).__init__()
 
   def draw_samples(self, method, *args):
@@ -32,7 +36,7 @@ class Distribution(object):
   def get_variance(self):
     """ Returns the variance of the distribution. """
     raise NotImplementedError('Implement in a child class.')
- 
+
   def get_domain(self):
     """ Returns domain """
     return self.domain
@@ -46,6 +50,7 @@ class Discrete(Distribution):
   """ Base class for Discrete distributions """
 
   def __init__(self):
+    """ Constructor. """
     super(Discrete, self).__init__()
 
   def pmf(self, x):
@@ -76,6 +81,7 @@ class Continuous(Distribution):
   """ Base class for Continuous distributions """
 
   def __init__(self):
+    """ Constructor. """
     super(Continuous, self).__init__()
 
   def pdf(self, x):
@@ -107,3 +113,4 @@ class Continuous(Distribution):
     """ Returns samples drawn from distribution using Metropolis sampler"""
     sampler = Metropolis(self, *args)
     return sampler.sample(init_sample, size)
+
