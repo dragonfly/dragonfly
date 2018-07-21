@@ -1,10 +1,10 @@
-# dragonfly
+# Dragonfly
 
-dragonfly is a python library for scalable Bayesian optimisation.
+Dragonfly is a python library for scalable Bayesian optimisation.
 The library is in alpha version.
 
 Bayesian optimisation is used for optimising black-box functions whose evaluations are
-usually expensive. Beyond vanilla optimisation techniques, dragonfly provides an array of tools to
+usually expensive. Beyond vanilla optimisation techniques, Dragonfly provides an array of tools to
 scale up Bayesian optimisation to expensive large scale problems.
 These include features/functionality that are especially suited for,
 high dimensional optimisation (optimising for a large number of variables),
@@ -12,9 +12,9 @@ parallel evaluations in synchronous or asynchronous settings (conducting multipl
 evaluations in parallel), and multi-fidelity optimisation (using cheap approximations
 to speed up the optimisation process).
 
-By default, dragonfly *maximises* functions.
+By default, Dragonfly *maximises* functions.
 To minimise a function, simply pass the negative of the function.
-dragonfly is compatible with python2.7 and python3 and has been tested on Linux,
+Dragonfly is compatible with python2.7 and python3 and has been tested on Linux,
 Mac OS, and Windows platforms.
 
 For questions and bug reports please email kandasamy@cs.cmu.edu
@@ -27,14 +27,19 @@ For questions and bug reports please email kandasamy@cs.cmu.edu
 $ git clone https://github.com/dragonfly/dragonfly.git
 ```
 
-* Source the set up file in the parent directory of dragonfly.
+* In Linux and MacOS, source the set up file in the parent directory, i.e dragonfly.
 ```bash
 $ source set_up
 ```
+In Windows systems, add the parent directory to the `PYTHONPATH` system variable.
+[This
+link](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10)
+describes a few ways to do this.
 
 * Build the direct fortran library. For this `cd` into `utils/direct_fortran` and run
   `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is
   done, you can run `simple_direct_test.py` to make sure that it was installed correctly.
+  If unable to build, Dragonfly can still be run but might be slightly slower.
 
 **Requirements:**
 Dragonfly requires standard python packages such as `numpy`, `scipy`, and `future` (for
@@ -58,7 +63,7 @@ To help get started, we have provided some demos in the `demos` directory.
 
 **Via command line**:
 
-To use dragonfly via the command line, we need to specify the optimisation problem (i.e.
+To use Dragonfly via the command line, we need to specify the optimisation problem (i.e.
 the function to be maximised and the domain) and the optimisation parameters.
 We have demonstrated these on the
 [`branin`](https://www.sfu.ca/~ssurjano/branin.html) function and a

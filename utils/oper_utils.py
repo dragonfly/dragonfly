@@ -124,7 +124,7 @@ def direct_ft_minimise(obj, bounds, max_evals,
                        log_file_name='',
                        results_file_name='',
                        vectorised=False,
-                       alternative_if_direct_not_loaded=None,
+                       alternative_if_direct_not_loaded='pdoo',
                       ):
   """
     A wrapper for the fortran implementation. The four mandatory arguments are self
@@ -141,9 +141,13 @@ def direct_ft_minimise(obj, bounds, max_evals,
       report_str += ' Alternative not specified. Raising exception.'
       raise Exception(report_str)
     elif alternative_if_direct_not_loaded.lower().startswith('rand'):
-      report_str += 'Using random optimiser.'
+      report_str += 'Using random optimiser instead of direct.'
       warn(report_str)
       return random_maximise(obj, bounds, max_evals, vectorised)
+    elif alternative_if_direct_not_loaded.lower().startswith('pdoo'):
+      report_str += 'Using PDOO optimiser instead of direct.'
+      warn(report_str)
+      return pdoo_maximise(obj, bounds, max_evals)
     else:
       report_str += 'Unknown option for alternative_if_direct_not_loaded: %s'%( \
                      alternative_if_direct_not_loaded)
