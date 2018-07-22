@@ -25,7 +25,7 @@ except ImportError:
 try:
   import utils.direct_fortran.direct as direct_ft_wrap
 except ImportError:
-  print('Could not import fortran direct library')
+  print('Could not import fortran direct library.')
   direct_ft_wrap = None
 from utils.general_utils import map_to_bounds
 from utils.doo import DOOFunction

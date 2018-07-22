@@ -38,8 +38,8 @@ gp_bandit_args = [ \
     'Number of evaluations when maximising acquisition. If negative uses default value.'),
   # The following are for managing GP hyper-parameters. They override hp_tune_criterion
   # and ml_hp_tune_opt from the GP args.
-#   get_option_specs('gpb_hp_tune_criterion', False, 'post_sampling',
-  get_option_specs('gpb_hp_tune_criterion', False, 'ml',
+  get_option_specs('gpb_hp_tune_criterion', False, 'post_sampling',
+#   get_option_specs('gpb_hp_tune_criterion', False, 'ml',
                    'Which criterion to use when tuning hyper-parameters. Other ' +
                    'options are post_sampling and post_mean.'),
   get_option_specs('gpb_ml_hp_tune_opt', False, 'direct',

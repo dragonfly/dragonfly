@@ -158,8 +158,9 @@ class OptimisersTestCase(BaseTestClass):
     for prob in self.problems:
       min_val_soln, _, history = oper_utils.direct_ft_maximise(prob.obj, prob.bounds, \
                                                       self.max_evals, return_history=True)
-      assert is_nondecreasing(history.curr_opt_vals)
-      assert np.abs(min_val_soln - history.curr_opt_vals[-1]) < 1e-4
+      if history is None:
+        assert is_nondecreasing(history.curr_opt_vals)
+        assert np.abs(min_val_soln - history.curr_opt_vals[-1]) < 1e-4
 
   def test_pdoo(self):
     """ Test PDOO optmisation."""

@@ -11,7 +11,7 @@ from maximise_function import maximise_function
 from demos.branin.branin import branin
 
 def main():
-  domain_bounds = [[0, 1], [0, 1]]
+  domain_bounds = [[-5, 10], [0, 15]]
   max_capital = 100 
   opt_val, opt_pt = maximise_function(branin, domain_bounds, max_capital,
                                       hp_tune_criterion='post_sampling',
