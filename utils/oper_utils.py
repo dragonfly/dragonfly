@@ -92,7 +92,6 @@ def maximise_with_method_on_euclidean_domain(method, obj, bounds, max_evals,
   if return_history:
     return max_val, max_pt, history
   else:
-#     print(bounds, max_pt, max_val)
     return max_val, max_pt
 
 
@@ -100,6 +99,7 @@ def maximise_with_method_on_integral_domain(method, obj, bounds, max_evals,
                                             return_history=False, *args, **kwargs):
   """ A wrapper for integral spaces which calls one of the functions below based on the
       method. """
+  # pylint: disable=unused-argument
   raise NotImplementedError('Not implemented integral domain optimisers yet.')
 
 
@@ -107,6 +107,7 @@ def maximise_with_method_on_prod_discrete_domain(method, obj, domain, max_evals,
                                                  return_history=False, *args, **kwargs):
   """ A wrapper for discrete spaces which calls one of the functions below based on the
       method. """
+  # pylint: disable=unused-argument
   raise NotImplementedError('Not implemented discrete domain optimisers yet.')
 
 
@@ -175,18 +176,18 @@ def direct_ft_minimise(obj, bounds, max_evals,
   # pylint: disable=too-many-arguments
 
   if direct_ft_wrap is None:
-    report_str = 'Attempted to use direct, but fortran library could not be imported.'
+    report_str = 'Attempted to use direct, but fortran library could not be imported. '
     if alternative_if_direct_not_loaded is None:
-      report_str += ' Alternative not specified. Raising exception.'
+      report_str += 'Alternative not specified. Raising exception.'
       raise Exception(report_str)
     elif alternative_if_direct_not_loaded.lower().startswith('rand'):
       report_str += 'Using random optimiser instead of direct.'
       warn(report_str)
-      return random_maximise(obj, bounds, max_evals, vectorised)
+      return random_minimise(obj, bounds, max_evals, vectorised)
     elif alternative_if_direct_not_loaded.lower().startswith('pdoo'):
       report_str += 'Using PDOO optimiser instead of direct.'
       warn(report_str)
-      return pdoo_maximise(obj, bounds, max_evals)
+      return pdoo_minimise(obj, bounds, max_evals)
     else:
       report_str += 'Unknown option for alternative_if_direct_not_loaded: %s'%( \
                      alternative_if_direct_not_loaded)

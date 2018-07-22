@@ -1,5 +1,5 @@
 """
-  Deterministic Optimistic Optimization (DOO)
+  Deterministic Optimistic Optimization (DOO) and its parallel version (PDOO)
   Adapted from MFTREE_DET library -- https://github.com/rajatsen91/MFTREE_DET
   References:
     - Sen et al, 2018. Multi-fidelity Black-box Optimization with Hierarchical Partitions

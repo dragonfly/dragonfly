@@ -142,7 +142,10 @@ class OptimisersTestCase(BaseTestClass):
         clock_times.append(clock_time)
         real_times.append(real_time)
         if log_file_name:
-          os.remove(log_file_name)
+          try:
+            os.remove(log_file_name)
+          except:
+            pass
       # Print results out
       result_str = ', '.join(['file: \'%s\': clk=%0.4f, real=%0.4f, #evals=%d'%(
         log_file_names[i], clock_times[i], real_times[i], self.max_evals) \
