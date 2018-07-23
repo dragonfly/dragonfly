@@ -1,12 +1,12 @@
 
-![](https://dragonfly.github.io/images/dragonfly_logo.png =100x)
 
-<img src="https://dragonfly.github.io/images/dragonfly_logo.png"/>
+<img src="https://dragonfly.github.io/images/dragonfly_logo.png"
+width="200"
+/>
 
 
 # Dragonfly
 
-![](https://dragonfly.github.io/images/dragonfly_logo.png | width=50)
 Dragonfly is an open source python library for scalable Bayesian optimisation.
 The library is in alpha version.
 
