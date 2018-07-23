@@ -155,6 +155,8 @@ class GP(object):
     """
     # Compute the posterior mean.
     test_mean = self.mean_func(X_test)
+#     print X_test, self.X
+#     import pdb; pdb.set_trace()
     K_tetr = self.kernel(X_test, self.X)
     pred_mean = test_mean + K_tetr.dot(self.alpha)
     # Compute the posterior variance or standard deviation as required.
@@ -177,6 +179,8 @@ class GP(object):
   def eval_with_hallucinated_observations(self, X_test, X_halluc, uncert_form='none'):
     """ Evaluates the GP with additional hallucinated observations in the
         kernel matrix. """
+#     print X_test, X_halluc
+#     import pdb; pdb.set_trace()
     pred_mean, _ = self.eval(X_test, uncert_form='none') # Just compute the means.
     if uncert_form == 'none':
       uncert = None

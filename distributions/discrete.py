@@ -19,10 +19,10 @@ class Bernoulli(Discrete):
 
   def __init__(self, p):
     """ Constructor. """
+    super(Bernoulli, self).__init__()
     self.p = float(p)
     self.dim = 1
     self.domain = domains.IntegralDomain(np.array([0, 1]))
-    super(Bernoulli, self).__init__()
 
   def pmf(self, x):
     """ Returns pmf of distribution at x. """
@@ -61,11 +61,11 @@ class Binomial(Discrete):
 
   def __init__(self, n, p):
     """ Constructor. """
+    super(Binomial, self).__init__()
     self.n = n
     self.p = float(p)
     self.dim = 1
     self.domain = domains.IntegralDomain(np.array([0, self.n]))
-    super(Binomial, self).__init__()
 
   def pmf(self, k):
     """ Returns pmf of distribution at x. """
@@ -109,12 +109,12 @@ class Categorical(Discrete):
 
   def __init__(self, categories, p):
     """ Constructor """
+    super(Categorical, self).__init__()
     self.cat = list(categories)
     self.k = len(categories)
     self.p = np.array(p)
     self.dim = 1
     self.domain = domains.IntegralDomain(np.array([1, self.k]))
-    super(Categorical, self).__init__()
 
   def pmf(self, i):
     """ Returns pmf of distribution at x. """
@@ -131,7 +131,7 @@ class Categorical(Discrete):
     """ Returns category value. """
     if i < 0 or i >= self.k:
       return None
-    return self.cat[i]
+    return self.cat[int(i)]
 
   def get_parameters(self):
     """ Returns parameters """
@@ -166,11 +166,11 @@ class DiscreteUniform(Discrete):
 
   def __init__(self, lower, upper):
     """ Constructor. """
+    super(DiscreteUniform, self).__init__()
     self.lower = np.floor(lower)
     self.upper = np.floor(upper)
     self.dim = 1
     self.domain = domains.IntegralDomain(np.array([self.lower, self.upper]))
-    super(DiscreteUniform, self).__init__()
 
   def pmf(self, x):
     """ Returns pmf of distribution at x. """

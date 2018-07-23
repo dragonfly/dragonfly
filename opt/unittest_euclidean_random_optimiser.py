@@ -64,7 +64,8 @@ class EuclideanOptimisersBaseTestCase(object):
                         key.startswith('__')]
     self.report('Stored in history: %s.'%(saved_in_history), 'test_result')
 
-  def test_optimisation_single(self):
+#   def test_optimisation_single(self):
+  def _test_optimisation_single(self):
     """ Test optimisation with a single worker. """
     self.report('Testing %s with one worker.'%(type(self)))
     opt_val, opt_point, history = self.run_optimiser(self.func_caller,
@@ -74,8 +75,8 @@ class EuclideanOptimisersBaseTestCase(object):
     return opt_val, opt_point, history
 
   def test_optimisation_asynchronous(self):
-    """ Testing random optimiser with four asynchronous workers. """
-    self.report('Testing %s with four asynchronous workers.'%(type(self)))
+    """ Testing random optimiser with three asynchronous workers. """
+    self.report('Testing %s with three asynchronous workers.'%(type(self)))
     opt_val, opt_point, history = self.run_optimiser(self.func_caller,
       self.worker_manager_3, self.test_max_capital, 'asy')
     self._test_optimiser_results(opt_val, opt_point, history)
@@ -83,8 +84,8 @@ class EuclideanOptimisersBaseTestCase(object):
     return opt_val, opt_point, history
 
 #   def test_optimisation_synchronous(self):
-#     """ Testing random optimiser with four synchronous workers. """
-#     self.report('Testing %s with four synchronous workers.'%(type(self)))
+#     """ Testing random optimiser with three synchronous workers. """
+#     self.report('Testing %s with three synchronous workers.'%(type(self)))
 #     opt_val, opt_point, history = self.run_optimiser(self.func_caller,
 #       self.worker_manager_3, self.test_max_capital, 'syn')
 #     self._test_optimiser_results(opt_val, opt_point, history)

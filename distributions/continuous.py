@@ -21,11 +21,11 @@ class Normal(Continuous):
 
   def __init__(self, mean, var):
     """ Constructor. """
+    super(Normal, self).__init__()
     self.mean = float(mean)
     self.var = float(var)
     self.dim = 1
     self.domain = domains.EuclideanDomain(np.array([-np.inf, np.inf]))
-    super(Normal, self).__init__()
 
   def pdf(self, x):
     """ Returns value of pdf at x """
@@ -64,6 +64,7 @@ class MultivariateGaussian(Continuous):
 
   def __init__(self, mean, cov):
     """ Constructor. """
+    super(MultivariateGaussian, self).__init__()
     self.mean = np.array(mean, dtype=float)
     self.cov = np.array(cov, dtype=float)
     self.pre = np.linalg.inv(self.cov)
@@ -71,7 +72,6 @@ class MultivariateGaussian(Continuous):
     self.dim = len(mean)
     self.domain = domains.EuclideanDomain(np.tile(np.array([-np.inf, np.inf]),\
                                           (len(mean), 1)))
-    super(MultivariateGaussian, self).__init__()
 
   def pdf(self, x):
     """ Returns value of pdf at x """
@@ -110,11 +110,11 @@ class ContinuousUniform(Continuous):
 
   def __init__(self, lower, upper):
     """ Constructor. """
+    super(ContinuousUniform, self).__init__()
     self.lower = float(lower)
     self.upper = float(upper)
     self.dim = 1
     self.domain = domains.EuclideanDomain(np.array([self.lower, self.upper]))
-    super(ContinuousUniform, self).__init__()
 
   def pdf(self, x):
     """ Returns value of pdf at x """
@@ -159,10 +159,10 @@ class Exponential(Continuous):
 
   def __init__(self, lam):
     """ Constructor. """
+    super(Exponential, self).__init__()
     self.lam = float(lam)
     self.dim = 1
     self.domain = domains.EuclideanDomain(np.array([0, np.inf]))
-    super(Exponential, self).__init__()
 
   def pdf(self, x):
     """ Returns value of pdf at x """
@@ -207,13 +207,13 @@ class Beta(Continuous):
 
   def __init__(self, alpha, beta):
     """ Constructor. """
+    super(Beta, self).__init__()
     self.alpha = float(alpha)
     self.beta = float(beta)
     self.dim = 1
     self.B = (np.math.factorial(self.alpha - 1)*np.math.factorial(self.beta - 1))/\
                   (float(np.math.factorial(self.alpha+self.beta-1)))
     self.domain = domains.EuclideanDomain(np.array([0, 1]))
-    super(Beta, self).__init__()
 
   def pdf(self, x):
     """ Returns value of pdf at x """

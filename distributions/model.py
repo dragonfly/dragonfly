@@ -19,11 +19,11 @@ class Model(Distribution):
   """ Class for abstract distributions """
 
   def __init__(self, pdf, logp, grad_logp):
+    super(Model, self).__init__()
     self._pdf = pdf
     self._logp = logp
     self._grad_logp = grad_logp
     self.dim = None
-    super(Model, self).__init__()
 
   def pdf(self, x):
     """ Returns pdf of distribution at x """

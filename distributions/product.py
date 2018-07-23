@@ -15,8 +15,8 @@ class JointDistribution(Distribution):
   """ Independent Joint Distribution """
 
   def __init__(self, rv_s):
-    self.rv_s = rv_s
     super(JointDistribution, self).__init__()
+    self.rv_s = rv_s
 
   def get_rv_s(self):
     """ Returns the list of random variables """

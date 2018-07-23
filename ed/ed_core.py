@@ -138,6 +138,7 @@ class ExperimentDesigner(object):
     self.history.query_cost_at_fidels = []
     self.to_copy_from_qinfo_to_history['fidel'] = 'query_fidels'
     self.to_copy_from_qinfo_to_history['cost_at_fidel'] = 'query_cost_at_fidels'
+    self.eval_fidels_in_progress = []
     # Set up previous evaluations
     self.prev_eval_fidels = []
 
@@ -330,12 +331,16 @@ class ExperimentDesigner(object):
     for qinfo in qinfos:
       self.eval_idxs_in_progress.append(qinfo.step_idx)
       self.eval_points_in_progress.append(qinfo.point)
+      if self.is_an_mf_method():
+        self.eval_fidels_in_progress.append(qinfo.fidel)
 
   def _remove_from_in_progress(self, qinfo):
     """ Removes a job from the in progress status. """
     completed_eval_idx = self.eval_idxs_in_progress.index(qinfo.step_idx)
     self.eval_idxs_in_progress.pop(completed_eval_idx)
     self.eval_points_in_progress.pop(completed_eval_idx)
+    if self.is_an_mf_method():
+      self.eval_fidels_in_progress.pop(completed_eval_idx)
 
   def _dispatch_single_experiment_to_worker_manager(self, qinfo):
     """ Dispatches an experiment to the worker manager. """

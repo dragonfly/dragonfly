@@ -16,66 +16,116 @@ from gp.gp_core import get_post_covar_from_raw_covar
 from ed.domains import EuclideanDomain
 from utils.oper_utils import maximise_with_method
 
+# TODO: add hallucinations for add_ucb
+# TODO: implement using different samples for synchronous methods
 
-def _maximise_acquisition(acq_fn, anc_data):
+
+# Some utilities we will use for all acquisitions below ---------------------------------
+def _maximise_acquisition(acq_fn, anc_data, *args, **kwargs):
   """ Maximises the acquisition and returns the highest point. acq_fn is the acquisition
       function to be maximised. anc_data is a namespace which contains ancillary data.
   """
   # pylint: disable=unbalanced-tuple-unpacking
-  if anc_data.acq_opt_method in ['direct', 'pdoo']:
-    acquisition = lambda x: acq_fn(x.reshape((1, -1)))
-  else:
+  acq_opt_method = anc_data.acq_opt_method
+  if acq_opt_method in ['rand']:
     acquisition = acq_fn
-  _, opt_pt = maximise_with_method(anc_data.acq_opt_method, acquisition, anc_data.domain,
-                                   anc_data.max_evals)
+  else:
+    # these methods cannot handle vectorised functions.
+    acquisition = lambda x: acq_fn(x.reshape((1, -1)))
+  _, opt_pt = maximise_with_method(acq_opt_method, acquisition, anc_data.domain,
+                                   anc_data.max_evals, *args, **kwargs)
   return opt_pt
 
 
-# def _optimise_acquisition(acq_fn, anc_data):
-#   """ All methods will just call this. """
-#   if anc_data.acq_opt_method in ['direct', 'pdoo']:
-#     acquisition = lambda x: acq_fn(x.reshape((1, -1)))
-#   else:
-#     acquisition = acq_fn
-#   _, opt_pt = acq_optimiser(acquisition, anc_data.max_evals)
-#   return opt_pt
-
-
-def _get_halluc_points(_, halluc_pts):
-  """ Re-formats halluc_pts if necessary. """
-  if len(halluc_pts) > 0:
-    return halluc_pts
+def _get_gp_eval_for_parallel_strategy(gp, anc_data, uncert_form='std'):
+  """ Returns the evaluation function of the gp depending on the parallel strategy and
+      the evaluations in progress.
+  """
+  # 1. With hallucinations
+  def _get_halluc_gp_eval(_gp, _halluc_pts, _uncert_form):
+    """ Hallucinated GP eval. """
+    return lambda x: _gp.eval_with_hallucinated_observations(x, _halluc_pts,
+                                                             uncert_form=_uncert_form)
+  # Ordinary eval of gp
+  def _get_naive_gp_eval(_gp, _uncert_form):
+    """ Naive GP eval. """
+    return lambda x: _gp.eval(x, uncert_form=_uncert_form)
+  # Check parallelisation strategy and return
+  if anc_data.handle_parallel == 'halluc' and \
+    len(anc_data.eval_points_in_progress) > 0:
+    if anc_data.is_mf:
+      return _get_halluc_gp_eval(gp, anc_data.eval_fidel_points_in_progress, uncert_form)
+    else:
+      return _get_halluc_gp_eval(gp, anc_data.eval_points_in_progress, uncert_form)
   else:
-    return halluc_pts
+    return _get_naive_gp_eval(gp, uncert_form)
+
+
+def _get_gp_sampler_for_parallel_strategy(gp, anc_data):
+  """ Returns a function that can draw samples from the posterior gp depending on the
+      parallel strategy and the evaluations in progress.
+  """
+  # 1. With hallucinations
+  def _get_halluc_gp_draw_samples(_gp, _halluc_pts):
+    """ Hallucinated sampler. """
+    return lambda x: _gp.draw_samples_with_hallucinated_observations(1, x,
+                                                                     _halluc_pts).ravel()
+  def _get_naive_gp_draw_samples(_gp):
+    """ Naive sampler. """
+    return lambda x: _gp.draw_samples(1, x).ravel()
+  # Check parallelisation strategy and return
+  if anc_data.handle_parallel == 'halluc' and \
+    len(anc_data.eval_points_in_progress) > 0:
+    if anc_data.is_mf:
+      return _get_halluc_gp_draw_samples(gp, anc_data.eval_fidel_points_in_progress)
+    else:
+      return _get_halluc_gp_draw_samples(gp, anc_data.eval_points_in_progress)
+  else:
+    return _get_naive_gp_draw_samples(gp)
+
+
+def _get_syn_recommendations_from_asy(asy_acq, num_workers, list_of_gps, anc_data):
+  """ Returns a batch of (synchronous recommendations from an asynchronous acquisition.
+  """
+  list_of_gps = copy(list_of_gps)
+  anc_data = copy(anc_data)
+  def _get_next_gp_and_list_of_gps(_list_of_gps):
+    """ Internal function to return current gp and list of gps. """
+    ret = _list_of_gps.pop(0)
+    _list_of_gps = _list_of_gps + [ret]
+    return ret, _list_of_gps
+  # If list_of_gps is not a list, then make it a list.
+  if not hasattr(list_of_gps, '__iter__'):
+    list_of_gps = [list_of_gps] * num_workers
+  next_gp, list_of_gps = _get_next_gp_and_list_of_gps(list_of_gps)
+  recommendations = [asy_acq(next_gp, anc_data)]
+  for _ in range(1, num_workers):
+    next_gp, list_of_gps = _get_next_gp_and_list_of_gps(list_of_gps)
+    anc_data.eval_points_in_progress = recommendations
+    recommendations.append(asy_acq(next_gp, anc_data))
+  return recommendations
+
 
 # Thompson sampling ---------------------------------------------------------------
 def asy_ts(gp, anc_data):
   """ Returns a recommendation via TS in the asyuential setting. """
-  gp_sample = lambda x: gp.draw_samples(1, X_test=x, mean_vals=None, covar=None).ravel()
-  return _maximise_acquisition(gp_sample, anc_data)
+  anc_data = copy(anc_data)
+  # Always use a random optimiser with a vectorised sampler for TS.
+  if anc_data.acq_opt_method != 'rand':
+    anc_data.acq_opt_method = 'rand'
+    anc_data.max_evals = 4 * anc_data.max_evals
+  gp_sample = _get_gp_sampler_for_parallel_strategy(gp, anc_data)
+  return _maximise_acquisition(gp_sample, anc_data, vectorised=True)
 
-def asy_hts(gp, anc_data):
-  """ Returns a recommendation via TS using hallucinated observaitons in the asynchronus
-      setting. """
-  halluc_pts = _get_halluc_points(gp, anc_data.evals_in_progress)
-  gp_sample = lambda x: gp.draw_samples_with_hallucinated_observations(1, x,
-                                                                       halluc_pts).ravel()
-  return _maximise_acquisition(gp_sample, anc_data)
-
-def syn_ts(num_workers, gp, anc_data, **kwargs):
+def syn_ts(num_workers, list_of_gps, anc_data):
   """ Returns a batch of recommendations via TS in the synchronous setting. """
-  recommendations = []
-  for _ in range(num_workers):
-    rec_j = asy_ts(gp, anc_data, **kwargs)
-    recommendations.append(rec_j)
-  return recommendations
+  return _get_syn_recommendations_from_asy(asy_ts, num_workers, list_of_gps, anc_data)
+
 
 # Add-UCB --------------------------------------------------------------------------
 def _get_add_ucb_beta_th(dim, time_step):
   """ Computes the beta t for UCB based methods. """
   return np.sqrt(0.2 * dim * np.log(2 * dim * time_step + 1))
-
-# TODO: add hallucinated observations for parallelisation.
 
 def _add_ucb(gp, add_kernel, mean_funcs, anc_data):
   """ Common functionality for Additive UCB acquisition under various settings.
@@ -133,7 +183,7 @@ def asy_add_ucb(gp, anc_data):
   """ Asynchronous Add UCB. """
   return _add_ucb(gp, gp.kernel, None, anc_data)
 
-def syn_add_ucb(num_workers, gp, anc_data):
+def syn_add_ucb(num_workers, list_of_gps, anc_data):
   """ Synchronous Add UCB. """
   # pylint: disable=unused-argument
   raise NotImplementedError('Not implemented Synchronous Add UCB yet.')
@@ -155,101 +205,70 @@ def _get_ucb_beta_th(dim, time_step):
 def asy_ucb(gp, anc_data):
   """ Returns a recommendation via UCB in the asyuential setting. """
   beta_th = _get_ucb_beta_th(_get_gp_ucb_dim(gp), anc_data.t)
+  gp_eval = _get_gp_eval_for_parallel_strategy(gp, anc_data, 'std')
   def _ucb_acq(x):
     """ Computes the GP-UCB acquisition. """
-    mu, sigma = gp.eval(x, uncert_form='std')
+    mu, sigma = gp_eval(x)
     return mu + beta_th * sigma
   return _maximise_acquisition(_ucb_acq, anc_data)
 
-def _halluc_ucb(gp, anc_data):
-  """ Returns a recommendation via UCB using hallucinated inputs in the asynchronous
-      setting. """
-  beta_th = _get_ucb_beta_th(_get_gp_ucb_dim(gp), anc_data.t)
-  halluc_pts = _get_halluc_points(gp, anc_data.evals_in_progress)
-  def _ucb_halluc_acq(x):
-    """ Computes GP-UCB acquisition with hallucinated observations. """
-    mu, sigma = gp.eval_with_hallucinated_observations(x, halluc_pts, uncert_form='std')
-    return mu + beta_th * sigma
-  return _maximise_acquisition(_ucb_halluc_acq, anc_data)
-
-def asy_hucb(gp, anc_data):
-  """ Returns a recommendation via UCB using hallucinated inputs in the asynchronous
-      setting. """
-  return _halluc_ucb(gp, anc_data)
-
-def syn_hucb(num_workers, gp, anc_data):
+def syn_ucb(num_workers, list_of_gps, anc_data):
   """ Returns a recommendation via Batch UCB in the synchronous setting. """
-  recommendations = [asy_ucb(gp, anc_data)]
-  for _ in range(1, num_workers):
-    anc_data.evals_in_progress = recommendations
-    recommendations.append(_halluc_ucb(gp, anc_data))
-  return recommendations
-
-def syn_ucbpe(num_workers, gp, anc_data):
-  """ Returns a recommendation via UCB-PE in the synchronous setting. """
-  # Define some internal functions.
-  beta_th = _get_ucb_beta_th(_get_gp_ucb_dim(gp), anc_data.t)
-  # 1. An LCB for the function
-  def _ucbpe_lcb(x):
-    """ An LCB for GP-UCB-PE. """
-    mu, sigma = gp.eval(x, uncert_form='std')
-    return mu - beta_th * sigma
-  # 2. A modified UCB for the function using hallucinated observations
-  def _ucbpe_2ucb(x):
-    """ A UCB for GP-UCB-PE. """
-    mu, sigma = gp.eval(x, uncert_form='std')
-    return mu + 2 * beta_th * sigma
-  # 3. UCB-PE acquisition for the 2nd point in the batch and so on.
-  def _ucbpe_acq(x, yt_dot, halluc_pts):
-    """ Acquisition for GP-UCB-PE. """
-    _, halluc_stds = gp.eval_with_hallucinated_observations(x, halluc_pts,
-                                                            uncert_form='std')
-    return (_ucbpe_2ucb(x) > yt_dot).astype(np.double) * halluc_stds
-
-  # Now the algorithm
-  yt_dot_arg = _maximise_acquisition(_ucbpe_lcb, anc_data)
-  yt_dot = _ucbpe_lcb(yt_dot_arg.reshape((-1, _get_gp_ucb_dim(gp))))
-  recommendations = [asy_ucb(gp, anc_data)]
-  for _ in range(1, num_workers):
-    curr_acq = lambda x: _ucbpe_acq(x, yt_dot, np.array(recommendations))
-    new_rec = _maximise_acquisition(curr_acq, anc_data)
-    recommendations.append(new_rec)
-  return recommendations
+  return _get_syn_recommendations_from_asy(asy_ucb, num_workers, list_of_gps, anc_data)
 
 # EI stuff ----------------------------------------------------------------------------
+def _expected_improvement_for_norm_diff(norm_diff):
+  """ The expected improvement. """
+  return norm_diff * normal_distro.cdf(norm_diff) + normal_distro.pdf(norm_diff)
+
 def asy_ei(gp, anc_data):
   """ Returns a recommendation based on GP-EI. """
   curr_best = anc_data.curr_max_val
+  gp_eval = _get_gp_eval_for_parallel_strategy(gp, anc_data, 'std')
+  # EI acquisition with hallucinated observations
   def _ei_acq(x):
     """ Acquisition for GP EI. """
-    mu, sigma = gp.eval(x, uncert_form='std')
-    Z = (mu - curr_best) / sigma
-    return (mu - curr_best)*normal_distro.cdf(Z) + sigma*normal_distro.pdf(Z)
+    mu, sigma = gp_eval(x)
+    norm_diff = (mu - curr_best) / sigma
+    return sigma * _expected_improvement_for_norm_diff(norm_diff)
   return _maximise_acquisition(_ei_acq, anc_data)
 
-def _halluc_ei(gp, anc_data):
-  """ Returns a recommendation based on GP-HEI using hallucinated points. """
-  halluc_pts = _get_halluc_points(gp, anc_data.evals_in_progress)
-  curr_best = anc_data.curr_max_val
-  def _ei_halluc_acq(x):
-    """ Computes the hallucinated EI acquisition. """
-    mu, sigma = gp.eval_with_hallucinated_observations(x, halluc_pts, uncert_form='std')
-    Z = (mu - curr_best) / sigma
-    return (mu - curr_best)*normal_distro.cdf(Z) + sigma*normal_distro.pdf(Z)
-  return _maximise_acquisition(_ei_halluc_acq, anc_data)
-
-def asy_hei(gp, anc_data):
-  """ Returns a recommendation via EI using hallucinated inputs in the asynchronous
-      setting. """
-  return _halluc_ei(gp, anc_data)
-
-def syn_hei(num_workers, gp, anc_data):
+def syn_ei(num_workers, list_of_gps, anc_data):
   """ Returns a recommendation via EI in the synchronous setting. """
-  recommendations = [asy_ei(gp, anc_data)]
-  for _ in range(1, num_workers):
-    anc_data.evals_in_progress = recommendations
-    recommendations.append(_halluc_ei(gp, anc_data))
-  return recommendations
+  return _get_syn_recommendations_from_asy(asy_ei, num_workers, list_of_gps, anc_data)
+
+
+# TTEI ----------------------------------------------------------------------------------
+def _ttei(gp_eval, anc_data, ref_point):
+  """ Computes the arm that is expected to do best over ref_point. """
+  ref_mean, ref_std = gp_eval([ref_point])
+  ref_mean = float(ref_mean)
+  ref_std = float(ref_std)
+  def _tt_ei_acq(x):
+    """ Acquisition for TTEI. """
+    mu, sigma = gp_eval(x)
+    comb_std = np.sqrt(ref_std**2 + sigma**2)
+    norm_diff = (mu - ref_mean)/comb_std
+    return comb_std * _expected_improvement_for_norm_diff(norm_diff)
+  return _maximise_acquisition(_tt_ei_acq, anc_data)
+
+def asy_ttei(gp, anc_data):
+  """ Top-Two expected improvement. """
+  if np.random.random() < 0.5:
+    # With probability 1/2, return the EI point
+    return asy_ei(gp, anc_data)
+  else:
+    max_acq_opt_evals = anc_data.max_evals
+    anc_data = copy(anc_data)
+    anc_data.max_evals = max_acq_opt_evals//2
+    ei_argmax = asy_ei(gp, anc_data)
+    # Now return the second argmax
+    gp_eval = _get_gp_eval_for_parallel_strategy(gp, anc_data, 'std')
+    return _ttei(gp_eval, anc_data, ei_argmax)
+
+def syn_ttei(num_workers, list_of_gps, anc_data):
+  """ Returns a recommendation via TTEI in the synchronous setting. """
+  return _get_syn_recommendations_from_asy(asy_ttei, num_workers, list_of_gps, anc_data)
 
 # Random --------------------------------------------------------------------------------
 def asy_rand(_, anc_data):
@@ -259,9 +278,9 @@ def asy_rand(_, anc_data):
     return np.random.random((1,))
   return _maximise_acquisition(_rand_eval, anc_data)
 
-def syn_rand(num_workers, gp, anc_data):
+def syn_rand(num_workers, list_of_gps, anc_data):
   """ Returns random values for the acquisition. """
-  return [asy_rand(gp, anc_data) for _ in range(num_workers)]
+  return _get_syn_recommendations_from_asy(asy_rand, num_workers, list_of_gps, anc_data)
 
 
 # Multi-fidelity Strategies ==============================================================
@@ -271,6 +290,17 @@ def _get_fidel_to_opt_gp(mfgp, fidel_to_opt):
   boca_gp = Namespace()
   boca_gp.eval = lambda x, *args, **kwargs: mfgp.eval_at_fidel([fidel_to_opt] * len(x),
                                                                x, *args, **kwargs)
+  boca_gp.eval_with_hallucinated_observations = \
+    lambda x, halluc_fidel_pts, *args, **kwargs: mfgp.eval_with_hallucinated_observations(
+      mfgp.get_ZX_from_ZZ_XX([fidel_to_opt] * len(x), x), halluc_fidel_pts,
+      *args, **kwargs)
+  boca_gp.draw_samples = lambda n, x, *args, **kwargs: mfgp.draw_samples(n,
+                      mfgp.get_ZX_from_ZZ_XX([fidel_to_opt] * len(x), x), *args, **kwargs)
+  boca_gp.draw_samples_with_hallucinated_observations = \
+                lambda n, x, halluc_fidel_pts, *args, **kwargs: \
+                  mfgp.draw_samples_with_hallucinated_observations(n,
+                    mfgp.get_ZX_from_ZZ_XX([fidel_to_opt] * len(x), x), halluc_fidel_pts,
+                                           *args, **kwargs)
   boca_gp.kernel = mfgp.get_domain_kernel()
   return boca_gp
 
@@ -384,38 +414,29 @@ def boca(select_pt_func, mfgp, anc_data, func_caller):
 
 # Put all of them into the following namespaces.
 syn = Namespace(
-  # UCB
-  hucb=syn_hucb,
-  ucbpe=syn_ucbpe,
-  ucb=syn_hucb,
+  ucb=syn_ucb,
   add_ucb=syn_add_ucb,
-  # TS
+  ei=syn_ei,
+  ttei=syn_ttei,
   ts=syn_ts,
-  # EI
-  hei=syn_hei,
-  # Rand
   rand=syn_rand,
   )
 
 asy = Namespace(
-  # UCB
   ucb=asy_ucb,
-  hucb=asy_hucb,
   add_ucb=asy_add_ucb,
-  add_hucb=asy_add_ucb,
-  # EI
   ei=asy_ei,
-  hei=asy_hei,
-  # TS
+  ttei=asy_ttei,
   ts=asy_ts,
-  hts=asy_hts,
-  # Rand
   rand=asy_rand,
   )
 
 seq = Namespace(
   ucb=asy_ucb,
+  add_ucb=asy_add_ucb,
+  ei=asy_ei,
+  ttei=asy_ttei,
   ts=asy_ts,
-  add_ucb=asy_ucb,
+  rand=asy_rand,
   )
 

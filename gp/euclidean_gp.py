@@ -354,7 +354,7 @@ class EuclideanMFGP(mf_gp.MFGP):
       raise ValueError('ZZ, XX dimensions should be (%d, %d). Given (%d, %d)'%(
                        self.fidel_dim, self.domain_dim, test_fidel_dim, test_domain_dim))
 
-  def _get_ZX_from_ZZ_XX(self, ZZ, XX):
+  def get_ZX_from_ZZ_XX(self, ZZ, XX):
     """ Gets the coordinates in the joint space from the individual fidelity and
         domain spaces. """
     ordering = np.argsort(self.fidel_coords + self.domain_coords)

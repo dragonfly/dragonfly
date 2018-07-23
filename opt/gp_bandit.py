@@ -363,14 +363,21 @@ class GPBandit(BlackboxOptimiser):
                     t=self.step_idx,
                     domain=self.domain,
                     curr_max_val=self.curr_opt_val,
-                    evals_in_progress=self.eval_points_in_progress,
+                    eval_points_in_progress=self.eval_points_in_progress,
                     acq_opt_method=self.options.acq_opt_method,
-                    mf_strategy=self.options.mf_strategy)
+                    handle_parallel=self.options.handle_parallel,
+                    mf_strategy=self.options.mf_strategy,
+                    is_mf=self.is_an_mf_method(),
+                    )
+    if self.options.acq == 'add_ucb':
+      ret.domain_bounds = self.domain.bounds
     if self.is_an_mf_method():
       for key, value in list(self.mf_params_for_anc_data.items()):
         setattr(ret, key, value)
-    if self.options.acq == 'add_ucb':
-      ret.domain_bounds = self.domain.bounds
+      ret.eval_fidels_in_progress = self.eval_fidels_in_progress
+      ret.eval_fidel_points_in_progress = self.gp.get_ZX_from_ZZ_XX(
+                                            self.eval_fidels_in_progress,
+                                            self.eval_points_in_progress)
     return ret
 
   def _determine_next_query(self):

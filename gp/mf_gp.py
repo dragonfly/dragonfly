@@ -43,12 +43,12 @@ class MFGP(GP):
       self.domain_kernel = mf_kernel.domain_kernel
     else:
       kernel = mf_kernel
-    ZX = self._get_ZX_from_ZZ_XX(ZZ, XX) # The 'X' data
+    ZX = self.get_ZX_from_ZZ_XX(ZZ, XX) # The 'X' data
     # Call super constructor
     super(MFGP, self).__init__(ZX, YY, kernel, mean_func, noise_var, *args, **kwargs)
 
   @classmethod
-  def _get_ZX_from_ZZ_XX(cls, ZZ, XX):
+  def get_ZX_from_ZZ_XX(cls, ZZ, XX):
     """ Get a combined representation for the fidelity and domian data.
         Can be overridden by a child class if there is a more efficient representation."""
     return get_ZX_from_ZZ_XX(ZZ, XX)
@@ -56,20 +56,27 @@ class MFGP(GP):
   def eval_at_fidel(self, ZZ_test, XX_test, *args, **kwargs):
     """ Evaluates the GP at [ZZ_test, XX_test]. Read eval in gp_core.GP for more details.
     """
-    ZX_test = self._get_ZX_from_ZZ_XX(ZZ_test, XX_test)
+    ZX_test = self.get_ZX_from_ZZ_XX(ZZ_test, XX_test)
     return self.eval(ZX_test, *args, **kwargs)
+
+  def eval_at_fidel_with_hallucinated_observations(self, ZZ_test, XX_test,
+                                                   ZZ_halluc, XX_halluc, *args, **kwargs):
+    """ Evaluates with hallucinated observations. """
+    ZX_test = self.get_ZX_from_ZZ_XX(ZZ_test, XX_test)
+    ZX_halluc = self.get_ZX_from_ZZ_XX(ZZ_halluc, XX_halluc)
+    return self.eval_with_hallucinated_observations(ZX_test, ZX_halluc, *args, **kwargs)
 
   def set_mf_data(self, ZZ, XX, YY, build_posterior=True):
     """ Sets the MF data for the GP. """
     self.ZZ = list(ZZ)
     self.XX = list(XX)
     self.YY = list(YY)
-    ZX = self._get_ZX_from_ZZ_XX(ZZ, XX) # The 'X' data
+    ZX = self.get_ZX_from_ZZ_XX(ZZ, XX) # The 'X' data
     super(MFGP, self).set_data(ZX, YY, build_posterior)
 
   def add_mf_data_multiple(self, ZZ_new, XX_new, YY_new, *args, **kwargs):
     """ Adds new data to the multi-fidelity GP. """
-    ZX_new = self._get_ZX_from_ZZ_XX(ZZ_new, XX_new)
+    ZX_new = self.get_ZX_from_ZZ_XX(ZZ_new, XX_new)
     self.ZZ.extend(ZZ_new)
     self.XX.extend(XX_new)
     self.add_data_multiple(ZX_new, YY_new, *args, **kwargs)
@@ -80,7 +87,7 @@ class MFGP(GP):
 
   def draw_mf_samples(self, num_samples, ZZ_test=None, XX_test=None, *args, **kwargs):
     """ Draws samples from a multi-fidelity GP. """
-    ZX_test = None if ZZ_test is None else self._get_ZX_from_ZZ_XX(ZZ_test, XX_test)
+    ZX_test = None if ZZ_test is None else self.get_ZX_from_ZZ_XX(ZZ_test, XX_test)
     return self.draw_samples(num_samples, ZX_test, *args, **kwargs)
 
   def _child_str(self):
