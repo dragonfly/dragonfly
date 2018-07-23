@@ -13,7 +13,7 @@ from scipy.stats import norm as normal_distro
 # Local
 from utils.general_utils import solve_lower_triangular
 from gp.gp_core import get_post_covar_from_raw_covar
-from ed.domains import EuclideanDomain
+from exd.domains import EuclideanDomain
 from utils.oper_utils import maximise_with_method
 
 # TODO: add hallucinations for add_ucb

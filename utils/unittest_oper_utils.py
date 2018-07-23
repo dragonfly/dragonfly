@@ -144,7 +144,7 @@ class OptimisersTestCase(BaseTestClass):
         if log_file_name:
           try:
             os.remove(log_file_name)
-          except:
+          except OSError:
             pass
       # Print results out
       result_str = ', '.join(['file: \'%s\': clk=%0.4f, real=%0.4f, #evals=%d'%(

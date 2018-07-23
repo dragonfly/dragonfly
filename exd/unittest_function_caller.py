@@ -3,9 +3,9 @@
   functions in utils.euclidean_synthetic_functions.py
   -- kandasamy@cs.cmu.edu
 """
-from __future__ import division
 
 # pylint: disable=invalid-name
+# pylint: disable=no-member
 
 import numpy as np
 # Local imports

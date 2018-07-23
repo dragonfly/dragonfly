@@ -10,7 +10,7 @@ from builtins import object
 import numpy as np
 # Local imports
 import opt.random_optimiser as random_optimiser
-from ed.worker_manager import SyntheticWorkerManager
+from exd.worker_manager import SyntheticWorkerManager
 from utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str, \
                                   get_rounded_list
 from utils.base_test_class import BaseTestClass, execute_tests
@@ -64,8 +64,7 @@ class EuclideanOptimisersBaseTestCase(object):
                         key.startswith('__')]
     self.report('Stored in history: %s.'%(saved_in_history), 'test_result')
 
-#   def test_optimisation_single(self):
-  def _test_optimisation_single(self):
+  def test_optimisation_single(self):
     """ Test optimisation with a single worker. """
     self.report('Testing %s with one worker.'%(type(self)))
     opt_val, opt_point, history = self.run_optimiser(self.func_caller,

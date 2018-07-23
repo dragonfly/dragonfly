@@ -9,8 +9,8 @@ from __future__ import division
 
 import numpy as np
 # Local imports
-from ed.ed_utils import latin_hc_indices, latin_hc_sampling
-from ed.ed_utils import random_sampling_cts, random_sampling_kmeans_cts
+from exd.exd_utils import latin_hc_indices, latin_hc_sampling
+from exd.exd_utils import random_sampling_cts, random_sampling_kmeans_cts
 from utils.base_test_class import BaseTestClass, execute_tests
 
 

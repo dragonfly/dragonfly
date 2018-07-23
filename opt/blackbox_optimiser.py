@@ -10,10 +10,10 @@ from __future__ import division
 
 import numpy as np
 # Local imports
-from ed.ed_core import ExperimentDesigner, ed_core_args
+from exd.exd_core import ExperimentDesigner, exd_core_args
 from utils.option_handler import load_options
 
-blackbox_opt_args = ed_core_args
+blackbox_opt_args = exd_core_args
 
 
 class CalledMFOptimiserWithSFCaller(Exception):
@@ -39,7 +39,7 @@ class BlackboxOptimiser(ExperimentDesigner):
     super(BlackboxOptimiser, self).__init__(func_caller, worker_manager, model,
                                             options, reporter)
 
-  def _ed_child_set_up(self):
+  def _exd_child_set_up(self):
     """ Set up for the optimisation. """
     if self.func_caller.is_mf():
       self.num_fidel_to_opt_calls = 0
@@ -75,7 +75,7 @@ class BlackboxOptimiser(ExperimentDesigner):
     raise NotImplementedError('Implement in Optimisation Method class.')
 
   # Book-keeping ----------------------------------------------------------------
-  def _ed_child_update_history(self, qinfo):
+  def _exd_child_update_history(self, qinfo):
     """ Updates to the history specific to optimisation. """
     # Update the best point/val
     # check fidelity
@@ -117,7 +117,7 @@ class BlackboxOptimiser(ExperimentDesigner):
     """ Any updates to the history specific to the method. """
     pass # Pass by default. Not necessary to override.
 
-  def _get_ed_child_report_results_str(self):
+  def _get_exd_child_report_results_str(self):
     """ Returns a string describing the progress in optimisation. """
     best_val_str = 'best_val: (e%0.3f, t%0.3f),'%(self.curr_opt_val,
                                                   self.curr_true_opt_val)
@@ -139,7 +139,7 @@ class BlackboxOptimiser(ExperimentDesigner):
     #pylint: disable=no-self-use
     return ''
 
-  def _ed_child_handle_prev_evals(self):
+  def _exd_child_handle_prev_evals(self):
     """ Handles pre-evaluations. """
     for qinfo in self.options.prev_evaluations.qinfos:
       if self.func_caller.is_mf():
@@ -182,7 +182,7 @@ class OptInitialiser(BlackboxOptimiser):
     super(OptInitialiser, self).__init__(func_caller, worker_manager, model=None,
                                          options=options, reporter=reporter)
 
-#   def _ed_child_set_up(self):
+#   def _exd_child_set_up(self):
 #     """ Set up for an initialiser. """
 #     pass
 
@@ -202,15 +202,15 @@ class OptInitialiser(BlackboxOptimiser):
     """ Returns True if the method is a multi-fidelity method. """
     return self.func_caller.is_mf()
 
-#   def _ed_child_update_history(self, qinfo):
+#   def _exd_child_update_history(self, qinfo):
 #     """ Any updates to history from the child class. """
 #     pass
 
-  def _get_ed_child_report_results_str(self):
+  def _get_exd_child_report_results_str(self):
     """ Returns a string for the specific child method describing the progress. """
     return ''
 
-  def _ed_child_handle_prev_evals(self):
+  def _exd_child_handle_prev_evals(self):
     """ Handles pre-evaluations. """
     raise ValueError('No reason to call this method in an initialiser.')
 

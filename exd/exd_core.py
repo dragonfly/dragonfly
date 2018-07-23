@@ -17,11 +17,11 @@ from builtins import object
 import numpy as np
 
 # Local imports
-from ed.ed_utils import EVAL_ERROR_CODE
+from exd.exd_utils import EVAL_ERROR_CODE
 from utils.option_handler import get_option_specs
 from utils.reporters import get_reporter
 
-ed_core_args = [ \
+exd_core_args = [ \
   get_option_specs('max_num_steps', False, 1e7,
                    'If exceeds this many evaluations, stop.'),
   get_option_specs('capital_type', False, 'return_value',
@@ -49,7 +49,7 @@ ed_core_args = [ \
     'Method to obtain initial queries. Is used if get_initial_qinfos is None.'), \
   ]
 
-mf_ed_args = [ \
+mf_exd_args = [ \
   get_option_specs('fidel_init_method', False, 'rand', \
     'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'),
   get_option_specs('init_set_to_fidel_to_opt_with_prob', False, 0.25, \
@@ -127,7 +127,7 @@ class ExperimentDesigner(object):
     if self.is_an_mf_method() or self.experiment_caller.is_mf():
       self._mf_set_up()
     # Finally call the child set up.
-    self._ed_child_set_up()
+    self._exd_child_set_up()
 
   def _mf_set_up(self):
     """ Multi-fidelity set up. """
@@ -142,7 +142,7 @@ class ExperimentDesigner(object):
     # Set up previous evaluations
     self.prev_eval_fidels = []
 
-  def _ed_child_set_up(self):
+  def _exd_child_set_up(self):
     """ Set up for a child class of Blackbox Experiment designer. """
     raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
 
@@ -169,12 +169,12 @@ class ExperimentDesigner(object):
       attr_list = getattr(self.history, history_name)
       attr_list.append(getattr(qinfo, qinfo_name))
     # Do any child update
-    self._ed_child_update_history(qinfo)
+    self._exd_child_update_history(qinfo)
     # Check for unsuccessful queries
     if qinfo.val != EVAL_ERROR_CODE:
       self.num_succ_queries += 1
 
-  def _ed_child_update_history(self, qinfo):
+  def _exd_child_update_history(self, qinfo):
     """ Any updates to history from the child class. """
     raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
 
@@ -206,14 +206,14 @@ class ExperimentDesigner(object):
     report_str = ' '.join(['%s'%(self.full_method_name),
                            '(%03d/%03d)'%(self.num_succ_queries, self.step_idx),
                            'cap: %0.3f:: '%(cap_frac),
-                           self._get_ed_child_report_results_str(),
+                           self._get_exd_child_report_results_str(),
                            'w=%s,'%(self._get_jobs_for_each_worker()),
                            'inP=%s'%(self._get_curr_job_idxs_in_progress()),
                           ])
     self.reporter.writeln(report_str)
     self.last_report_at = self.step_idx
 
-  def _get_ed_child_report_results_str(self):
+  def _get_exd_child_report_results_str(self):
     """ Returns a string for the specific child method describing the progress. """
     raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
 
@@ -223,7 +223,7 @@ class ExperimentDesigner(object):
     # If we already have some pre_eval points then do this.
     if (hasattr(self.options, 'prev_evaluations') and
         self.options.prev_evaluations is not None):
-      self._ed_child_handle_prev_evals()
+      self._exd_child_handle_prev_evals()
     else:
       # Get the initial points
       if self.options.init_capital is not None:
@@ -253,7 +253,7 @@ class ExperimentDesigner(object):
             self._wait_for_a_free_worker()
             self._dispatch_single_experiment_to_worker_manager(qinfo)
 
-  def _ed_child_handle_prev_evals(self):
+  def _exd_child_handle_prev_evals(self):
     """ Handles pre-evaluations. """
     raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
 

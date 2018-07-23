@@ -13,9 +13,9 @@ import numpy as np
 
 # Local imports
 # from gp.gp_core import GP
-from ed import domains
-from ed.ed_core import mf_ed_args
-from ed.ed_utils import get_euclidean_initial_qinfos
+from exd import domains
+from exd.exd_core import mf_exd_args
+from exd.exd_utils import get_euclidean_initial_qinfos
 from gp.euclidean_gp import EuclideanGPFitter, euclidean_gp_args
 from gp.euclidean_gp import EuclideanMFGPFitter, euclidean_mf_gp_args
 from opt import gpb_acquisitions
@@ -91,7 +91,7 @@ def get_all_gp_bandit_args_from_gp_args(gp_args):
 
 def get_all_mf_gp_bandit_args_from_gp_args(gp_args):
   """ Returns the GP bandit arguments from the arguments for the GP. """
-  return gp_args + blackbox_opt_args + gp_bandit_args + mf_ed_args + mf_gp_bandit_args
+  return gp_args + blackbox_opt_args + gp_bandit_args + mf_exd_args + mf_gp_bandit_args
 
 
 # The GPBandit Class

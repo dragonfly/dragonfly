@@ -13,8 +13,8 @@ from opt.gp_bandit import get_all_gp_bandit_args_from_gp_args
 from gp.euclidean_gp import euclidean_gp_args
 from utils.option_handler import load_options
 from utils.reporters import get_reporter
-from ed.worker_manager import SyntheticWorkerManager
-from opt.function_caller import EuclideanFunctionCaller
+from exd.worker_manager import SyntheticWorkerManager
+from exd.experiment_caller import EuclideanFunctionCaller
 from opt.gp_bandit import EuclideanGPBandit
 
 def maximise_function(func, domain_bounds, max_capital, options=None,

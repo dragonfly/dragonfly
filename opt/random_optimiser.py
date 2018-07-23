@@ -8,9 +8,9 @@
 from argparse import Namespace
 import numpy as np
 # Local imports
-import ed.domains as domains
-from ed.ed_utils import get_euclidean_initial_qinfos
-from ed.ed_core import mf_ed_args
+import exd.domains as domains
+from exd.exd_utils import get_euclidean_initial_qinfos
+from exd.exd_core import mf_exd_args
 from opt.blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args, \
                                    CalledMFOptimiserWithSFCaller
 from utils.option_handler import load_options
@@ -19,7 +19,7 @@ from utils.general_utils import map_to_bounds
 
 random_optimiser_args = blackbox_opt_args
 euclidean_random_optimiser_args = random_optimiser_args
-mf_euclidean_random_optimiser_args = euclidean_random_optimiser_args + mf_ed_args
+mf_euclidean_random_optimiser_args = euclidean_random_optimiser_args + mf_exd_args
 
 
 # Base class for Random Optimisation -----------------------------------------------
