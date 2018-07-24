@@ -10,7 +10,6 @@
 *.pyc
 *.so
 *.p
-*exp*
 *Duplicate*
 *duplicate*
 *log*
@@ -18,6 +17,7 @@
 *count_lines*
 *99999*
 *data*
+*demo_exp_decay*
 *direct_results_*
 *working_dir*
 copy_from_boss.sh
