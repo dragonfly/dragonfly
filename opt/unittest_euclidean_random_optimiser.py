@@ -6,7 +6,6 @@
 # pylint: disable=invalid-name
 # pylint: disable=abstract-class-little-used
 
-from builtins import object
 import numpy as np
 # Local imports
 import opt.random_optimiser as random_optimiser

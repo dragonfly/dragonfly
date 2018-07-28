@@ -18,8 +18,8 @@ import imp
 from opt.gp_bandit import get_all_gp_bandit_args_from_gp_args
 from gp.euclidean_gp import euclidean_gp_args
 from utils.option_handler import get_option_specs, load_options
-from parser.config_parser import config_parser
-from maximise_function import maximise_function
+from parse.config_parser import config_parser
+from maximise_function import maximise_function, create_domain
 
 dragonfly_args = [ \
   get_option_specs('config', False, None, 'Path to the json or pb config file. '),
@@ -57,12 +57,8 @@ def main():
       raise ValueError('Specify the budget in budget or max_capital.')
     options.max_capital = options.budget
 
-  # Domain bounds
-  domain_bounds = [None] * len(parameters)
-  for param in parameters:
-    domain_bounds[param['order']] = [param['min'], param['max']]
-
-  opt_val, opt_pt = maximise_function(obj.main, domain_bounds, options=options,
+  domain = create_domain(parameters)
+  opt_val, opt_pt = maximise_function(obj.main, domain=domain, options=options,
                                       num_workers=prob['num_workers'],
                                       max_capital=options.max_capital)
   print('Optimum Value in %d evals: %0.4f'%(options.max_capital, opt_val))

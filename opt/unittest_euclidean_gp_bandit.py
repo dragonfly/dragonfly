@@ -27,7 +27,7 @@ class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
   def run_optimiser(cls, func_caller, worker_manager, max_capital, mode, *args, **kwargs):
     """ Runs optimiser. """
     return gp_bandit.gpb_from_func_caller(func_caller, worker_manager, max_capital,
-             mode=mode, acq='ttei', is_mf=False, *args, **kwargs)
+             mode=mode, is_mf=False, *args, **kwargs)
 
 
 class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
@@ -68,7 +68,7 @@ class MFEuclideanGPBanditTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestCla
   def run_optimiser(cls, func_caller, worker_manager, max_capital, mode, *args, **kwargs):
     """ Runs optimiser. """
     return gp_bandit.gpb_from_func_caller(func_caller, worker_manager, max_capital,
-             mode=mode, acq='ttei', is_mf=True, *args, **kwargs)
+             mode=mode, is_mf=True, *args, **kwargs)
 
 
 class MFEuclideanAddGPBanditTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):

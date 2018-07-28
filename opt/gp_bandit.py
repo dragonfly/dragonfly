@@ -21,6 +21,7 @@ from gp.euclidean_gp import EuclideanMFGPFitter, euclidean_mf_gp_args
 from opt import gpb_acquisitions
 from opt.blackbox_optimiser import blackbox_opt_args, BlackboxOptimiser, \
                                    CalledMFOptimiserWithSFCaller
+from utils.ancillary_utils import get_list_as_str
 from utils.option_handler import get_option_specs, load_options
 from utils.reporters import get_reporter
 
@@ -116,15 +117,16 @@ class GPBandit(BlackboxOptimiser):
 
   def _get_method_str(self):
     """ Returns a string describing the method. """
-    gpb_str = 'mfbo_%s'%(self.options.mf_strategy) if self.is_an_mf_method() else 'bo'
-    return '%s_%s'%(gpb_str, self.options.acq)
+    gpb_str = 'mfbo-%s'%(self.options.mf_strategy) if self.is_an_mf_method() else 'bo'
+    return '%s(%s)'%(gpb_str, self.options.acq)
 
   def _opt_method_set_up(self):
     """ Some set up for the GPBandit class. """
     # Set up acquisition optimisation
     self.gp = None
     self._set_up_acq_opt()
-    self.acqs_to_use = self.options.acq.split('-')
+    self.acqs_to_use = [elem.lower() for elem in self.options.acq.split('-')]
+    self.acqs_to_use_counter = {key: 0 for key in self.acqs_to_use}
     # TODO: The purpose behind acq_probs is that any acquisition can be sampled. Write
     # code to work with multiple specified acquisitions.
     if self.options.acq_probs == 'uniform':
@@ -139,9 +141,13 @@ class GPBandit(BlackboxOptimiser):
     self.options.post_hp_tune_method = self.options.gpb_post_hp_tune_method
     self.options.post_hp_tune_burn = self.options.gpb_post_hp_tune_burn
     self.options.post_hp_tune_offset = self.options.gpb_post_hp_tune_offset
+    # To store in history
+    self.history.query_acqs = []
+    self.to_copy_from_qinfo_to_history['curr_acq'] = 'query_acqs'
     # For multi-fidelity
     if self.is_an_mf_method():
-      self.mf_params_for_anc_data = {'acq':self.options.acq}
+#       self.mf_params_for_anc_data = {'acq':self.options.acq}
+      self.mf_params_for_anc_data = {}
       if self.options.mf_strategy == 'boca':
         self.mf_params_for_anc_data['boca_thresh_coeff'] = \
           self.options.boca_thresh_coeff_init
@@ -245,10 +251,16 @@ class GPBandit(BlackboxOptimiser):
   def _get_opt_method_report_results_str(self):
     """ Any details to include in a child method when reporting results.
     """
-    if self.is_an_mf_method() and self.options.mf_strategy == 'boca':
-      return 'boca-thresh=%0.3f'%(self.mf_params_for_anc_data['boca_thresh_coeff'])
+    if len(self.acqs_to_use) > 1:
+      acq_str = ', acqs=' + get_list_as_str([self.acqs_to_use_counter[key] for key in
+                                             self.acqs_to_use])
     else:
-      return ''
+      acq_str = ''
+    if self.is_an_mf_method() and self.options.mf_strategy == 'boca':
+      mf_str = ', boca-thresh=%0.3f'%(self.mf_params_for_anc_data['boca_thresh_coeff'])
+    else:
+      mf_str = ''
+    return acq_str + mf_str
 
   def _get_gp_reg_data(self):
     """ Returns the current data to be added to the GP. """
@@ -356,10 +368,17 @@ class GPBandit(BlackboxOptimiser):
     self._build_new_gp()
 
   # Methods needed for optimisation ----------------------------------------
-  def _get_ancillary_data_for_acquisition(self):
+  def _get_next_acq(self):
+    """ Gets the acquisition to use in the current iteration. """
+    ret = np.random.choice(self.acqs_to_use, p=self.acq_probs)
+    self.acqs_to_use_counter[ret] += 1
+    return ret
+
+  def _get_ancillary_data_for_acquisition(self, curr_acq):
     """ Returns ancillary data for the acquisitions. """
     max_num_acq_opt_evals = self.get_acq_opt_max_evals(self.step_idx)
-    ret = Namespace(max_evals=max_num_acq_opt_evals,
+    ret = Namespace(curr_acq=curr_acq,
+                    max_evals=max_num_acq_opt_evals,
                     t=self.step_idx,
                     domain=self.domain,
                     curr_max_val=self.curr_opt_val,
@@ -382,9 +401,10 @@ class GPBandit(BlackboxOptimiser):
 
   def _determine_next_query(self):
     """ Determine the next point for evaluation. """
-    anc_data = self._get_ancillary_data_for_acquisition()
-    select_pt_func = getattr(gpb_acquisitions.asy, self.options.acq.lower())
-    qinfo = Namespace()
+    curr_acq = self._get_next_acq()
+    anc_data = self._get_ancillary_data_for_acquisition(curr_acq)
+    select_pt_func = getattr(gpb_acquisitions.asy, curr_acq)
+    qinfo = Namespace(curr_acq=curr_acq)
     if self.is_an_mf_method():
       if self.options.mf_strategy == 'boca':
         next_eval_fidel, next_eval_point = gpb_acquisitions.boca(select_pt_func, \
@@ -399,9 +419,14 @@ class GPBandit(BlackboxOptimiser):
     return qinfo
 
   def _determine_next_batch_of_queries(self, batch_size):
-    """ Determine the next batch of eavluation points. """
-    anc_data = self._get_ancillary_data_for_acquisition()
-    select_pt_func = getattr(gpb_acquisitions.syn, self.options.acq.lower())
+    """ Determine the next batch of evaluation points. """
+    # TODO: use get_syn_recos_from_asy_in_gpb_acquisitions
+    curr_acq = self._get_next_acq()
+    anc_data = self._get_ancillary_data_for_acquisition(curr_acq)
+    select_pt_func = getattr(gpb_acquisitions.syn, curr_acq)
+#     curr_acqs = [self._get_next_acq() for _ in range(batch_size)]
+#     anc_datas = [self._get_ancillary_data_for_acquisition(ca) for ca in curr_acqs]
+#     select_pt_funcs = [getattr(gpb_acquisitions.syn, ca) for ca in curr_acqs]
     if self.is_an_mf_method():
       raise NotImplementedError('Not Implemented synchronous mf yet!')
     else:

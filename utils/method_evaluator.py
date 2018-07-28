@@ -5,7 +5,6 @@
 
 # pylint: disable=abstract-class-not-used
 
-from builtins import object
 from argparse import Namespace
 import random
 from time import time

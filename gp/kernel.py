@@ -9,7 +9,6 @@ from __future__ import division
 # pylint: disable=invalid-name
 # pylint: disable=abstract-method
 
-from builtins import object
 import numpy as np
 # Local imports
 from utils.ancillary_utils import get_list_of_floats_as_str
@@ -618,6 +617,90 @@ class SumOfExpSumOfDistsKernel(Kernel):
   def _child_evaluate(self, X1, X2):
     list_of_dists = self.dist_computer(X1, X2)
     return self.evaluate_from_dists(list_of_dists)
+
+
+class ESPKernel(Kernel):
+  """ Implements the ESP kernel from Kandasamy, Yu 2016, 'Additive Approximations in High
+      Dimensional Nonparametric Regression. """
+
+  def __init__(self, scale, order, kernel_list):
+    super(ESPKernel, self).__init__()
+    self.dim = len(kernel_list)
+    self.kernel_list = kernel_list
+    self.add_hyperparams(scale=scale, order=int(np.asscalar(order)))
+
+    if self.dim < 0:
+      raise ValueError("dim cannot not be negative")
+    if order > self.dim:
+      raise ValueError("order must be less than or equal to dim")
+    if order < 1:
+      raise ValueError("order must be an integer between 1 and dim")
+
+  def is_guaranteed_psd(self):
+    """ The child class should implement this method to indicate whether it is
+        guaranteed to be PSD. Returns True if each kernel is is_guaranteed_psd()"""
+    return all([kern.is_guaranteed_psd() for kern in self.kernel_list])
+
+  def _child_evaluate(self, X1, X2):
+    "computes the gram matrix"
+    # pylint: disable=too-many-locals
+    order = self.hyperparams["order"]
+    kernel_list = self.kernel_list
+    scale = self.hyperparams["scale"]
+    if isinstance(X1, list):
+      X1 = np.array(X1)
+    if isinstance(X2, list):
+      X2 = np.array(X2)
+
+    kernel_matrices = [kernel(X1, X2) for kernel in kernel_list]
+    power_sum = [0 for _ in range(order + 1)]
+    n1 = X1.shape[0]
+    n2 = X2.shape[0]
+
+    ones = np.ones((n1, n2))
+    power_sum[0] = ones
+    for i in range(1, order + 1):
+      for matrix in kernel_matrices:
+        power_sum[i] += matrix ** i
+
+    esp = [0 for _ in range(order + 1)]  # elementary symmetric polynomials
+    esp[0] = ones
+    for m in range(1, order + 1):
+      for i in range(1, m + 1):
+        esp[m] += ((-1) ** (i - 1)) * esp[m - i] * power_sum[i]
+        esp[m] /= m
+
+    return scale * esp[order]
+
+
+class ESPKernelSE(ESPKernel):
+  """Implements ESP kernel with SE kernel for each dimension"""
+  def __init__(self, dim, scale, order, dim_bandwidths):
+    kernel_list = []
+    single_bandwidth = False
+    if dim_bandwidths.size == dim:
+      single_bandwidth = True
+    for i in range(dim):
+      if single_bandwidth:
+        kernel_list.append(SEKernel(dim, 1.0, np.asscalar(dim_bandwidths[i])))
+      else:
+        kernel_list.append(SEKernel(dim, 1.0, dim_bandwidths[i:i+dim]))
+    super(ESPKernelSE, self).__init__(scale, order, kernel_list)
+
+
+class ESPKernelMatern(ESPKernel):
+  """Implements ESP kernel with Matern kernel for each dimension"""
+  def __init__(self, dim, nu, scale, order, dim_bandwidths):
+    kernel_list = []
+    single_bandwidth = False
+    if dim_bandwidths.size == dim:
+      single_bandwidth = True
+    for i in range(dim):
+      if single_bandwidth:
+        kernel_list.append(MaternKernel(dim, nu[i], 1.0, np.asscalar(dim_bandwidths[i])))
+      else:
+        kernel_list.append(MaternKernel(dim, nu[i], 1.0, dim_bandwidths[i:i+dim]))
+    super(ESPKernelMatern, self).__init__(scale, order, kernel_list)
 
 
 # Ancillary functions for the ExpSumOfDists and SumOfExpSumOfDistsKernel classes ---------

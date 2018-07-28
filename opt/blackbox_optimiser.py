@@ -119,18 +119,18 @@ class BlackboxOptimiser(ExperimentDesigner):
 
   def _get_exd_child_report_results_str(self):
     """ Returns a string describing the progress in optimisation. """
-    best_val_str = 'best_val: (e%0.3f, t%0.3f),'%(self.curr_opt_val,
+    best_val_str = 'best_val=(e%0.3f, t%0.3f)'%(self.curr_opt_val,
                                                   self.curr_true_opt_val)
     if self.func_caller.is_mf():
       window_length = 20
       window_queries_at_f2o = self.history.query_at_fidel_to_opts[-window_length:]
-      fidel_to_opt_str = '#f2o: %d[%0.2f](%d/%d),'%(self.num_fidel_to_opt_calls,
+      fidel_to_opt_str = ', #f2o: %d[%0.2f](%d/%d)'%(self.num_fidel_to_opt_calls,
                            self.num_fidel_to_opt_calls / float(self.step_idx),
                            sum(window_queries_at_f2o), window_length)
     else:
       fidel_to_opt_str = ''
     opt_method_str = self._get_opt_method_report_results_str()
-    return best_val_str + fidel_to_opt_str + opt_method_str
+    return best_val_str + fidel_to_opt_str + opt_method_str + ', '
 
   def _get_opt_method_report_results_str(self):
     """ Any details to include in a child method when reporting results.

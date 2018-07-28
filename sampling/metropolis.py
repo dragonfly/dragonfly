@@ -9,7 +9,6 @@ from __future__ import division
 # pylint: disable=unexpected-keyword-arg
 # pylint: disable=redefined-variable-type
 
-from builtins import object
 import scipy.linalg
 import numpy as np
 import numpy.random as nr

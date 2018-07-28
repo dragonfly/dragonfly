@@ -149,7 +149,7 @@ If you use any part of this code in your work, please cite
 
 ### License
 This software is released under the MIT license. For more details, please refer
-[LICENSE.txt](https://github.com/dragonfly/dragonfly/LICENSE.txt).
+[LICENSE.txt](https://github.com/dragonfly/dragonfly/blob/master/LICENSE.txt).
 
 "Copyright 2018 Kirthevasan Kandasamy"
 

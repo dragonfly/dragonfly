@@ -6,7 +6,6 @@ from __future__ import division
 
 # pylint: disable=invalid-name
 
-from builtins import object
 import numpy as np
 # Local
 from gp.euclidean_gp import EuclideanGP, EuclideanGPFitter, euclidean_gp_args

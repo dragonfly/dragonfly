@@ -13,7 +13,6 @@
 from __future__ import division
 import time
 from argparse import Namespace
-from builtins import object
 import numpy as np
 
 # Local imports
@@ -167,7 +166,10 @@ class ExperimentDesigner(object):
     # Now store in history
     for qinfo_name, history_name in self.to_copy_from_qinfo_to_history.items():
       attr_list = getattr(self.history, history_name)
-      attr_list.append(getattr(qinfo, qinfo_name))
+      try:
+        attr_list.append(getattr(qinfo, qinfo_name))
+      except AttributeError:
+        attr_list.append('xxx')
     # Do any child update
     self._exd_child_update_history(qinfo)
     # Check for unsuccessful queries
@@ -205,7 +207,7 @@ class ExperimentDesigner(object):
                 self.get_curr_spent_capital()/self.available_capital)
     report_str = ' '.join(['%s'%(self.full_method_name),
                            '(%03d/%03d)'%(self.num_succ_queries, self.step_idx),
-                           'cap: %0.3f:: '%(cap_frac),
+                           'cap=%0.3f:: '%(cap_frac),
                            self._get_exd_child_report_results_str(),
                            'w=%s,'%(self._get_jobs_for_each_worker()),
                            'inP=%s'%(self._get_curr_job_idxs_in_progress()),

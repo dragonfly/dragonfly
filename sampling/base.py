@@ -4,7 +4,6 @@
 """
 
 # Local imports
-from builtins import object
 from sampling.check_functions import _check_1d_array_object, _check_length_equal
 
 class BaseSimulateHamiltonianDynamics(object):

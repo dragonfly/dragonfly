@@ -9,10 +9,13 @@ from __future__ import division
 # pylint: disable=invalid-name
 # pylint: disable=no-member
 # pylint: disable=redefined-builtin
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-statements
 
+from argparse import Namespace
 from itertools import product as itertools_product
+from itertools import permutations
 import sys
-from builtins import object
 import numpy as np
 # Local imports
 from distributions.model import Model
@@ -155,8 +158,6 @@ class GP(object):
     """
     # Compute the posterior mean.
     test_mean = self.mean_func(X_test)
-#     print X_test, self.X
-#     import pdb; pdb.set_trace()
     K_tetr = self.kernel(X_test, self.X)
     pred_mean = test_mean + K_tetr.dot(self.alpha)
     # Compute the posterior variance or standard deviation as required.
@@ -179,8 +180,6 @@ class GP(object):
   def eval_with_hallucinated_observations(self, X_test, X_halluc, uncert_form='none'):
     """ Evaluates the GP with additional hallucinated observations in the
         kernel matrix. """
-#     print X_test, X_halluc
-#     import pdb; pdb.set_trace()
     pred_mean, _ = self.eval(X_test, uncert_form='none') # Just compute the means.
     if uncert_form == 'none':
       uncert = None
@@ -535,7 +534,13 @@ class GPFitter(object):
     def _logp(x):
       """ Computes log probability of observations at x. """
       # sum of log probability priors
-      if type(self.hp_priors[self.curr_hp]).__name__ == "Categorical":
+      if self.parameter == 'additive_grp':
+        if x >= len(self.perms) or x < 0:
+          return -np.inf
+        groupings = [self.perms[int(x)][i:i+self.group_size]
+                     for i in range(0, self.dim, self.group_size)]
+        self.other_gp_params = Namespace(add_gp_groupings=groupings)
+      elif type(self.hp_priors[self.curr_hp]).__name__ == "Categorical":
         self.hps[self.curr_hp] = self.hp_priors[self.curr_hp].get_category(np.asscalar(x))
       else:
         self.hps[self.curr_hp] = x
@@ -550,7 +555,7 @@ class GPFitter(object):
         return lp
 
       lp += self._tuning_objective_post_sampling(self.hps[0:len(self.cts_hp_bounds)], \
-                self.hps[len(self.cts_hp_bounds):self.num_hps], best_other_gp_params)
+                self.hps[len(self.cts_hp_bounds):self.num_hps], self.other_gp_params)
       return lp
 
     def _pdf(x):
@@ -567,7 +572,7 @@ class GPFitter(object):
       self.hps[self.curr_hp] = x
       lp = self.hp_priors[self.curr_hp].grad_logp(self.hps[self.curr_hp])
       lp += self._tuning_objective_post_sampling(self.hps[0:len(self.cts_hp_bounds)], \
-                self.hps[len(self.cts_hp_bounds):self.num_hps], best_other_gp_params, \
+                self.hps[len(self.cts_hp_bounds):self.num_hps], self.other_gp_params, \
                 self.parameter, self.param_num, True)
       return lp
 
@@ -577,10 +582,11 @@ class GPFitter(object):
     best_cts_hps = np.zeros([num_samples, len(self.cts_hp_bounds)])
     best_dscr_hps = np.zeros([num_samples, len(self.dscr_hp_vals)])
     best_other_gp_params = [None] * num_samples
-    cts_hps = np.zeros([(num_samples - 1)*offset + 1, len(self.cts_hp_bounds)])
-    dscr_hps = np.zeros([(num_samples - 1)*offset + 1, len(self.dscr_hp_vals)])
-    self.param_num = -1
     total_samples = (num_samples - 1)*offset + 1
+    cts_hps = np.zeros([total_samples, len(self.cts_hp_bounds)])
+    dscr_hps = np.zeros([total_samples, len(self.dscr_hp_vals)])
+    _other_gp_params = [None] * total_samples
+    self.param_num = -1
 
     # burn value
     if self.options.post_hp_tune_burn == -1:
@@ -597,34 +603,56 @@ class GPFitter(object):
       if type(self.hp_priors[i]).__name__ == "Categorical":
         self.hps[i] = self.hp_priors[i].get_category(int(self.hps[i]))
 
+    # Grouping intitialization for additive gp
+    if self.options.use_additive_gp:
+      self.perms = [list(mut) for mut in permutations(list(range(self.dim)))]
+      self.perms_idx = np.random.randint(len(self.perms), dtype='int')
+      groupings = [self.perms[self.perms_idx][i:i+int(self.hps[-1])]
+                   for i in range(0, self.dim, int(self.hps[-1]))]
+      self.other_gp_params = Namespace(add_gp_groupings=groupings)
+    else:
+      self.other_gp_params = Namespace(add_gp_groupings=[None])
+
     # Randomly selcting a parameter and sampling it using tuning objective
     order = list(range(self.num_hps))
     np.random.shuffle(order)
-    dscr_i = 0
     for i in order:
       self.curr_hp = i
       self.parameter = self.param_order[i][0]
       if self.parameter == "dim_bandwidths":
         self.param_num = self.param_num + 1
+      dscr_i = i - len(self.cts_hp_bounds)
       if self.param_order[i][-1] == "cts":
         cts_hps[:, i] = np.squeeze(self.hp_sampler_cts(_model, self.hps[i],
                                                        total_samples, burn), axis=1)
         self.hps[i] = cts_hps[0, i]
-      else:
+      elif self.parameter != "additive_grp":
         if type(self.hp_priors[i]).__name__ == "Categorical":
           init_sample = self.hp_priors[i].get_id(self.hps[i])
           dscr_hp = np.squeeze(self.hp_sampler_dscr(_model, init_sample, total_samples),
                                axis=1)
-          dscr_hps[:, dscr_i] = self.hp_priors[i].get_category(int(dscr_hp))
+          for j, val in enumerate(dscr_hp):
+            dscr_hps[j, dscr_i] = self.hp_priors[i].get_category(int(val))
         else:
           dscr_hps[:, dscr_i] = np.squeeze(self.hp_sampler_dscr(_model, \
                                                 self.hps[i], total_samples), axis=1)
         self.hps[i] = dscr_hps[0, dscr_i]
-        dscr_i = dscr_i + 1
+      else:
+        dscr_hps[:, dscr_i] = np.random.randint(1, self.add_max_group_size + 1,
+                                                total_samples, dtype='int')
+        for j in range(total_samples):
+          self.group_size = int(dscr_hps[j, dscr_i])
+          self.perms_idx = int(np.squeeze(self.hp_sampler_dscr(_model, self.perms_idx, 1),
+                                          axis=1))
+          groupings = [self.perms[self.perms_idx][k:k+self.group_size]
+                       for k in range(0, self.dim, self.group_size)]
+          _other_gp_params[j] = Namespace(add_gp_groupings=groupings)
+        self.other_gp_params = _other_gp_params[0]
 
     for i in range(num_samples):
       best_cts_hps[i, :] = cts_hps[i*offset, :]
       best_dscr_hps[i, :] = dscr_hps[i*offset, :]
+      best_other_gp_params[i] = _other_gp_params[i*offset]
 
     return best_cts_hps, best_dscr_hps, best_other_gp_params
 

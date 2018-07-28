@@ -4,7 +4,6 @@
   -- kandasamy@cs.cmu.edu
 """
 
-from builtins import object
 import sys
 import six
 import io

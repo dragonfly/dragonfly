@@ -6,7 +6,6 @@ from __future__ import absolute_import
 
 # pylint: disable=invalid-name
 
-from builtins import object
 import numpy as np
 
 # Local imports

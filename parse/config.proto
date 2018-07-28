@@ -12,10 +12,11 @@ message Experiment {
   repeated ParameterSpec variable = 11;
 
   message ParameterSpec {
-    required string name = 1;
-    optional string type = 2 [default = "float"];
-    optional double min  = 3 [default = -inf];
-    optional double max  = 4 [default = inf];
-    optional uint32 dim  = 5 [default = 1];
+    required string name   = 1;
+    optional string type   = 2 [default = "float"];
+    optional double min    = 3 [default = -inf];
+    optional double max    = 4 [default = inf];
+    optional uint32 dim    = 5 [default = 1];
+    optional string kernel = 6 [default = ""];
   }
 }

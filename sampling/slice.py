@@ -6,7 +6,6 @@ from __future__ import division
 
 # pylint: disable=invalid-name
 
-from builtins import object
 import numpy as np
 import numpy.random as nr
 

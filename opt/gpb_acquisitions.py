@@ -84,25 +84,31 @@ def _get_gp_sampler_for_parallel_strategy(gp, anc_data):
     return _get_naive_gp_draw_samples(gp)
 
 
-def _get_syn_recommendations_from_asy(asy_acq, num_workers, list_of_gps, anc_data):
+def _get_syn_recommendations_from_asy(asy_acq, num_workers, list_of_gps, anc_datas):
   """ Returns a batch of (synchronous recommendations from an asynchronous acquisition.
   """
-  list_of_gps = copy(list_of_gps)
-  anc_data = copy(anc_data)
-  def _get_next_gp_and_list_of_gps(_list_of_gps):
+  def _get_next_and_append(_list_of_objects):
     """ Internal function to return current gp and list of gps. """
-    ret = _list_of_gps.pop(0)
-    _list_of_gps = _list_of_gps + [ret]
-    return ret, _list_of_gps
+    ret = _list_of_objects.pop(0)
+    _list_of_objects = _list_of_objects + [ret]
+    return ret, _list_of_objects
   # If list_of_gps is not a list, then make it a list.
   if not hasattr(list_of_gps, '__iter__'):
     list_of_gps = [list_of_gps] * num_workers
-  next_gp, list_of_gps = _get_next_gp_and_list_of_gps(list_of_gps)
-  recommendations = [asy_acq(next_gp, anc_data)]
+  if not hasattr(anc_datas, '__iter__'):
+    anc_datas = [anc_datas] * num_workers
+  # Create copies
+  list_of_gps = [copy(gp) for gp in list_of_gps]
+  anc_datas = [copy(ad) for ad in anc_datas]
+  # Get first recommendation
+  next_gp, list_of_gps = _get_next_and_append(list_of_gps)
+  next_anc_data, anc_datas = _get_next_and_append(anc_datas)
+  recommendations = [asy_acq(next_gp, next_anc_data)]
   for _ in range(1, num_workers):
-    next_gp, list_of_gps = _get_next_gp_and_list_of_gps(list_of_gps)
-    anc_data.eval_points_in_progress = recommendations
-    recommendations.append(asy_acq(next_gp, anc_data))
+    next_gp, list_of_gps = _get_next_and_append(list_of_gps)
+    next_anc_data, anc_datas = _get_next_and_append(anc_datas)
+    next_anc_data.eval_points_in_progress = recommendations
+    recommendations.append(asy_acq(next_gp, next_anc_data))
   return recommendations
 
 
@@ -117,9 +123,9 @@ def asy_ts(gp, anc_data):
   gp_sample = _get_gp_sampler_for_parallel_strategy(gp, anc_data)
   return _maximise_acquisition(gp_sample, anc_data, vectorised=True)
 
-def syn_ts(num_workers, list_of_gps, anc_data):
+def syn_ts(num_workers, list_of_gps, anc_datas):
   """ Returns a batch of recommendations via TS in the synchronous setting. """
-  return _get_syn_recommendations_from_asy(asy_ts, num_workers, list_of_gps, anc_data)
+  return _get_syn_recommendations_from_asy(asy_ts, num_workers, list_of_gps, anc_datas)
 
 
 # Add-UCB --------------------------------------------------------------------------
@@ -183,7 +189,7 @@ def asy_add_ucb(gp, anc_data):
   """ Asynchronous Add UCB. """
   return _add_ucb(gp, gp.kernel, None, anc_data)
 
-def syn_add_ucb(num_workers, list_of_gps, anc_data):
+def syn_add_ucb(num_workers, list_of_gps, anc_datas):
   """ Synchronous Add UCB. """
   # pylint: disable=unused-argument
   raise NotImplementedError('Not implemented Synchronous Add UCB yet.')
@@ -212,9 +218,9 @@ def asy_ucb(gp, anc_data):
     return mu + beta_th * sigma
   return _maximise_acquisition(_ucb_acq, anc_data)
 
-def syn_ucb(num_workers, list_of_gps, anc_data):
+def syn_ucb(num_workers, list_of_gps, anc_datas):
   """ Returns a recommendation via Batch UCB in the synchronous setting. """
-  return _get_syn_recommendations_from_asy(asy_ucb, num_workers, list_of_gps, anc_data)
+  return _get_syn_recommendations_from_asy(asy_ucb, num_workers, list_of_gps, anc_datas)
 
 # EI stuff ----------------------------------------------------------------------------
 def _expected_improvement_for_norm_diff(norm_diff):
@@ -233,9 +239,9 @@ def asy_ei(gp, anc_data):
     return sigma * _expected_improvement_for_norm_diff(norm_diff)
   return _maximise_acquisition(_ei_acq, anc_data)
 
-def syn_ei(num_workers, list_of_gps, anc_data):
+def syn_ei(num_workers, list_of_gps, anc_datas):
   """ Returns a recommendation via EI in the synchronous setting. """
-  return _get_syn_recommendations_from_asy(asy_ei, num_workers, list_of_gps, anc_data)
+  return _get_syn_recommendations_from_asy(asy_ei, num_workers, list_of_gps, anc_datas)
 
 
 # TTEI ----------------------------------------------------------------------------------
@@ -375,7 +381,7 @@ def boca(select_pt_func, mfgp, anc_data, func_caller):
       Approximations (https://arxiv.org/pdf/1703.06240.pdf).
       We have some additional heuristics implemented as described in the appendix.
   """
-  if anc_data.acq == 'add_ucb':
+  if anc_data.curr_acq == 'add_ucb':
     next_eval_point = asy_add_ucb_for_boca(mfgp, func_caller.fidel_to_opt, anc_data)
   else:
     fidel_to_opt_gp = _get_fidel_to_opt_gp(mfgp, func_caller.fidel_to_opt)

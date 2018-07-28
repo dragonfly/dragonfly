@@ -12,7 +12,6 @@ from __future__ import division
 # pylint: disable=redefined-builtin
 # pylint: disable=too-many-locals
 
-from builtins import hex
 import pickle
 import argparse
 import warnings

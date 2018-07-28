@@ -9,7 +9,6 @@ from __future__ import division
 # pylint: disable=abstract-class-not-used
 # pylint: disable=abstract-class-little-used
 
-from builtins import object
 from argparse import Namespace
 from multiprocessing import Process
 import numpy as np

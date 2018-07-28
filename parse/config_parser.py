@@ -44,6 +44,7 @@ def load_parameters_json(config):
     _dim = _parameters[key].get('dim', 1)
     _min = _parameters[key].get('min', -np.inf)
     _max = _parameters[key].get('max', np.inf)
+    _kernel = _parameters[key].get('kernel', '')
 
     for i in range(_dim):
       param = {}
@@ -55,6 +56,7 @@ def load_parameters_json(config):
       param['min'] = _min
       param['max'] = _max
       param['order'] = order
+      param['kernel'] = unicode_to_str(_kernel)
 
       parameters.append(param)
       order = order + 1
@@ -86,6 +88,7 @@ def load_parameters_pb(config):
         param['name'] = unicode_to_str(var.name) + str(i)
 
       param['type'] = unicode_to_str(var.type)
+      param['kernel'] = unicode_to_str(var.kernel)
 
       if var.min == '-inf':
         param['min'] = -np.inf
@@ -121,7 +124,7 @@ def read_pb(config_file):
   except ImportError:
     raise ImportError('Protocol Buffer library is not installed')
 
-  from parser import config_pb2
+  from parse import config_pb2
   config = config_pb2.Experiment()
 
   _file = open(config_file, "rb")

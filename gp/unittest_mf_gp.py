@@ -8,7 +8,6 @@ from __future__ import division
 # pylint: disable=no-member
 # pylint: disable=maybe-no-member
 
-from builtins import object
 from argparse import Namespace
 from copy import deepcopy
 import numpy as np

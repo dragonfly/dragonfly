@@ -9,7 +9,6 @@
 # pylint: disable=arguments-differ
 
 from __future__ import division
-from builtins import object
 from math import sqrt
 
 import numpy as np

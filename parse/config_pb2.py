@@ -18,7 +18,7 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='config.proto',
   package='',
-  serialized_pb=_b('\n\x0c\x63onfig.proto\"\x9f\x03\n\nExperiment\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x15\n\nnum_trials\x18\x02 \x01(\r:\x01\x31\x12\x16\n\x0bnum_workers\x18\x03 \x01(\r:\x01\x31\x12\x1a\n\x0btime_distro\x18\x04 \x01(\t:\x05\x63onst\x12\x1c\n\x0bresults_dir\x18\x05 \x01(\t:\x07results\x12\x15\n\x06method\x18\x06 \x01(\t:\x05slice\x12\x19\n\x0bnoisy_evals\x18\x07 \x01(\x08:\x04true\x12\x18\n\x0bnoise_scale\x18\x08 \x01(\x02:\x03\x30.1\x12\x19\n\x08reporter\x18\t \x01(\t:\x07\x64\x65\x66\x61ult\x12\x1d\n\x11initial_pool_size\x18\n \x01(\r:\x02\x32\x30\x12+\n\x08variable\x18\x0b \x03(\x0b\x32\x19.Experiment.ParameterSpec\x1ag\n\rParameterSpec\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x13\n\x04type\x18\x02 \x01(\t:\x05\x66loat\x12\x11\n\x03min\x18\x03 \x01(\x01:\x04-inf\x12\x10\n\x03max\x18\x04 \x01(\x01:\x03inf\x12\x0e\n\x03\x64im\x18\x05 \x01(\r:\x01\x31')
+  serialized_pb=_b('\n\x0c\x63onfig.proto\"\xb1\x03\n\nExperiment\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x15\n\nnum_trials\x18\x02 \x01(\r:\x01\x31\x12\x16\n\x0bnum_workers\x18\x03 \x01(\r:\x01\x31\x12\x1a\n\x0btime_distro\x18\x04 \x01(\t:\x05\x63onst\x12\x1c\n\x0bresults_dir\x18\x05 \x01(\t:\x07results\x12\x15\n\x06method\x18\x06 \x01(\t:\x05slice\x12\x19\n\x0bnoisy_evals\x18\x07 \x01(\x08:\x04true\x12\x18\n\x0bnoise_scale\x18\x08 \x01(\x02:\x03\x30.1\x12\x19\n\x08reporter\x18\t \x01(\t:\x07\x64\x65\x66\x61ult\x12\x1d\n\x11initial_pool_size\x18\n \x01(\r:\x02\x32\x30\x12+\n\x08variable\x18\x0b \x03(\x0b\x32\x19.Experiment.ParameterSpec\x1ay\n\rParameterSpec\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x13\n\x04type\x18\x02 \x01(\t:\x05\x66loat\x12\x11\n\x03min\x18\x03 \x01(\x01:\x04-inf\x12\x10\n\x03max\x18\x04 \x01(\x01:\x03inf\x12\x0e\n\x03\x64im\x18\x05 \x01(\r:\x01\x31\x12\x10\n\x06kernel\x18\x06 \x01(\t:\x00')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -67,6 +67,13 @@ _EXPERIMENT_PARAMETERSPEC = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='kernel', full_name='Experiment.ParameterSpec.kernel', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=True, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -79,7 +86,7 @@ _EXPERIMENT_PARAMETERSPEC = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=329,
-  serialized_end=432,
+  serialized_end=450,
 )
 
 _EXPERIMENT = _descriptor.Descriptor(
@@ -178,7 +185,7 @@ _EXPERIMENT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=17,
-  serialized_end=432,
+  serialized_end=450,
 )
 
 _EXPERIMENT_PARAMETERSPEC.containing_type = _EXPERIMENT
