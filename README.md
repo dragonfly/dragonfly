@@ -1,7 +1,6 @@
 
 <img src="https://dragonfly.github.io/images/dragonfly_bigwords.png"/>
----------
-
+-----------------
 Dragonfly is an open source python library for scalable Bayesian optimisation.
 The library is in alpha version.
 
