@@ -1,7 +1,6 @@
 
 
 <img src="https://dragonfly.github.io/images/dragonfly_bigwords.png"
-width="200"
 />
 
 
