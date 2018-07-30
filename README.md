@@ -1,6 +1,6 @@
 
 
-<img src="https://dragonfly.github.io/images/dragonfly_logo.png"
+<img src="https://dragonfly.github.io/images/dragonfly_bigwords.png"
 width="200"
 />
 
