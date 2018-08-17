@@ -1,5 +1,5 @@
 """
-  Harness for Blackbox Experiment Designn. Implements a parent class that can be inherited
+  Harness for Blackbox Experiment Design. Implements a parent class that can be inherited
   by all methods for black-box optimisation.
   -- kandasamy@cs.cmu.edu
 """
