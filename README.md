@@ -9,7 +9,7 @@ The library is in alpha version.
 Bayesian optimisation is used for optimising black-box functions whose evaluations are
 usually expensive. Beyond vanilla optimisation techniques, Dragonfly provides an array of tools to
 scale up Bayesian optimisation to expensive large scale problems.
-These include features/functionality that are especially suited for,
+These include features/functionality that are especially suited for
 high dimensional optimisation (optimising for a large number of variables),
 parallel evaluations in synchronous or asynchronous settings (conducting multiple
 evaluations in parallel), and multi-fidelity optimisation (using cheap approximations
