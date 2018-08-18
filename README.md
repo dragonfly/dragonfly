@@ -61,7 +61,7 @@ Dragonfly can be
 used directly in the command line by calling
 [`dragonfly.py`](dragonfly.py)
 or be imported in python code via the `maximise_function` function in
-[`maximise_function.py`](maximise_function.py).
+[`dragonfly.py`](dragonfly.py).
 To help get started, we have provided some demos in the `demos` directory.
 
 **Via command line**:
@@ -110,7 +110,7 @@ $ python dragonfly.py --config demos/face_rec/config.pb --options demos/face_rec
 
 You can import the main API in python code via,
 ```python
-from dragonfly.maximise_function import maximise_function
+from dragonfly.dragonfly import maximise_function
 ...
 max_val, max_pt = maximise_function(func, domain, max_capital)
 ```
