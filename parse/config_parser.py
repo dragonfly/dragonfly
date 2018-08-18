@@ -4,8 +4,6 @@
 """
 from __future__ import absolute_import
 
-#pylint: disable=relative-import
-
 import sys
 import json
 from collections import OrderedDict
@@ -17,94 +15,75 @@ def unicode_to_str(data):
     return data.encode('utf-8')
   return data
 
-def load_parameters_json(config):
+def load_parameters(config):
   """ Parses all the parameters from json config file. """
-  prob_params = {}
-  prob_params['name'] = unicode_to_str(config.get('name'))
-  if prob_params['name'] is None:
+  exp_info = {}
+  exp_info['name'] = unicode_to_str(config.get('name'))
+  if exp_info['name'] is None:
     raise ValueError('Experiment name is required')
-  prob_params['num_trials'] = config.get('num_trials', 1)
-  prob_params['num_workers'] = config.get('num_workers', 1)
-  prob_params['time_distro'] = unicode_to_str(config.get('time_distro', 'const').lower())
-  prob_params['results_dir'] = unicode_to_str(config.get('results_dir', 'results'))
-  prob_params['method'] = unicode_to_str(config.get('method', 'slice').lower())
-  prob_params['noisy_evals'] = config.get('noisy_evals', True)
-  prob_params['noise_scale'] = config.get('noise_scale', 0.1)
-  prob_params['reporter'] = config.get('reporter', 'default')
-  prob_params['initial_pool_size'] = config.get('initial_pool_size', 20)
+  exp_info['num_trials'] = config.get('num_trials', 1)
+  exp_info['num_workers'] = config.get('num_workers', 1)
+  exp_info['time_distro'] = unicode_to_str(config.get('time_distro', 'const').lower())
+  exp_info['results_dir'] = unicode_to_str(config.get('results_dir', 'results'))
+  exp_info['method'] = unicode_to_str(config.get('method', 'slice').lower())
+  exp_info['noisy_evals'] = config.get('noisy_evals', True)
+  exp_info['noise_scale'] = config.get('noise_scale', 0.1)
+  exp_info['reporter'] = config.get('reporter', 'default')
+  exp_info['initial_pool_size'] = config.get('initial_pool_size', 20)
 
   parameters = []
-  _parameters = config['parameters']
-  order = 0
-  for key in list(_parameters.keys()):
-    _name = _parameters[key].get('name', key)
-    if _name is None:
-      raise ValueError('Parameter name is required')
-    _type = _parameters[key].get('type', 'float')
-    _dim = _parameters[key].get('dim', 1)
-    _min = _parameters[key].get('min', -np.inf)
-    _max = _parameters[key].get('max', np.inf)
-    _kernel = _parameters[key].get('kernel', '')
-
-    for i in range(_dim):
-      param = {}
-      if _dim == 1:
-        param['name'] = unicode_to_str(_name)
-      else:
-        param['name'] = unicode_to_str(_name) + str(i)
-      param['type'] = unicode_to_str(_type).lower()
-      param['min'] = _min
-      param['max'] = _max
-      param['order'] = order
-      param['kernel'] = unicode_to_str(_kernel)
-
+  _parameters = config['domain']
+  if isinstance(_parameters, dict):
+    for key in list(_parameters.keys()):
+      param = load_parameter(_parameters[key], key)
       parameters.append(param)
-      order = order + 1
-
-  return prob_params, parameters
-
-def load_parameters_pb(config):
-  """ Parses all the parameters from protocol buffer config file. """
-  prob_params = {}
-  prob_params['name'] = unicode_to_str(config.name)
-  prob_params['num_trials'] = config.num_trials
-  prob_params['num_workers'] = config.num_workers
-  prob_params['time_distro'] = unicode_to_str(config.time_distro).lower()
-  prob_params['results_dir'] = unicode_to_str(config.results_dir)
-  prob_params['method'] = unicode_to_str(config.method).lower()
-  prob_params['noisy_evals'] = config.noisy_evals
-  prob_params['noise_scale'] = config.noise_scale
-  prob_params['reporter'] = config.reporter
-  prob_params['initial_pool_size'] = config.initial_pool_size
-
-  parameters = []
-  order = 0
-  for var in config.variable:
-    for i in range(var.dim):
-      param = {}
-      if var.dim == 1:
-        param['name'] = unicode_to_str(var.name)
-      else:
-        param['name'] = unicode_to_str(var.name) + str(i)
-
-      param['type'] = unicode_to_str(var.type)
-      param['kernel'] = unicode_to_str(var.kernel)
-
-      if var.min == '-inf':
-        param['min'] = -np.inf
-      else:
-        param['min'] = var.min
-
-      if var.max == 'inf':
-        param['max'] = np.inf
-      else:
-        param['max'] = var.max
-      param['order'] = order
-
+  elif isinstance(_parameters, list):
+    for _parameter in _parameters:
+      param = load_parameter(_parameter)
       parameters.append(param)
-      order = order + 1
+  else:
+    raise ValueError('Wrong parameter type.')
 
-  return prob_params, parameters
+  fidel_parameters = []
+  _parameters = config.get('fidel_space', {})
+  if isinstance(_parameters, dict):
+    for key in list(_parameters.keys()):
+      param = load_parameter(_parameters[key], key)
+      fidel_parameters.append(param)
+  elif isinstance(_parameters, list):
+    for _parameter in _parameters:
+      param = load_parameter(_parameter)
+      fidel_parameters.append(param)
+  else:
+    raise ValueError('Wrong parameter type.')
+
+  return {"exp_info" : exp_info, "domain" : parameters, "fidel_space" : fidel_parameters}
+
+def load_parameter(parameter, key=None):
+  """ Parses each parameter and return a dict """
+  _name = parameter.get('name', key)
+  if _name is None:
+    raise ValueError('Parameter name is required')
+  _type = parameter.get('type', 'float')
+  _dim = parameter.get('dim', "")
+  _min = parameter.get('min', -np.inf)
+  _max = parameter.get('max', np.inf)
+  _kernel = parameter.get('kernel', '')
+  _items = parameter.get('items', '')
+  if _dim != "":
+    _dim = int(_dim)
+  param = {}
+  param['name'] = unicode_to_str(_name)
+  param['type'] = unicode_to_str(_type).lower()
+  if param['type'] in ['float', 'int']:
+    param['min'] = _min
+    param['max'] = _max
+  elif param['type'] in ['discrete']:
+    param['items'] = '-'.split(unicode_to_str(_items))
+  param['kernel'] = unicode_to_str(_kernel)
+  param['dim'] = _dim
+
+  return param
 
 def read_json(config_file):
   """ Read from json file. """
@@ -115,34 +94,37 @@ def read_json(config_file):
   except:
     raise Exception('Error in loading config file: ' + config_file)
 
-  return load_parameters_json(config)
+  return load_parameters(config)
 
 def read_pb(config_file):
   """ Read from protocol buffer file. """
   try:
     from google.protobuf import text_format
+    from google.protobuf.json_format import MessageToDict
   except ImportError:
     raise ImportError('Protocol Buffer library is not installed')
 
   from parse import config_pb2
-  config = config_pb2.Experiment()
+  config_pb = config_pb2.Experiment()
 
   _file = open(config_file, "rb")
-  text_format.Merge(_file.read(), config)
+  text_format.Merge(_file.read(), config_pb)
   _file.close()
 
-  return load_parameters_pb(config)
+  config = MessageToDict(config_pb)
+  config['fidel_space'] = config.pop('fidelSpace')
+  return load_parameters(config)
 
 def config_parser(config_file):
   """Reads config files and creates domain objects. """
   if config_file.endswith('.json'):
-    prob_params, parameters = read_json(config_file)
+    params = read_json(config_file)
   elif config_file.endswith('.pb'):
-    prob_params, parameters = read_pb(config_file)
+    params = read_pb(config_file)
   else:
     raise ValueError('Wrong Config file: %s' % (config_file))
 
-  return prob_params, parameters
+  return params
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:

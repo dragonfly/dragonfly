@@ -192,6 +192,43 @@ def get_mf_borehole_function():
   return mf_borehole_function, sf_borehole_obj, opt_pt, opt_val, fidel_to_opt, \
          fidel_bounds, domain_bounds
 
+# Park Functions ----------------------------------------------------------------------
+def park1(x, max_val):
+  """ Computes the park1 function. """
+  x1 = x[0]
+  x2 = x[1]
+  x3 = x[2]
+  x4 = x[3]
+  ret1 = (x1/2) * (np.sqrt(1 + (x2 + x3**2)*x4/(x1**2)) - 1)
+  ret2 = (x1 + 3*x4) * np.exp(1 + np.sin(x3))
+  return min(ret1 + ret2, max_val)
+
+def get_mf_park1_function():
+  """ Gets the MF Park1 function. """
+  # TODO: Add mf_branin_obj
+  opt_val = 25.5872304
+  opt_pt = None
+  sf_park1_obj = lambda x: park1(x, opt_val)
+  domain_bounds = [[0, 1]] * 4
+  return None, sf_park1_obj, opt_pt, opt_val, None, None, domain_bounds
+
+def park2(x, max_val):
+  """ Comutes the park2 function """
+  x1 = x[0]
+  x2 = x[1]
+  x3 = x[2]
+  x4 = x[3]
+  ret = (2.0/3.0) * np.exp(x1 + x2) - x4*np.sin(x3) + x3
+  return min(ret, max_val)
+
+def get_mf_park2_function():
+  """ Gets the MF Park2 function. """
+  # TODO: Add mf_branin_obj
+  opt_val = 5.925698
+  opt_pt = None
+  sf_park2_obj = lambda x: park2(x, opt_val)
+  domain_bounds = [[0, 1]] * 4
+  return None, sf_park2_obj, opt_pt, opt_val, None, None, domain_bounds
 
 # A cost function for MF evaluations -------------------------------------------
 def get_mf_cost_function(fidel_bounds):
@@ -234,7 +271,7 @@ def get_high_dim_function(domain_dim, group_dim, mf_obj, sf_obj):
     return ret
   return mf_obj_high_dim, sf_obj_high_dim, num_groups
 
-def get_high_dim_function_data(func_name, fidel_dim):
+def get_high_dim_function_data(func_name, fidel_dim=None):
   """ Gets a high dimensional function data from the description. """
   fidel_dim_to_pass = 1 if fidel_dim is None else fidel_dim
   segments = func_name.split('-')
@@ -252,6 +289,7 @@ def get_high_dim_function_data(func_name, fidel_dim):
 def get_function_data(func_name, domain_dim=None, fidel_dim=None, noise_type='no_noise',
                       noise_scale=None):
   """ Gets a function data from the description. """
+  # pylint: disable=too-many-branches
   fidel_dim_to_pass = 1 if fidel_dim is None else fidel_dim
   if func_name == 'hartmann':
     if domain_dim is None:
@@ -283,19 +321,30 @@ def get_function_data(func_name, domain_dim=None, fidel_dim=None, noise_type='no
                         'Given: %s.')%(fidel_dim))
     mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds = \
       get_mf_borehole_function()
+  elif func_name == 'park1':
+    if domain_dim != 4 and domain_dim is not None:
+      raise ValueError(('For the park1 function, domain_dim has to be 4 or None. ' +
+                        'Given: %s.')%(domain_dim))
+    mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds = \
+      get_mf_park1_function()
+  elif func_name == 'park2':
+    if domain_dim != 4 and domain_dim is not None:
+      raise ValueError(('For the park2 function, domain_dim has to be 4 or None. ' +
+                        'Given: %s.')%(domain_dim))
+    mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds = \
+      get_mf_park2_function()
   else:
     raise ValueError('Unknwon func_name: %s.'%(func_name))
 
   return mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds
 
-# An API that returns a function caller from the description -------------------
+# An API that returns a function caller from the description --------------------------
 def get_syn_func_caller(func_name, domain_dim=None, fidel_dim=None,
                         noise_type='no_noise', noise_scale=None,
                         to_normalise_domain=True):
   """ Returns a FunctionCaller object from the function name. """
-  # pylint: disable=too-many-branches
   func_name = func_name.lower()
-  funcs = ['hartmann', 'hartmann6', 'hartmann3', 'branin', 'borehole']
+  funcs = ['hartmann', 'hartmann6', 'hartmann3', 'branin', 'borehole', 'park1', 'park2']
   if func_name in funcs:
     mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds = \
       get_function_data(func_name, domain_dim, fidel_dim, noise_type, noise_scale)
@@ -316,3 +365,20 @@ def get_syn_func_caller(func_name, domain_dim=None, fidel_dim=None,
                           raw_argmax=opt_pt, maxval=opt_val, noise_type=noise_type, \
                           noise_scale=noise_scale, fidel_cost_func=fidel_cost_func, \
                           raw_fidel_space=fidel_bounds, raw_fidel_to_opt=fidel_to_opt)
+
+# An API that returns function data from the description --------------------------
+def get_syn_function(func_name, noise_type='no_noise', noise_scale=None):
+  """ Returns a synthetic function from the function name along with its
+      optimum point, optimum value and the domain_bounds. sf_obj is the
+      concerned synthetic function.
+  """
+  func_name = func_name.lower()
+  funcs = ['hartmann', 'hartmann6', 'hartmann3', 'branin', 'borehole', 'park1', 'park2']
+  if func_name in funcs:
+    mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds = \
+      get_function_data(func_name, noise_type=noise_type, noise_scale=noise_scale)
+  else:
+    mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds = \
+      get_high_dim_function_data(func_name)
+
+  return mf_obj, sf_obj, opt_pt, opt_val, fidel_to_opt, fidel_bounds, domain_bounds
