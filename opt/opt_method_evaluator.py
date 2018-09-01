@@ -4,14 +4,12 @@
 """
 
 # pylint: disable=invalid-name
-# pylint: disable=abstract-class-not-used
-# pylint: disable=star-args
 # pylint: disable=maybe-no-member
 
 from argparse import Namespace
 from datetime import datetime
-import numpy as np
 import os
+import numpy as np
 # Local imports
 from opt.blackbox_optimiser import OptInitialiser
 from utils.method_evaluator import BaseMethodEvaluator
@@ -26,11 +24,11 @@ class OptMethodEvaluator(BaseMethodEvaluator):
                method_options=None, reporter=None, **kwargs):
     """ Constructor. Also see BasicExperimenter for more args. """
     # pylint: disable=too-many-arguments
-    save_file_name = self._get_save_file_name(save_dir, study_name,
-      worker_manager.num_workers, save_file_prefix, worker_manager.get_time_distro_info(),
-      max_capital)
+    save_file_name = self._get_save_file_name(save_dir, study_name, \
+                     worker_manager.num_workers, save_file_prefix, \
+                     worker_manager.get_time_distro_info(), max_capital)
     super(OptMethodEvaluator, self).__init__(study_name, num_trials,
-                                            save_file_name, reporter=reporter, **kwargs)
+                                             save_file_name, reporter=reporter, **kwargs)
     self.func_caller = func_caller
     self.worker_manager = worker_manager
     self.max_capital = float(max_capital)
@@ -50,7 +48,7 @@ class OptMethodEvaluator(BaseMethodEvaluator):
                           time_distro_str, max_capital):
     """ Gets the save file name. """
     save_file_prefix = save_file_prefix if save_file_prefix else study_name
-    save_file_name = '%s-M%d-%s-c%d-%s.mat'%(save_file_prefix, num_workers,
+    save_file_name = '%s-M%d-%s-c%d-%s.mat'%(save_file_prefix, num_workers, \
       time_distro_str, int(max_capital), datetime.now().strftime('%m%d-%H%M%S'))
     save_file_name = os.path.join(save_dir, save_file_name)
     return save_file_name
@@ -65,11 +63,11 @@ class OptMethodEvaluator(BaseMethodEvaluator):
     self.to_be_saved.time_distro_str = self.worker_manager.get_time_distro_info()
     # Data about the problem
     self.to_be_saved.true_maxval = (self.func_caller.maxval
-      if self.func_caller.maxval is not None else -np.inf)
-    self.to_be_saved.true_argmax = (self.func_caller.argmax
-      if self.func_caller.argmax is not None else 'not-known')
+                                    if self.func_caller.maxval is not None else -np.inf)
+    self.to_be_saved.true_argmax = (self.func_caller.argmax \
+                                  if self.func_caller.argmax is not None else 'not-known')
     self.to_be_saved.domain_type = self.domain.get_type()
-#     # For the results
+    # For the results
     self.data_to_be_saved = ['query_step_idxs',
                              'query_points',
                              'query_vals',
@@ -82,12 +80,12 @@ class OptMethodEvaluator(BaseMethodEvaluator):
                              'curr_opt_points',
                              'curr_true_opt_vals',
                              'curr_true_opt_points',
-                             'num_jobs_per_worker',
-                            ]
+                             'num_jobs_per_worker']
     self.data_to_be_saved_if_available = ['query_fidels',
                                           'query_cost_at_fidels',
-                                          'query_at_fidel_to_opts']
-    self.data_to_be_saved_if_available = []
+                                          'query_at_fidel_to_opts',
+                                          'prev_eval_points',
+                                          'prev_eval_vals']
     self.data_not_to_be_mat_saved.extend(['method_options', 'query_points',
                                           'curr_opt_points', 'curr_true_opt_points'])
     self.data_not_to_be_pickled.extend(['method_options'])
@@ -108,8 +106,8 @@ class OptMethodEvaluator(BaseMethodEvaluator):
 
   def _print_method_header(self, full_method_name):
     """ Prints a header for the current method. """
-    trial_header = '-- Exp %d/%d on %s:: %s with cap %0.4f. ----------------------'%(
-      self.trial_iter, self.num_trials, self.study_name, full_method_name,
+    trial_header = '-- Exp %d/%d on %s:: %s with cap %0.4f. ----------------------'%( \
+      self.trial_iter, self.num_trials, self.study_name, full_method_name, \
       self.max_capital)
     self.reporter.writeln(trial_header)
 
@@ -118,15 +116,15 @@ class OptMethodEvaluator(BaseMethodEvaluator):
     noisy_str = ('no-noise' if self.func_caller.noise_type == 'no_noise' else
                  'noisy(%0.2f)'%(self.func_caller.noise_scale))
     maxval_str = ('?' if self.func_caller.maxval is None
-                       else '%0.5f'%(self.func_caller.maxval))
-    ret = '%s (M=%d), td: %s, max=%s, max-capital %0.2f, %s'%(self.study_name,
-      self.worker_manager.num_workers, self.to_be_saved.time_distro_str, maxval_str,
+                  else '%0.5f'%(self.func_caller.maxval))
+    ret = '%s (M=%d), td: %s, max=%s, max-capital %0.2f, %s'%(self.study_name, \
+      self.worker_manager.num_workers, self.to_be_saved.time_distro_str, maxval_str, \
       self.max_capital, noisy_str)
     return ret
 
   def _print_method_result(self, method, comp_opt_val, num_evals):
     """ Prints the result for this method. """
-    result_str = 'Method: %s achieved max-val %0.5f in %d evaluations.\n'%(method,
+    result_str = 'Method: %s achieved max-val %0.5f in %d evaluations.\n'%(method, \
                   comp_opt_val, num_evals)
     self.reporter.writeln(result_str)
 
@@ -165,7 +163,7 @@ class OptMethodEvaluator(BaseMethodEvaluator):
     self.worker_manager.reset()
     prev_eval_qinfos = self._get_prev_eval_qinfos()
     prev_eval_vals = [qinfo.val for qinfo in prev_eval_qinfos]
-    self.reporter.writeln('Using %d pre-eval points with values. eval: %s (%0.4f).'%(
+    self.reporter.writeln('Using %d pre-eval points with values. eval: %s (%0.4f).'%( \
                           len(prev_eval_qinfos), prev_eval_vals, max(prev_eval_vals)))
 
     # Will go through each method in this loop.
@@ -176,13 +174,13 @@ class OptMethodEvaluator(BaseMethodEvaluator):
       curr_meth_options.prev_evaluations = Namespace(qinfos=prev_eval_qinfos)
       # Reset worker manager
       self.worker_manager.reset()
-      self.reporter.writeln(
-        '\nResetting worker manager: worker_manager.experiment_designer:%s'%(
+      self.reporter.writeln( \
+        '\nResetting worker manager: worker_manager.experiment_designer:%s'%( \
         str(self.worker_manager.experiment_designer)))
 
       # Call the method here.
       self._print_method_header(curr_method)
-      history = self._optimise_with_method_on_func_caller(curr_method, self.func_caller,
+      history = self._optimise_with_method_on_func_caller(curr_method, self.func_caller, \
                   self.worker_manager, self.max_capital, curr_meth_options, self.reporter)
 
       # Now save results for current method
@@ -212,7 +210,7 @@ class OptMethodEvaluator(BaseMethodEvaluator):
 
   def update_to_be_saved(self, curr_iter_results):
     """ Updates the results of the data to be saved with curr_iter_results."""
-    for data_type in self.data_to_be_saved:
+    for data_type in self.data_to_be_saved + self.data_to_be_saved_if_available:
       data = getattr(curr_iter_results, data_type)
       curr_data_to_be_saved = getattr(self.to_be_saved, data_type)
       if curr_data_to_be_saved.shape[1] == self.trial_iter:

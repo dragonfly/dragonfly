@@ -47,7 +47,6 @@ class OptimisersTestCase(BaseTestClass):
     self.problems.append(self._get_test_case_problem_instance(obj, [-1] * dim, \
                                                 [1] * dim, min_pt, max_pt, '2D-gaussian'))
     # Third problem - use Hartmann6
-#     _, obj, max_pt, _, _, _, _, domain_bounds = get_mf_hartmann_function_data(None, 6)
     hartmann_data = get_mf_hartmann_function_data(0, 6)
     obj = hartmann_data[1]
     max_pt = hartmann_data[2]

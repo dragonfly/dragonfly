@@ -14,7 +14,6 @@ from __future__ import division
 
 from argparse import Namespace
 from itertools import product as itertools_product
-from itertools import permutations
 import sys
 import numpy as np
 # Local imports
@@ -34,6 +33,10 @@ mandatory_gp_args = [ \
   get_option_specs('hp_tune_criterion', False, 'ml',
                    'Which criterion to use when tuning hyper-parameters. Other ' +
                    'options are post_sampling and post_mean.'),
+  get_option_specs('hp_tune_probs', False, 'uniform', \
+    'With what probability should we choose each strategy given in hp_tune_criterion.' + \
+    'If "uniform" we we will use uniform probabilities and if "adaptive" we will use ' + \
+    'adaptive probabilities which weight acquisitions according to how well they do.'),
   get_option_specs('ml_hp_tune_opt', False, 'direct',
                    'Which optimiser to use when maximising the tuning criterion.'),
   get_option_specs('hp_tune_max_evals', False, -1,
@@ -217,8 +220,10 @@ class GP(object):
   def compute_grad_log_marginal_likelihood(self, param, *args):
     """ Computes the gradient of log marginal likelihood. """
     alpha = np.expand_dims(self.alpha, axis=0)
-    if param == 'noise':
+    if param == 'noise_var':
       grad_m = self.noise_var*np.identity(len(self.X))
+    elif param == 'noise_mean':
+      return np.asscalar(np.matmul(alpha, np.ones((len(self.Y), 1))))
     else:
       grad_m = self.kernel.gradient(param, self.X, self.X, *args)
     grad_m = np.matmul(alpha.T, np.matmul(alpha, grad_m)) - \
@@ -326,20 +331,58 @@ class GPFitter(object):
     # Set up hyper-parameters for the child.
     # -----------------------------------------------------------------------------
     self._child_set_up()
+    self._hp_tune_method_set_up()
     self.cts_hp_bounds = np.array(self.cts_hp_bounds)
     # Some post child set up
-    if self.options.hp_tune_criterion == 'ml':
+    if 'ml' in self.methods_to_use:
       # The number of hyper parameters
       self.num_hps = len(self.cts_hp_bounds) + len(self.dscr_hp_vals)
       self._set_up_ml_hp_tune()
-    elif self.options.hp_tune_criterion == 'post_sampling':
+    if 'post_sampling' in self.methods_to_use:
       self._set_up_post_sampling_hp_tune()
       self.num_hps = len(self.hp_priors) # The number of hyper parameters
-    elif self.options.hp_tune_criterion == 'post_mean':
+    if 'post_mean' in self.methods_to_use:
       self._set_up_post_mean_hp_tune()
       self.num_hps = len(self.hp_priors) # The number of hyper parameters
+
+  def _hp_tune_method_set_up(self):
+    """ Sets up probabilities for hp tune methods. """
+    self.methods_to_use = [elem.lower() for elem in
+                           self.options.hp_tune_criterion.split('-')]
+    for method in self.methods_to_use:
+      if method not in ['ml', 'post_sampling', 'post_mean']:
+        raise ValueError('hp_tune_criterion should be ml or post_sampling.')
+    self.methods_to_use_counter = {key: 0 for key in self.methods_to_use}
+    if self.options.hp_tune_probs == 'uniform':
+      self.hp_tune_probs = np.ones(len(self.methods_to_use)) /\
+                           float(len(self.methods_to_use))
+    elif self.options.hp_tune_probs == 'adaptive':
+      self.hp_tune_uniform_sampling_prob = 0.05
+      self.hp_tune_sampling_weights = {key: 1.0 for key in self.methods_to_use}
+      self.hp_tune_probs = self._get_adaptive_hp_tune_probs()
     else:
-      raise ValueError('hp_tune_criterion should be ml or post_sampling.')
+      self.hp_tune_probs = np.array([float(x) for x in
+                                     self.options.hp_tune_probs.split('-')])
+      if len(self.hp_tune_probs) != len(self.methods_to_use):
+        self.hp_tune_probs = np.ones(len(self.methods_to_use)) /\
+                             float(len(self.methods_to_use))
+    self.hp_tune_probs = self.hp_tune_probs / self.hp_tune_probs.sum()
+
+  def _get_adaptive_hp_tune_probs(self):
+    """ Computes the adaptive hyper parameter tuning method probs. """
+    num_methods = len(self.methods_to_use)
+    uniform_sampling_probs = self.hp_tune_uniform_sampling_prob * \
+                             np.ones((num_methods,)) / num_methods
+    hp_tune_succ_counter = np.array([self.hp_tune_sampling_weights[key] for
+                                     key in self.methods_to_use])
+    hp_tune_use_counter = np.array([self.methods_to_use_counter[key] for
+                                    key in self.methods_to_use])
+    hp_tune_weights = hp_tune_succ_counter / np.sqrt(1 + hp_tune_use_counter)
+    hp_tune_norm_weights = hp_tune_weights / hp_tune_weights.sum()
+    adaptive_sampling_probs = (1 - self.hp_tune_uniform_sampling_prob) * \
+                              hp_tune_norm_weights
+    ret = uniform_sampling_probs + adaptive_sampling_probs
+    return ret / ret.sum()
 
   def _set_up_mean_and_noise_variance_bounds(self):
     """ Sets up bounds for the mean value and the noise. """
@@ -351,12 +394,12 @@ class GPFitter(object):
       Y_width = 0.5 * (Y_half_range + Y_std)
       self.mean_func_bounds = [Y_median - 3 * Y_width, Y_median + 3 * Y_width]
       self.cts_hp_bounds.append(self.mean_func_bounds)
-      self.param_order.append(["noise", "cts"])
+      self.param_order.append(["noise_mean", "cts"])
     # 2. The noise variance
     if self.options.noise_var_type == 'tune':
       self.noise_var_log_bounds = [np.log(0.005 * self.Y_var), np.log(0.2 * self.Y_var)]
       self.cts_hp_bounds.append(self.noise_var_log_bounds)
-      self.param_order.append(["noise", "cts"])
+      self.param_order.append(["noise_var", "cts"])
 
   def _child_set_up(self):
     """ Here you should set up parameters for the child, such as the bounds for the
@@ -492,9 +535,9 @@ class GPFitter(object):
         which is to be maximised in fit_gp. """
     built_gp = self.build_gp(gp_cts_hps, gp_dscr_hps, other_gp_params=other_gp_params,
                              *args, **kwargs)
-    if self.options.hp_tune_criterion in ['ml', 'marginal_likelihood']:
+    if 'ml' in self.methods_to_use or 'marginal_likelihood' in self.methods_to_use:
       ret = built_gp.compute_log_marginal_likelihood()
-    elif self.options.hp_tune_criterion in ['cv', 'cross_validation']:
+    elif 'cv' in self.methods_to_use or 'cross_validation' in self.methods_to_use:
       raise NotImplementedError('Yet to implement cross validation based hp-tuning.')
     else:
       raise ValueError('hp_tune_criterion should be either ml or cv')
@@ -531,14 +574,16 @@ class GPFitter(object):
   def _sample_cts_dscr_hps_for_post_sampling(self, num_samples):
     """ Samples continous and discrete hyper-parameters for post_sampling. """
     # pylint: disable=too-many-branches
+    # pylint: disable=too-many-locals
     def _logp(x):
       """ Computes log probability of observations at x. """
       # sum of log probability priors
       if self.parameter == 'additive_grp':
-        if x >= len(self.perms) or x < 0:
+        if x < 0:
           return -np.inf
-        groupings = [self.perms[int(x)][i:i+self.group_size]
-                     for i in range(0, self.dim, self.group_size)]
+        permut = list(np.random.RandomState(seed=x).permutation(self.add_dim))
+        groupings = [permut[i:i+self.group_size]
+                     for i in range(0, self.add_dim, self.group_size)]
         self.other_gp_params = Namespace(add_gp_groupings=groupings)
       elif type(self.hp_priors[self.curr_hp]).__name__ == "Categorical":
         self.hps[self.curr_hp] = self.hp_priors[self.curr_hp].get_category(np.asscalar(x))
@@ -604,11 +649,17 @@ class GPFitter(object):
         self.hps[i] = self.hp_priors[i].get_category(int(self.hps[i]))
 
     # Grouping intitialization for additive gp
-    if self.options.use_additive_gp:
-      self.perms = [list(mut) for mut in permutations(list(range(self.dim)))]
-      self.perms_idx = np.random.randint(len(self.perms), dtype='int')
-      groupings = [self.perms[self.perms_idx][i:i+int(self.hps[-1])]
-                   for i in range(0, self.dim, int(self.hps[-1]))]
+    if vars(self.options).get('use_additive_gp', False) or \
+       vars(self.options).get('domain_use_additive_gp', False):
+      if vars(self.options).get('domain_use_additive_gp', False):
+        self.add_dim = self.domain_dim
+        add_max_group_size = self.domain_add_max_group_size
+      else:
+        self.add_dim = self.dim
+        add_max_group_size = self.add_max_group_size
+      permut = list(np.random.permutation(self.add_dim))
+      groupings = [permut[i:i+int(self.hps[-1])]
+                   for i in range(0, self.add_dim, int(self.hps[-1]))]
       self.other_gp_params = Namespace(add_gp_groupings=groupings)
     else:
       self.other_gp_params = Namespace(add_gp_groupings=[None])
@@ -638,14 +689,14 @@ class GPFitter(object):
                                                 self.hps[i], total_samples), axis=1)
         self.hps[i] = dscr_hps[0, dscr_i]
       else:
-        dscr_hps[:, dscr_i] = np.random.randint(1, self.add_max_group_size + 1,
-                                                total_samples, dtype='int')
+        dscr_hps[:, dscr_i] = np.random.randint(1, add_max_group_size + 1, total_samples)
+        seed = int(np.random.randint(self.add_dim))
         for j in range(total_samples):
           self.group_size = int(dscr_hps[j, dscr_i])
-          self.perms_idx = int(np.squeeze(self.hp_sampler_dscr(_model, self.perms_idx, 1),
-                                          axis=1))
-          groupings = [self.perms[self.perms_idx][k:k+self.group_size]
-                       for k in range(0, self.dim, self.group_size)]
+          seed = int(np.squeeze(self.hp_sampler_dscr(_model, seed, 1), axis=1))
+          permut = list(np.random.RandomState(seed=seed).permutation(self.add_dim))
+          groupings = [permut[k:k+self.group_size]
+                       for k in range(0, self.add_dim, self.group_size)]
           _other_gp_params[j] = Namespace(add_gp_groupings=groupings)
         self.other_gp_params = _other_gp_params[0]
 
@@ -656,10 +707,67 @@ class GPFitter(object):
 
     return best_cts_hps, best_dscr_hps, best_other_gp_params
 
-  def fit_gp(self, num_samples=1):
+  def get_next_gp(self):
+    """ Gets the GP to use in the current iteration. """
+    if self.options.hp_tune_probs == 'adaptive':
+      self.hp_tune_probs = self._get_adaptive_hp_tune_probs()
+    method = np.random.choice(self.methods_to_use, p=self.hp_tune_probs)
+    fit_type = self.hp_tune_results[method][0]
+    if fit_type in ['fitted_gp', 'post_fitted_gp']:
+      gp = self.hp_tune_results[method][1]
+    elif fit_type in ['sample_hps_with_probs', 'post_sample_hps_with_probs']:
+      next_gp_hps = self.hp_tune_results[method][1].pop(0)
+      self.hp_tune_results[method][1].append(next_gp_hps)
+      gp = self.build_gp(next_gp_hps[0], next_gp_hps[1], other_gp_params=next_gp_hps[2],
+                         build_posterior=False)
+    return (fit_type, method, gp)
+
+  def update_hp_tune_method_weight(self, method):
+    """ Updates hp_tune method weight in the case of adaptive tuning. """
+    if self.options.hp_tune_probs == 'adaptive':
+      self.hp_tune_sampling_weights[method] += 1
+
+  def fit_gp_for_gp_bandit(self, num_samples=1):
+    """ Fits a GP according to the tuning criterions. """
+    self.hp_tune_results = {}
+    for method in self.methods_to_use:
+      ret = self.fit_gp(num_samples, method)
+      if ret[0] == 'fitted_gp':
+        self.hp_tune_results[method] = (ret[0], ret[1])
+      elif ret[0] == 'post_fitted_gp':
+        self.hp_tune_results[method] = (ret[0], ret[1])
+      elif ret[0] == 'sample_hps_with_probs':
+        # in this case, ret is a 5-tuple where ret[0] is sample_hps_with_probs, ret[1] is
+        # a list of continuous hps, ret[2] is a list of discrete hps, ret[3] is either
+        # None or a namespace containing the field add_gp_groupings.
+        # See gp.gp_core.fit_gp
+        sample_hps = list(zip(ret[1], ret[2], ret[3]))
+        sample_probs = ret[-1]
+        # Sample the hyper_parameters we will use until the next time we build a model.
+        if sum(sample_probs > 0) >= num_samples:
+          to_replace = self.options.rand_exp_sampling_replace
+        else:
+          to_replace = True
+        use_hps_idxs = np.random.choice(len(sample_hps),
+                                        size=(num_samples,),
+                                        replace=to_replace,
+                                        p=sample_probs)
+        self.hp_tune_results[method] = (ret[0], [sample_hps[idx] for idx in use_hps_idxs])
+      elif ret[0] == 'post_sample_hps_with_probs':
+        # in this case, ret is a 4-tuple where ret[0] is post_sample_hps_with_probs,
+        # ret[1] is a list of continuous hps, ret[2] is a list of discrete hps, ret[3]
+        # is either None or a namespace containing the field add_gp_groupings.
+        # See gp.gp_core.fit_gp
+        self.hp_tune_results[method] = (ret[0], list(zip(ret[1], ret[2], ret[3])))
+      else:
+        raise ValueError('Unknown option %s for results of fit_gp.'%(ret[0]))
+
+  def fit_gp(self, num_samples=1, hp_tune_criterion=None):
     """ Fits a GP according to the tuning criterion. Returns the best GP along with the
         hyper-parameters. """
-    if self.options.hp_tune_criterion == 'ml':
+    if hp_tune_criterion is None:
+      hp_tune_criterion = self.options.hp_tune_criterion
+    if hp_tune_criterion == 'ml':
       if self.options.ml_hp_tune_opt in ['direct', 'rand', 'pdoo']:
         best_cts_hps = None
         best_dscr_hps = None
@@ -682,7 +790,7 @@ class GPFitter(object):
           self._sample_cts_dscr_hps_for_rand_exp_sampling()
         return ('sample_hps_with_probs', sample_cts_hps, sample_dscr_hps,
                 sample_other_gp_params, sample_probs)
-    elif self.options.hp_tune_criterion == 'post_sampling':
+    elif hp_tune_criterion == 'post_sampling':
       sample_cts_hps, sample_dscr_hps, sample_other_gp_params = \
         self._sample_cts_dscr_hps_for_post_sampling(num_samples)
       if num_samples == 1:

@@ -93,6 +93,85 @@ class GeneralUtilsTestCase(BaseTestClass):
     assert mean_err < mean_tol
     assert covar_err < covar_tol
 
+  def test_ordering_and_reordering(self):
+    """ Tests for ordering and reordering of lists. """
+    self.report('Testing ordering and reordering of lists.')
+    # Test 1
+    orig_list = ['k', 'i', 'r', 't', 'h']
+    ordering = [3, 1, 0, 4, 2]
+    reordered_list = general_utils.reorder_list(orig_list, ordering)
+    rereordered_list = general_utils.get_original_order_from_reordered_list(
+                         reordered_list, ordering)
+    assert reordered_list == ['t', 'i', 'k', 'h', 'r']
+    assert rereordered_list == orig_list
+    # Test 2
+    N = 20
+    orig_list = list(np.random.random(N,))
+    ordering = np.random.permutation(N)
+    reordered_list = general_utils.reorder_list(orig_list, ordering)
+    rereordered_list = general_utils.get_original_order_from_reordered_list(
+                         reordered_list, ordering)
+    assert rereordered_list == orig_list
+
+  def test_list_flattening(self):
+    """ Tests list flattening. """
+    self.report('Testing list flattening.')
+    # Test 1
+    test_lists = [[4, 5, 1],
+                  [4, 5, 6, ['k', None], 5]]
+    test_results = [[4, 5, 1],
+                    [4, 5, 6, 'k', None, 5]]
+    for tl, tr in zip(test_lists, test_results):
+      result = general_utils.flatten_list_of_objects_and_lists(tl)
+      assert tr == result
+    # Test 2
+    test_lists.extend([['q', 'we', [7, ['3', str, int], 9], 'k']])
+    test_results.extend([['q', 'we', 7, '3', str, int, 9, 'k']])
+    for tl, tr in zip(test_lists, test_results):
+      result = general_utils.flatten_nested_lists(tl)
+      assert tr == result
+
+  def test_pairwise_hamming_kernel(self):
+    """ Tests pairwise hamming distances. """
+    self.report('Testing hamming distance.')
+    # Test 1
+    test_data = [# data 1
+                ([[4, 5], ['kky', 5], ['s', None]],
+                 [[2, 5], ['s', None], ['kky', None], ['s', 1]],
+                 [0.4, 0.6],
+                 [[1.0, 0.6, 0], [0.6, 1.0, 0], [0, 0, 1.0]],
+                 [[1, 0, 0, 0], [0, 1, 0.6, 0.4], [0, 0.6, 1, 0], [0, 0.4, 0, 1]],
+                 [[0.6, 0, 0, 0], [0.6, 0, 0.4, 0], [0, 1, 0.6, 0.4]]),
+                 # data 2
+                ([[4, 5, 6], ['kky', 5, 'cat']],
+                 [[2, 5, 6], ['s', None, 'cat'], ['kky', None, 6]],
+                 None,
+                 [[1.0, 1/3.0], [1/3.0, 1]],
+                 [[1.0, 0, 1/3.0], [0, 1, 1/3.0], [1/3.0, 1/3.0, 1]],
+                 [[2/3.0, 0, 1/3.0], [1/3.0, 1/3.0, 1/3.0]]),
+                ]
+    for td in test_data:
+      res_00 = np.array(td[-3])
+      res_11 = np.array(td[-2])
+      res_01 = np.array(td[-1])
+      res_10 = res_01.T
+      kern_00 = general_utils.pairwise_hamming_kernels(td[0], td[0], td[2])
+      kern_11 = general_utils.pairwise_hamming_kernels(td[1], td[1], td[2])
+      kern_01 = general_utils.pairwise_hamming_kernels(td[0], td[1], td[2])
+      kern_10 = general_utils.pairwise_hamming_kernels(td[1], td[0], td[2])
+#       print res_00
+#       print kern_00
+#       print res_11
+#       print kern_11
+#       print res_01
+#       print kern_01
+#       print res_10
+#       print kern_10
+      assert np.linalg.norm(res_00 - kern_00) < 1e-5
+      assert np.linalg.norm(res_11 - kern_11) < 1e-5
+      assert np.linalg.norm(res_01 - kern_01) < 1e-5
+      assert np.linalg.norm(res_10 - kern_10) < 1e-5
+
 
 if __name__ == '__main__':
   execute_tests()

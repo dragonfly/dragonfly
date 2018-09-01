@@ -114,6 +114,18 @@ basic_mf_euc_gp_args = [ \
                      'The number of groups to try per group size.'),
     get_option_specs('domain_add_group_size_criterion', False, 'sampled', \
       'Specify how to pick the group size, should be one of {max, sampled}.'), \
+    get_option_specs('domain_esp_order', False, -1,
+                     'Order of the esp kernel. '),
+    get_option_specs('domain_esp_kernel_type', False, 'se',
+                     'Specify type of kernel. This depends on the application.'),
+    get_option_specs('domain_esp_matern_nu', False, -1.0, \
+                     ('Specify the nu value for matern kernel. If negative, will fit.')),
+    get_option_specs('fidel_esp_order', False, -1,
+                     'Order of the esp kernel. '),
+    get_option_specs('fidel_esp_kernel_type', False, 'se',
+                     'Specify type of kernel. This depends on the application.'),
+    get_option_specs('fidel_esp_matern_nu', False, -1.0, \
+                     ('Specify the nu value for matern kernel. If negative, will fit.')),\
   ]
 # Define this which includes mandatory_gp_args and basic_gp_args
 euclidean_mf_gp_args = gp_core.mandatory_gp_args + basic_mf_euc_gp_args
@@ -231,7 +243,7 @@ class EuclideanGPFitter(gp_core.GPFitter):
     elif self.kernel_type == 'esp':
       self._esp_kernel_set_up()
     # 4. Additive grouping
-    if self.options.use_additive_gp:
+    if self.options.use_additive_gp and self.kernel_type != 'esp':
       self.add_group_size_idx_in_dscr_hp_vals = len(self.dscr_hp_vals)
       self.add_max_group_size = min(self.options.add_max_group_size, self.dim)
       self.dscr_hp_vals.append([x+1 for x in range(self.add_max_group_size)])
@@ -280,33 +292,17 @@ class EuclideanGPFitter(gp_core.GPFitter):
     # Bandwidths
     X_std_norm = np.linalg.norm(self.X, 'fro') + 1e-4
     single_bandwidth_log_bounds = [np.log(0.01 * X_std_norm), np.log(10 * X_std_norm)]
-    if self.options.use_same_bandwidth:
-      self.bandwidth_log_bounds = [single_bandwidth_log_bounds] * self.dim
-      self.param_order.append(["same_dim_bandwidths", "cts"])
-    else:
-      self.bandwidth_log_bounds = [single_bandwidth_log_bounds] * (self.dim ** 2)
-      for _ in range(self.dim ** 2):
-        self.param_order.append(["dim_bandwidths", "cts"])
+    self.bandwidth_log_bounds = [single_bandwidth_log_bounds] * self.dim
+    for _ in range(self.dim):
+      self.param_order.append(["dim_bandwidths", "cts"])
     self.cts_hp_bounds += [self.scale_log_bounds] + self.bandwidth_log_bounds
     if self.options.esp_kernel_type == 'matern' and self.options.esp_matern_nu < 0:
-      for _ in range(self.dim):
-        self.dscr_hp_vals.append([0.5, 1.5, 2.5])
-        self.param_order.append(["nu", "dscr"])
+      self.dscr_hp_vals.append([0.5, 1.5, 2.5])
+      self.param_order.append(["nu", "dscr"])
 
   def _prep_init_kernel_hyperparams(self, kernel_type):
     """ Wrapper to pack the kernel hyper-parameters into a dictionary. """
-    hyperparams = {}
-    hyperparams['dim'] = self.dim
-    if kernel_type == 'matern' and self.options.matern_nu > 0:
-      hyperparams['nu'] = self.options.matern_nu
-    elif kernel_type == 'poly':
-      hyperparams['order'] = self.options.poly_order
-    elif kernel_type == 'esp':
-      if self.options.esp_order > 0:
-        hyperparams['esp_order'] = self.options.esp_order
-      if self.options.esp_matern_nu > 0:
-        hyperparams['esp_matern_nu'] = self.options.esp_matern_nu
-    return hyperparams
+    return prep_euclidean_integral_kernel_hyperparams(kernel_type, self.options, self.dim)
 
   def _optimise_cts_hps_for_given_dscr_hps(self, given_dscr_hps):
     """ Optimises the continuous hyper-parameters for the given discrete hyper-params.
@@ -338,9 +334,9 @@ class EuclideanGPFitter(gp_core.GPFitter):
       gp_dscr_hps = gp_dscr_hps[:-1] # The first element is the group size
       add_gp_groupings = other_gp_params.add_gp_groupings
     kernel, gp_cts_hps, gp_dscr_hps = \
-      get_euclidean_gp_kernel(self.kernel_type, kernel_hyperparams, gp_cts_hps,
-                              gp_dscr_hps, self.options.use_same_bandwidth,
-                              self.options.esp_kernel_type, add_gp_groupings)
+      get_euclidean_integral_gp_kernel(self.kernel_type, kernel_hyperparams, gp_cts_hps,
+                                       gp_dscr_hps, self.options.use_same_bandwidth,
+                                       add_gp_groupings, self.options.esp_kernel_type)
     ret_gp = EuclideanGP(self.X, self.Y, kernel, mean_func, noise_var, *args, **kwargs)
     return ret_gp, gp_cts_hps, gp_dscr_hps
   # EuclideanGPFitter ends here -------------------------------------------------------
@@ -480,12 +476,8 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
       self._fidel_poly_kernel_setup()
     elif self.options.fidel_kernel_type == 'expdecay':
       self._fidel_expdecay_kernel_setup()
-    # Additive grouping for domain kernel (this has to come after fidelity kernel set up).
-    if self.options.domain_use_additive_gp:
-      self.domain_add_group_size_idx_in_dscr_hp_vals = len(self.dscr_hp_vals)
-      self.domain_add_max_group_size = min(self.options.domain_add_max_group_size,
-                                           self.domain_dim)
-      self.dscr_hp_vals.append([x+1 for x in range(self.domain_add_max_group_size)])
+    elif self.options.fidel_kernel_type == 'esp':
+      self._fidel_esp_kernel_setup()
     # Domain kernel
     if self.options.domain_kernel_type == 'se':
       self._domain_se_kernel_setup()
@@ -493,6 +485,15 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
       self._domain_matern_kernel_setup()
     elif self.options.domain_kernel_type == 'poly':
       self._domain_poly_kernel_setup()
+    elif self.options.domain_kernel_type == 'esp':
+      self._domain_esp_kernel_setup()
+    # Additive grouping for domain kernel (this has to come after fidelity kernel set up).
+    if self.options.domain_use_additive_gp:
+      self.domain_add_group_size_idx_in_dscr_hp_vals = len(self.dscr_hp_vals)
+      self.domain_add_max_group_size = min(self.options.domain_add_max_group_size,
+                                           self.domain_dim)
+      self.dscr_hp_vals.append([x+1 for x in range(self.domain_add_max_group_size)])
+      self.param_order.append(["additive_grp", "dscr"])
 
   # Functions to set up each fidelity kernel -------------------------------------------
   def _fidel_se_kernel_setup(self):
@@ -550,6 +551,22 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
     self.cts_hp_bounds.append(self.fidel_expdecay_offset_log_bounds)
     self.cts_hp_bounds.extend(self.fidel_expdecay_power_log_bounds)
 
+  def _fidel_esp_kernel_setup(self):
+    """ Sets up the fidelity kernel as ESP kernel. """
+    if (hasattr(self.options, 'fidel_bandwidth_log_bounds') and
+        self.options.fidel_bandwidth_log_bounds is not None):
+      self.fidel_bandwidth_log_bounds = self.options.fidel_bandwidth_log_bounds
+    else:
+      self.fidel_bandwidth_log_bounds = self._get_bandwidth_log_bounds( \
+                                        self.fidel_dim, self.ZX_std_norm, False)
+    self.cts_hp_bounds.extend(self.fidel_bandwidth_log_bounds)
+    for _ in range(self.fidel_dim):
+      self.param_order.append(["dim_bandwidths", "cts"])
+    if self.options.fidel_esp_kernel_type == 'matern' and \
+       self.options.fidel_esp_matern_nu < 0:
+      self.dscr_hp_vals.append([0.5, 1.5, 2.5])
+      self.param_order.append(["nu", "dscr"])
+
   # Functions to set up each domain kernel -------------------------------------------
   def _domain_se_kernel_setup(self):
     """ Sets up the domainity kernel as an SE kernel. """
@@ -570,9 +587,9 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
       self.domain_bandwidth_log_bounds = self.options.domain_bandwidth_log_bounds
     else:
       self.domain_bandwidth_log_bounds = self._get_bandwidth_log_bounds( \
-         self.domain_dim, self.ZX_std_norm, self.options.domain_use_same_bandwidth)
+                                         self.domain_dim, self.ZX_std_norm, False)
     self.cts_hp_bounds.extend(self.domain_bandwidth_log_bounds)
-    if self.options.fidel_use_same_bandwidth:
+    if self.options.domain_use_same_bandwidth:
       self.param_order.append(["same_dim_bandwidths", "cts"])
     else:
       for _ in range(self.domain_dim):
@@ -583,6 +600,22 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
     self.domain_scaling_log_bounds = self._get_poly_kernel_bounds(self.ZZ, self.XX, \
                                         self.options.domain_use_same_scalings)
     self.cts_hp_bounds.extend(self.domain_scaling_log_bounds)
+
+  def _domain_esp_kernel_setup(self):
+    """ Sets up the domain kernel as ESP kernel. """
+    if (hasattr(self.options, 'domain_bandwidth_log_bounds') and
+        self.options.domain_bandwidth_log_bounds is not None):
+      self.domain_bandwidth_log_bounds = self.options.domain_bandwidth_log_bounds
+    else:
+      self.domain_bandwidth_log_bounds = self._get_bandwidth_log_bounds( \
+         self.domain_dim, self.ZX_std_norm, self.options.domain_use_same_bandwidth)
+    self.cts_hp_bounds.extend(self.domain_bandwidth_log_bounds)
+    for _ in range(self.domain_dim):
+      self.param_order.append(["dim_bandwidths", "cts"])
+    if self.options.domain_esp_kernel_type == 'matern' and \
+       self.options.domain_esp_matern_nu < 0:
+      self.dscr_hp_vals.append([0.5, 1.5, 2.5])
+      self.param_order.append(["nu", "dscr"])
 
   @classmethod
   def _get_bandwidth_log_bounds(cls, dim, single_bw_bounds, use_same_bandwidth):
@@ -626,7 +659,7 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
   # ====================================================================================
   @classmethod
   def _prep_init_fidel_domain_kernel_hyperparams(cls, kernel_type, dim, matern_nu,
-                                                 poly_order):
+                                                 poly_order, esp_order, esp_matern_nu):
     """ Wrapper to pack the kernel hyper-parameters into a dictionary. """
     hyperparams = {}
     hyperparams['dim'] = dim
@@ -634,19 +667,26 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
       hyperparams['nu'] = matern_nu
     elif kernel_type == 'poly':
       hyperparams['order'] = poly_order
+    elif kernel_type == 'esp':
+      if esp_order > 0:
+        hyperparams['esp_order'] = esp_order
+      if esp_matern_nu > 0:
+        hyperparams['esp_matern_nu'] = esp_matern_nu
     return hyperparams
 
   def _prep_init_fidel_kernel_hyperparams(self):
     """ Wrapper to pack the fidelity kernel hyper-parameters into a dictionary. """
     options = self.options
     return self._prep_init_fidel_domain_kernel_hyperparams(options.fidel_kernel_type, \
-             self.fidel_dim, options.fidel_matern_nu, options.fidel_poly_order)
+                   self.fidel_dim, options.fidel_matern_nu, options.fidel_poly_order, \
+                                options.fidel_esp_order, options.fidel_esp_matern_nu)
 
   def _prep_init_domain_kernel_hyperparams(self):
     """ Wrapper to pack the domain kernel hyper-parameters into a dictionary. """
     options = self.options
     return self._prep_init_fidel_domain_kernel_hyperparams(options.domain_kernel_type, \
-             self.domain_dim, options.domain_matern_nu, options.domain_poly_order)
+                 self.domain_dim, options.domain_matern_nu, options.domain_poly_order, \
+                               options.domain_esp_order, options.domain_esp_matern_nu)
 
   def _child_build_gp(self, mean_func, noise_var, gp_cts_hps, gp_dscr_hps,
                       other_gp_params=None, *args, **kwargs):
@@ -658,21 +698,22 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
     # Fidelity kernel ------------------------------------
     fidel_kernel_hyperparams = self._prep_init_fidel_kernel_hyperparams()
     fidel_kernel, gp_cts_hps, gp_dscr_hps = \
-      get_euclidean_gp_kernel_with_scale(self.options.fidel_kernel_type, 1.0, \
+      get_euclidean_integral_gp_kernel_with_scale(self.options.fidel_kernel_type, 1.0, \
         fidel_kernel_hyperparams, gp_cts_hps, gp_dscr_hps, \
-        self.options.fidel_use_same_bandwidth, None)
+        self.options.fidel_use_same_bandwidth, None, self.options.fidel_esp_kernel_type)
     # Domain kernel --------------------------------------
     # The code for the domain kernel should come after fidelity. Otherwise, its a bug.
     domain_kernel_hyperparams = self._prep_init_domain_kernel_hyperparams()
     if self.options.domain_use_additive_gp:
-      gp_dscr_hps = gp_dscr_hps[1:] # The first element is the group size
+      gp_dscr_hps = gp_dscr_hps[:-1] # The first element is the group size
       add_gp_groupings = other_gp_params.add_gp_groupings
     else:
       add_gp_groupings = None
     domain_kernel, gp_cts_hps, gp_dscr_hps = \
-      get_euclidean_gp_kernel_with_scale(self.options.domain_kernel_type, 1.0, \
+      get_euclidean_integral_gp_kernel_with_scale(self.options.domain_kernel_type, 1.0, \
         domain_kernel_hyperparams, gp_cts_hps, gp_dscr_hps, \
-        self.options.domain_use_same_bandwidth, add_gp_groupings)
+        self.options.domain_use_same_bandwidth, add_gp_groupings, \
+        self.options.domain_esp_kernel_type)
     # Construct and return MF GP
     ret_gp = EuclideanMFGP(self.ZZ, self.XX, self.YY, None, ke_scale, fidel_kernel,
                            domain_kernel, mean_func, noise_var, reporter=self.reporter)
@@ -689,8 +730,7 @@ def optimise_cts_hps_for_given_dscr_hps_in_add_model(given_dscr_hps, \
     num_groups_per_group_size, dim, hp_tune_max_evals, cts_hp_optimise, \
     tuning_objective):
   """ Optimises the continuous hyper-parameters for an additive model. """
-  # pylint: disable=cell-var-from-loop
-  group_size = given_dscr_hps[0] # The first is the max group size
+  group_size = given_dscr_hps[-1] # The first is the max group size
   if num_groups_per_group_size < 0:
     num_groups_per_group_size = max(5, min(2 * dim, 25))
   grp_best_hps = None
@@ -742,21 +782,41 @@ def sample_cts_dscr_hps_for_rand_exp_sampling_in_add_model(num_evals, cts_hp_bou
   return sample_cts_hps, sample_dscr_hps, sample_other_gp_params, sample_probs
 
 
+# Utilities for building Euclidean/Integral kernels
+def prep_euclidean_integral_kernel_hyperparams(kernel_type, gp_fitter_options,
+                                               domain_dim):
+  """ Wrapper to pack the kernel hyper-parameters into a dictionary. """
+  hyperparams = {}
+  hyperparams['dim'] = domain_dim
+  if kernel_type == 'matern' and gp_fitter_options.matern_nu > 0:
+    hyperparams['nu'] = gp_fitter_options.matern_nu
+  elif kernel_type == 'poly':
+    hyperparams['order'] = gp_fitter_options.poly_order
+  elif kernel_type == 'esp':
+    if gp_fitter_options.esp_order > 0:
+      hyperparams['esp_order'] = gp_fitter_options.esp_order
+    if gp_fitter_options.esp_matern_nu > 0:
+      hyperparams['esp_matern_nu'] = gp_fitter_options.esp_matern_nu
+  return hyperparams
+
+
 # A function to obtain a Euclidean GP kernel from arguments -----------------------
-def get_euclidean_gp_kernel(kernel_type, kernel_hyperparams, gp_cts_hps, gp_dscr_hps,
-                            use_same_bandwidth, esp_kernel_type, add_gp_groupings=None):
+def get_euclidean_integral_gp_kernel(kernel_type, kernel_hyperparams, gp_cts_hps,
+                                     gp_dscr_hps, use_same_bandwidth,
+                                     add_gp_groupings=None, esp_kernel_type=None):
   """ A method to parse the GP kernel from hyper-parameters. Assumes the scale is
       part of the hyper-parameters as well. """
   scale = np.exp(gp_cts_hps[0]) # First the scale and then the rest of the hyper-params.
   gp_cts_hps = gp_cts_hps[1:]
-  return get_euclidean_gp_kernel_with_scale(kernel_type, scale, kernel_hyperparams,
-                                            gp_cts_hps, gp_dscr_hps, use_same_bandwidth,
-                                            esp_kernel_type, add_gp_groupings)
+  return get_euclidean_integral_gp_kernel_with_scale(kernel_type, scale, \
+    kernel_hyperparams, gp_cts_hps, gp_dscr_hps, use_same_bandwidth, add_gp_groupings, \
+    esp_kernel_type)
 
 # The following function is used by EuclideanGPFitter and EuclideanMFGPFitter.
-def get_euclidean_gp_kernel_with_scale(kernel_type, scale, kernel_hyperparams,
-                                       gp_cts_hps, gp_dscr_hps, use_same_bandwidth,
-                                       esp_kernel_type, add_gp_groupings=None):
+def get_euclidean_integral_gp_kernel_with_scale(kernel_type, scale, kernel_hyperparams,
+                                                gp_cts_hps, gp_dscr_hps,
+                                                use_same_bandwidth, add_gp_groupings=None,
+                                                esp_kernel_type=None):
   """ A method to parse the GP kernel from hyper-parameters. Assumes the scale is
       not part of the hyper-parameters but given as an argument. """
   # pylint: disable=too-many-branches
@@ -824,20 +884,22 @@ def get_euclidean_gp_kernel_with_scale(kernel_type, scale, kernel_hyperparams,
                     offset=exp_decay_offset, powers=exp_decay_powers)
                    for grp in add_gp_groupings]
   elif kernel_type == 'esp':
+    if not np.isscalar(esp_order):
+      esp_order = np.asscalar(esp_order)
     if esp_kernel_type == 'se':
-      grp_kernels = [gp_kernel.ESPKernelSE(dim=dim, scale=scale, order=esp_order,
+      grp_kernels = [gp_kernel.ESPKernelSE(dim=dim, scale=scale, order=int(esp_order),
                                            dim_bandwidths=esp_dim_bandwidths)]
     elif esp_kernel_type == 'matern':
       if 'esp_matern_nu' not in kernel_hyperparams:
-        matern_nu = gp_dscr_hps[0:dim]
-        gp_dscr_hps = gp_dscr_hps[dim:]
+        matern_nu = [gp_dscr_hps[0]] * dim
+        gp_dscr_hps = gp_dscr_hps[1:]
       else:
         matern_nu = [kernel_hyperparams['esp_matern_nu']] * dim
       grp_kernels = [gp_kernel.ESPKernelMatern(dim=dim, nu=matern_nu,
-                                               scale=scale, order=esp_order,
+                                               scale=scale, order=int(esp_order),
                                                dim_bandwidths=esp_dim_bandwidths)]
   else:
-    raise Exception('Unknown kernel type!')
+    raise Exception('Unknown kernel type %s!'%(kernel_type))
   if is_additive:
     euc_kernel = gp_kernel.AdditiveKernel(scale=scale, kernel_list=grp_kernels,
                                           groupings=add_gp_groupings)

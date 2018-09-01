@@ -67,6 +67,8 @@ class BlackboxOptimiser(ExperimentDesigner):
     self.to_copy_from_qinfo_to_history['val'] = 'query_vals'
     self.to_copy_from_qinfo_to_history['true_val'] = 'query_true_vals'
     # Set up previous evaluations
+    self.history.prev_eval_points = []
+    self.history.prev_eval_vals = []
     self.prev_eval_vals = []
     self.prev_eval_true_vals = []
 
@@ -120,12 +122,12 @@ class BlackboxOptimiser(ExperimentDesigner):
   def _get_exd_child_report_results_str(self):
     """ Returns a string describing the progress in optimisation. """
     best_val_str = 'best_val=(e%0.3f, t%0.3f)'%(self.curr_opt_val,
-                                                  self.curr_true_opt_val)
+                                                self.curr_true_opt_val)
     if self.func_caller.is_mf():
       window_length = 20
       window_queries_at_f2o = self.history.query_at_fidel_to_opts[-window_length:]
-      fidel_to_opt_str = ', #f2o: %d[%0.2f](%d/%d)'%(self.num_fidel_to_opt_calls,
-                           self.num_fidel_to_opt_calls / float(self.step_idx),
+      fidel_to_opt_str = ', #f2o: %d[%0.2f](%d/%d)'%(self.num_fidel_to_opt_calls, \
+                           self.num_fidel_to_opt_calls / float(self.step_idx), \
                            sum(window_queries_at_f2o), window_length)
     else:
       fidel_to_opt_str = ''
@@ -150,6 +152,8 @@ class BlackboxOptimiser(ExperimentDesigner):
         self._update_opt_point_and_val(qinfo)
       self.prev_eval_points.append(qinfo.point)
       self.prev_eval_vals.append(qinfo.val)
+    self.history.prev_eval_points = self.prev_eval_points
+    self.history.prev_eval_vals = self.prev_eval_vals
 
   def _child_run_experiments_initialise(self):
     """ Handles any initialisation before running experiments. """
@@ -182,10 +186,6 @@ class OptInitialiser(BlackboxOptimiser):
     super(OptInitialiser, self).__init__(func_caller, worker_manager, model=None,
                                          options=options, reporter=reporter)
 
-#   def _exd_child_set_up(self):
-#     """ Set up for an initialiser. """
-#     pass
-
   def _opt_method_set_up(self):
     """ Any set up for the specific optimisation method. """
     pass
@@ -201,10 +201,6 @@ class OptInitialiser(BlackboxOptimiser):
   def is_an_mf_method(self):
     """ Returns True if the method is a multi-fidelity method. """
     return self.func_caller.is_mf()
-
-#   def _exd_child_update_history(self, qinfo):
-#     """ Any updates to history from the child class. """
-#     pass
 
   def _get_exd_child_report_results_str(self):
     """ Returns a string for the specific child method describing the progress. """

@@ -72,14 +72,26 @@ def load_parameter(parameter, key=None):
   _items = parameter.get('items', '')
   if _dim != "":
     _dim = int(_dim)
+  if not isinstance(_dim, (int, float, long)):
+    _dim = unicode_to_str(_dim)
   param = {}
   param['name'] = unicode_to_str(_name)
   param['type'] = unicode_to_str(_type).lower()
   if param['type'] in ['float', 'int']:
     param['min'] = _min
     param['max'] = _max
-  elif param['type'] in ['discrete']:
-    param['items'] = '-'.split(unicode_to_str(_items))
+  elif param['type'] == 'discrete':
+    if _items == '':
+      raise ValueError('List of items required')
+    param['items'] = unicode_to_str(_items).split('-')
+  elif param['type'] == 'discrete_numeric':
+    if _items == '':
+      raise ValueError('List or range of items required')
+    elif ':' not in _items:
+      param['items'] = [float(x) for x in unicode_to_str(_items).split('-')]
+    else:
+      _range = [float(x) for x in unicode_to_str(_items).split(':')]
+      param['items'] = list(np.arange(_range[0], _range[2], _range[1]))
   param['kernel'] = unicode_to_str(_kernel)
   param['dim'] = _dim
 
@@ -112,7 +124,7 @@ def read_pb(config_file):
   _file.close()
 
   config = MessageToDict(config_pb)
-  config['fidel_space'] = config.pop('fidelSpace')
+  config['fidel_space'] = config.pop('fidelSpace', {})
   return load_parameters(config)
 
 def config_parser(config_file):

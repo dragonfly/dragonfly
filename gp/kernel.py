@@ -12,7 +12,36 @@ from __future__ import division
 import numpy as np
 # Local imports
 from utils.ancillary_utils import get_list_of_floats_as_str
-from utils.general_utils import dist_squared
+from utils.general_utils import dist_squared, get_idxs_from_list_of_lists, \
+                                pairwise_hamming_kernel
+
+
+def get_list_of_hyperparams_for_kernel(kernel_type):
+  """ Returns the list of hyper-parameters for each kernel.
+      It returns a 3-tuple of lists of equal length.
+      The first is a list of strings describing each hyper-parameter.
+      The second is a list of integers indicating the size/dimensionality of each
+      hyper-parameter. If any element in this list is 'dim', it means the dimensionality
+      is the dimensionality of the input space.
+      The third is a list of strings indicating if they are float or integral. If its a
+      list instead of a string, then it means the hyper-parameter is discrete with the
+      elements in the list denoting possible values.
+  """
+  if kernel_type.lower() == 'se':
+    return ['scale', 'dim_bandwidths'], [1, 'dim'], ['float', 'float']
+  elif kernel_type.lower() == 'matern':
+    return (['scale', 'dim_bandwidths', 'nu'], [1, 'dim', 1],
+            ['float', 'float', [0.5, 1.5, 2.5]])
+  elif kernel_type.lower() == 'espse':
+    return ['esp_order', 'scale', 'dim_bandwidths'], [1, 'dim', 1], \
+           ['float', 'float', 'int']
+  elif kernel_type.lower() == 'espmatern':
+    return (['esp_order', 'scale', 'dim_bandwidths', 'nu'], [1, 'dim', 1, 1],
+            ['float', 'float', [0.5, 1.5, 2.5], 'int'])
+  elif kernel_type.lower() == 'expdecay':
+    raise NotImplementedError('Not implemented this function for ExpDecayKernel yet!')
+  else:
+    raise ValueError('Unidentified kernel type %s.'%(kernel_type))
 
 
 # Utilities -------
@@ -404,6 +433,30 @@ class ExpDecayKernel(Kernel):
         self.hyperparams['offset'], get_list_of_floats_as_str(self.hyperparams['powers']))
 
 
+class HammingKernel(Kernel):
+  """ The Hamming kernel. """
+
+  def __init__(self, dim_weights):
+    """ Constructor. """
+    super(HammingKernel, self).__init__()
+    if isinstance(dim_weights, (int, float, long)):
+      dim_weights = np.ones((dim_weights,))/float(dim_weights)
+    dim_weights = np.array(dim_weights)
+    self.set_hyperparams(dim_weights=dim_weights)
+
+  def is_guaranteed_psd(self):
+    """ Returns true. """
+    return True
+
+  def _child_evaluate(self, X1, X2):
+    """ Evaluates the child kernel. """
+    return pairwise_hamming_kernel(X1, X2, self.hyperparams['dim_weights'])
+
+  def __str__(self):
+    """ Return a string representation. """
+    return 'Hamming: wts=%s'%(get_list_of_floats_as_str(self.hyperparams['dim_weights']))
+
+
 # Derivative Kernels ====================================================================
 class AdditiveKernel(Kernel):
   """Implements an Additive kernel on Euclidean Spaces with non-overlapping groups. """
@@ -448,9 +501,9 @@ class AdditiveKernel(Kernel):
     return 'ADD scale=%0.2f, '%(self.hyperparams['scale']) + kernels_str
 
 
-class DomainProductKernel(Kernel):
-  """ Implements a product kernel which takes the product of all kernels in
-      the kernel list.
+class CartesianProductKernel(Kernel):
+  """ Implements a product kernel which takes the cartesian product of all kernels in
+      a kernel list.
   """
 
   def __init__(self, scale, kernel_list):
@@ -458,7 +511,7 @@ class DomainProductKernel(Kernel):
         We will assume that when computing the kernel, each X is a list of secondary
         lists where the j'th in a secondary list corresponds to the j'th kernel.
     """
-    super(DomainProductKernel, self).__init__()
+    super(CartesianProductKernel, self).__init__()
     self.kernel_list = kernel_list
     self.add_hyperparams(scale=scale)
 
@@ -467,19 +520,14 @@ class DomainProductKernel(Kernel):
         guaranteed to be PSD. Returns True if each kernel is is_guaranteed_psd()"""
     return all([kern.is_guaranteed_psd() for kern in self.kernel_list])
 
-  @classmethod
-  def _get_idxs_from_list_of_lists(cls, list_of_lists, idx):
-    """ Returns a list of objects. """
-    return [elem[idx] for elem in list_of_lists]
-
   def _child_evaluate(self, X1, X2):
     """ Computes the Gram Matrix. """
     n1 = len(X1)
     n2 = len(X2)
     result = self.hyperparams['scale'] * np.ones((n1, n2))
     for idx, kern in enumerate(self.kernel_list):
-      curr_X1 = self._get_idxs_from_list_of_lists(X1, idx)
-      curr_X2 = self._get_idxs_from_list_of_lists(X2, idx)
+      curr_X1 = get_idxs_from_list_of_lists(X1, idx)
+      curr_X2 = get_idxs_from_list_of_lists(X2, idx)
       result *= kern(curr_X1, curr_X2)
     return result
 
@@ -627,7 +675,7 @@ class ESPKernel(Kernel):
     super(ESPKernel, self).__init__()
     self.dim = len(kernel_list)
     self.kernel_list = kernel_list
-    self.add_hyperparams(scale=scale, order=int(np.asscalar(order)))
+    self.add_hyperparams(scale=scale, order=order)
 
     if self.dim < 0:
       raise ValueError("dim cannot not be negative")
@@ -652,10 +700,13 @@ class ESPKernel(Kernel):
     if isinstance(X2, list):
       X2 = np.array(X2)
 
-    kernel_matrices = [kernel(X1, X2) for kernel in kernel_list]
-    power_sum = [0 for _ in range(order + 1)]
     n1 = X1.shape[0]
     n2 = X2.shape[0]
+    kernel_matrices = []
+    for i in range(self.dim):
+      kernel = kernel_list[i]
+      kernel_matrices.append(kernel(X1[:, i:i+1], X2[:, i:i+1]))
+    power_sum = [np.zeros((n1, n2)) for _ in range(order + 1)]
 
     ones = np.ones((n1, n2))
     power_sum[0] = ones
@@ -663,12 +714,13 @@ class ESPKernel(Kernel):
       for matrix in kernel_matrices:
         power_sum[i] += matrix ** i
 
-    esp = [0 for _ in range(order + 1)]  # elementary symmetric polynomials
+    # elementary symmetric polynomials
+    esp = [np.zeros((n1, n2)) for _ in range(order + 1)]
     esp[0] = ones
     for m in range(1, order + 1):
       for i in range(1, m + 1):
         esp[m] += ((-1) ** (i - 1)) * esp[m - i] * power_sum[i]
-        esp[m] /= m
+      esp[m] /= m
 
     return scale * esp[order]
 
@@ -677,14 +729,8 @@ class ESPKernelSE(ESPKernel):
   """Implements ESP kernel with SE kernel for each dimension"""
   def __init__(self, dim, scale, order, dim_bandwidths):
     kernel_list = []
-    single_bandwidth = False
-    if dim_bandwidths.size == dim:
-      single_bandwidth = True
     for i in range(dim):
-      if single_bandwidth:
-        kernel_list.append(SEKernel(dim, 1.0, np.asscalar(dim_bandwidths[i])))
-      else:
-        kernel_list.append(SEKernel(dim, 1.0, dim_bandwidths[i:i+dim]))
+      kernel_list.append(SEKernel(1, 1.0, np.asscalar(dim_bandwidths[i])))
     super(ESPKernelSE, self).__init__(scale, order, kernel_list)
 
 
@@ -692,14 +738,8 @@ class ESPKernelMatern(ESPKernel):
   """Implements ESP kernel with Matern kernel for each dimension"""
   def __init__(self, dim, nu, scale, order, dim_bandwidths):
     kernel_list = []
-    single_bandwidth = False
-    if dim_bandwidths.size == dim:
-      single_bandwidth = True
     for i in range(dim):
-      if single_bandwidth:
-        kernel_list.append(MaternKernel(dim, nu[i], 1.0, np.asscalar(dim_bandwidths[i])))
-      else:
-        kernel_list.append(MaternKernel(dim, nu[i], 1.0, dim_bandwidths[i:i+dim]))
+      kernel_list.append(MaternKernel(1, nu[i], 1.0, np.asscalar(dim_bandwidths[i])))
     super(ESPKernelMatern, self).__init__(scale, order, kernel_list)
 
 

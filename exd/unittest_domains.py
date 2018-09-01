@@ -2,14 +2,13 @@
   Unit tests for domains.py
   -- kandasamy@cs.cmu.edu
 """
-from __future__ import absolute_import
 
 # pylint: disable=invalid-name
 
+from __future__ import absolute_import
 import numpy as np
-
 # Local imports
-from distributions import domains
+from exd import domains
 from utils.general_utils import map_to_bounds
 from utils.base_test_class import BaseTestClass, execute_tests
 
@@ -77,6 +76,26 @@ class DiscreteDomainTestCase(DomainBaseTestCase, BaseTestClass):
     self.non_points = ['ab', 75.8, 'qwerty', None]
 
 
+class DiscreteNumericDomainTestCase(DomainBaseTestCase, BaseTestClass):
+  """ Discrete Numeric Domain. """
+
+  def _child_set_up(self):
+    """ Child set up. """
+    self.domain_obj = domains.DiscreteNumericDomain([4, 5, 207.2, -2.3])
+    self.points = [207.2, 5, -2.3]
+    self.non_points = [5.4, -1.1, 'kky', None]
+
+  def test_non_numeric_discrete_domain(self):
+    """ Constructor. """
+    self.report('Testing if exception is raised non numeric discrete domain.')
+    exception_raised = False
+    try:
+      domains.DiscreteNumericDomain(['abc', 5, 6.5, int, 'k'])
+    except ValueError:
+      exception_raised = True
+    assert exception_raised
+
+
 class ProdDiscreteDomainTestCase(DomainBaseTestCase, BaseTestClass):
   """ ProdDiscreteDomain Domain. """
 
@@ -85,6 +104,32 @@ class ProdDiscreteDomainTestCase(DomainBaseTestCase, BaseTestClass):
     self.domain_obj = domains.ProdDiscreteDomain([['abc', 5, 6.5], [None, float]])
     self.points = [('abc', float), [6.5, None], [5, None]]
     self.non_points = [['abc', float, float], [5, 7], 'qwerty', [99], 6]
+
+
+class ProdDiscreteNumericDomain(DomainBaseTestCase, BaseTestClass):
+  """ ProdDiscreteDomain Domain. """
+
+  def _child_set_up(self):
+    """ Child set up. """
+    self.domain_obj = domains.ProdDiscreteNumericDomain(
+                        [[4.3, 2.1, 9.8, 10],
+                         [11.2, -23.1, 19.8],
+                         [1123, 213, 1980, 1.1]])
+    self.points = [[2.1, -23.1, 1980], (10, 11.2, 1.1), [9.8, 19.8, 1123]]
+    self.non_points = [[2.1 -13.1, 1980], ('kky', 11.2, 1.1), [9.8, 19.8, 1123, 21]]
+
+  def test_non_numeric_prod_discrete_domain(self):
+    """ Constructor. """
+    self.report('Testing if exception is raised non numeric product discrete domain.')
+    exception_raised = False
+    try:
+      domains.ProdDiscreteNumericDomain(
+        [[2.1, 9.8, 10],
+         [11.2, -23.1, 19.8],
+         [1123, 213, 'squirrel', 1.1]])
+    except ValueError:
+      exception_raised = True
+    assert exception_raised
 
 
 class CartesianProductDomainTestCase(DomainBaseTestCase, BaseTestClass):

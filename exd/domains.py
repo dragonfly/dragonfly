@@ -7,6 +7,7 @@
 # pylint: disable=arguments-differ
 
 import numpy as np
+from numbers import Number
 
 class Domain(object):
   """ Domain class. An abstract class which implements domains. """
@@ -71,7 +72,7 @@ class EuclideanDomain(Domain):
 
   def __str__(self):
     """ Returns a string representation. """
-    return 'Euclidean Domain: %s'%(_get_bounds_as_str(self.bounds))
+    return 'Euclidean: %s'%(_get_bounds_as_str(self.bounds))
 
 
 # Integral spaces ------------
@@ -99,7 +100,7 @@ class IntegralDomain(Domain):
 
   def __str__(self):
     """ Returns a string representation. """
-    return 'Integral Domain: %s'%(_get_bounds_as_str(self.bounds))
+    return 'Integral: %s'%(_get_bounds_as_str(self.bounds))
 
 
 # Discrete spaces -------------
@@ -123,12 +124,35 @@ class DiscreteDomain(Domain):
     """ Returns true if point is in the domain. """
     return point in self.list_of_items
 
+  @classmethod
+  def _get_disc_domain_type(cls):
+    """ Prefix for __str__. Can be overridden by a child class. """
+    return "Disc"
+
   def __str__(self):
     """ Returns a string representation. """
-    base_str = 'Discrete Domain(%d)'%(self.size)
+    base_str = '%s(%d)'%(self._get_disc_domain_type(), self.size)
     if self.size < 4:
       return '%s: %s'%(base_str, self.list_of_items)
     return base_str
+
+
+class DiscreteNumericDomain(DiscreteDomain):
+  """ A domain for discrete objects all of which are numeric. """
+
+  def __init__(self, list_of_items):
+    """ Constructor. """
+    if not all_items_are_numeric(list_of_items):
+      raise ValueError('list_of_items must be a list of numbers.')
+    super(DiscreteNumericDomain, self).__init__(list_of_items)
+
+  def get_type(self):
+    """ Returns the type of the domain. """
+    return 'discrete_numeric'
+
+  def _get_disc_domain_type(self):
+    """ Prefix for __str__. Can be overridden by a child class. """
+    return "DiscNum"
 
 
 # A product of discrete spaces -----------
@@ -156,9 +180,34 @@ class ProdDiscreteDomain(Domain):
     ret = [elem in loi for elem, loi in zip(point, self.list_of_list_of_items)]
     return all(ret)
 
+  @classmethod
+  def _get_prod_disc_domain_type(cls):
+    """ Prefix for __str__. Can be overridden by a child class. """
+    return "ProdDisc"
+
   def __str__(self):
     """ Returns a string representation. """
-    return 'Prod Discrete Domain(d=%d, size=%d)'%(self.dim, self.size)
+    return '%s(d=%d,size=%d)'%(self._get_prod_disc_domain_type(), self.dim, self.size)
+
+
+class ProdDiscreteNumericDomain(ProdDiscreteDomain):
+  """ A product of discrete numeric objects. """
+
+  def __init__(self, list_of_list_of_items):
+    """ Constructor. """
+    if not all_lists_of_items_are_numeric(list_of_list_of_items):
+      raise ValueError('list_of_list_of_items must of a list where each element is ' +
+                       'a list of numeric objects.')
+    super(ProdDiscreteNumericDomain, self).__init__(list_of_list_of_items)
+
+  def get_type(self):
+    """ Returns the type of the domain. """
+    return 'prod_discrete_numeric'
+
+  @classmethod
+  def _get_prod_disc_domain_type(cls):
+    """ Prefix for __str__. Can be overridden by a child class. """
+    return "ProdDiscNum"
 
 
 # Compound Domains ------------------------------------------
@@ -199,8 +248,9 @@ class CartesianProductDomain(Domain):
 
   def __str__(self):
     """ Returns a string representation of the domain. """
-    list_of_domains_str = ' ,'.join([str(dom) for dom in self.list_of_domains])
-    return 'Cart-Product(d=%d)::[%s]'%(self.dim, list_of_domains_str)
+    list_of_domains_str = ', '.join([str(dom) for dom in self.list_of_domains])
+    return 'CartProd(N=%d,d=%d)::[%s]'%(self._num_of_domains, self.dim,
+                                        list_of_domains_str)
 
 
 # Utilities we will need for the above ------------------------------------------
@@ -219,4 +269,18 @@ def _get_bounds_as_str(bounds):
   """ returns a string representation of bounds. """
   bounds_list = [list(b) for b in bounds]
   return str(bounds_list)
+
+def all_items_are_numeric(list_of_items):
+  """ Returns true if all items in the list are numeric. """
+  for elem in list_of_items:
+    if not isinstance(elem, Number):
+      return False
+  return True
+
+def all_lists_of_items_are_numeric(list_of_list_of_items):
+  """ Returns true if all lists in list_of_list_of_items are numeric. """
+  for elem in list_of_list_of_items:
+    if not all_items_are_numeric(elem):
+      return False
+  return True
 

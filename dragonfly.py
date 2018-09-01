@@ -1,5 +1,5 @@
 """
-  Command line tool for GP Bandit Optimisation.
+  Main APIs and command line tool for GP Bandit Optimisation.
   -- kvysyara@andrew.cmu.edu
   -- kandasamy@cs.cmu.edu
 
@@ -35,41 +35,6 @@ dragonfly_args = [ \
   get_option_specs('budget', False, 0.0, \
       'The budget of evaluations. If max_capital is none, will use this as max_capital.'),
                  ]
-
-def main():
-  """
-    Maximizes a function given a config file containing the hyperparameters and the
-    corresponding domain bounds.
-  """
-  # Loading Options
-  euc_gpb_args = get_all_gp_bandit_args_from_gp_args(euclidean_gp_args)
-  options = load_options(euc_gpb_args + dragonfly_args, cmd_line=True)
-  if options.config is None:
-    raise ValueError('Config file is required.')
-
-  # Parsing config file
-  expt_dir = os.path.dirname(os.path.abspath(os.path.realpath(options.config)))
-  if not os.path.exists(expt_dir):
-    raise ValueError("Experiment directory does not exist.")
-  param_spec = config_parser(options.config)
-  exp_info = param_spec['exp_info']
-  obj = imp.load_source(exp_info['name'], os.path.join(expt_dir, exp_info['name']+'.py'))
-
-  options.capital_type = 'return_value'
-  if exp_info['method'] == 'slice' or exp_info['method'] == 'nuts':
-    options.gpb_hp_tune_criterion = 'post_sampling'
-    options.gpb_post_hp_tune_method = exp_info['method']
-  if options.max_capital == 0.0:
-    if options.budget == 0.0:
-      raise ValueError('Specify the budget in budget or max_capital.')
-    options.max_capital = options.budget
-
-  domain = create_domain(param_spec['domain'])
-  opt_val, opt_pt = maximise_function(obj.main, domain=domain, options=options,
-                                      num_workers=exp_info['num_workers'],
-                                      max_capital=options.max_capital)
-  print('Optimum Value in %d evals: %0.4f'%(options.max_capital, opt_val))
-  print('Optimum Point: %s'%(opt_pt))
 
 
 def maximise_function(func, max_capital, domain=None, domain_bounds=None,
@@ -147,6 +112,42 @@ def create_domain(parameters):
 
   domain = domains.CartesianProductDomain(list_of_domains)
   return domain
+
+
+def main():
+  """
+    Maximizes a function given a config file containing the hyperparameters and the
+    corresponding domain bounds.
+  """
+  # Loading Options
+  euc_gpb_args = get_all_gp_bandit_args_from_gp_args(euclidean_gp_args)
+  options = load_options(euc_gpb_args + dragonfly_args, cmd_line=True)
+  if options.config is None:
+    raise ValueError('Config file is required.')
+
+  # Parsing config file
+  expt_dir = os.path.dirname(os.path.abspath(os.path.realpath(options.config)))
+  if not os.path.exists(expt_dir):
+    raise ValueError("Experiment directory does not exist.")
+  param_spec = config_parser(options.config)
+  exp_info = param_spec['exp_info']
+  obj = imp.load_source(exp_info['name'], os.path.join(expt_dir, exp_info['name']+'.py'))
+
+  options.capital_type = 'return_value'
+  if exp_info['method'] == 'slice' or exp_info['method'] == 'nuts':
+    options.gpb_hp_tune_criterion = 'post_sampling'
+    options.gpb_post_hp_tune_method = exp_info['method']
+  if options.max_capital == 0.0:
+    if options.budget == 0.0:
+      raise ValueError('Specify the budget in budget or max_capital.')
+    options.max_capital = options.budget
+
+  domain = create_domain(param_spec['domain'])
+  opt_val, opt_pt = maximise_function(obj.main, domain=domain, options=options,
+                                      num_workers=exp_info['num_workers'],
+                                      max_capital=options.max_capital)
+  print('Optimum Value in %d evals: %0.4f'%(options.max_capital, opt_val))
+  print('Optimum Point: %s'%(opt_pt))
 
 
 if __name__ == '__main__':

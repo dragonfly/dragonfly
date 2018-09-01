@@ -37,7 +37,7 @@ class MFGP(GP):
     self.XX = list(XX)
     self.YY = list(YY)
     if not isinstance(mf_kernel, gp_kernel.Kernel):
-      kernel = gp_kernel.DomainProductKernel(mf_kernel.scale,
+      kernel = gp_kernel.CartesianProductKernel(mf_kernel.scale,
                  [mf_kernel.fidel_kernel, mf_kernel.domain_kernel])
       self.fidel_kernel = mf_kernel.fidel_kernel
       self.domain_kernel = mf_kernel.domain_kernel

@@ -4,7 +4,8 @@
   -- kvysyara@andrew.cmu.edu
 
   Usage:
-  python plotting.py <file containing list of pickle or mat file paths>
+  python plotting.py --filelist <file containing list of pickle or mat file paths>
+  python plotting.py --file     <pickle or mat file path>
 """
 from __future__ import division
 
@@ -12,6 +13,7 @@ from __future__ import division
 # pylint: disable=redefined-builtin
 # pylint: disable=too-many-locals
 
+import os
 import pickle
 import argparse
 import warnings
@@ -89,10 +91,9 @@ def get_plot_info(
     cum_costs,
     meth_costs,
     grid_pts,
-    true_opt_val,
-    outlier_frac
+    outlier_frac,
+    init_opt_vals
 ):
-  # pylint: disable=unused-argument
   """generates means and standard deviation for the method's output
   """
   num_experiments = len(meth_curr_opt_vals)
@@ -117,8 +118,14 @@ def get_plot_info(
       curr_cum_costs = np.cumsum(meth_costs[exp_iter])
     else:
       curr_cum_costs = cum_costs[exp_iter]
-    interp = np.interp(grid_pts, curr_cum_costs.flatten(),
-                       meth_curr_opt_vals[exp_iter].flatten())
+    if init_opt_vals is not None:
+      opt_vals = np.concatenate((np.array([init_opt_vals[exp_iter]]),
+                                 np.squeeze(meth_curr_opt_vals[exp_iter])), axis=0)
+      curr_cum_costs = np.concatenate((np.array([0]), np.squeeze(curr_cum_costs)),
+                                      axis=0)
+    else:
+      opt_vals = meth_curr_opt_vals[exp_iter]
+    interp = np.interp(grid_pts, curr_cum_costs.flatten(), opt_vals.flatten())
     grid_vals[exp_iter, :] = np.maximum.accumulate(interp)
 
 
@@ -158,6 +165,7 @@ def gen_curves(
     plot_type='plot'
 ):
   # pylint: disable=too-many-arguments
+  # pylint: disable=too-many-branches
   # pylint: disable=unused-argument
   # pylint: disable=unused-variable
   """Plots the curves given the experiment result data
@@ -167,7 +175,7 @@ def gen_curves(
   NUM_ERR_BARS = 10
   LINE_WIDTH = 2
 
-  num_methods, _ = results['curr_opt_vals'].shape
+  num_methods, num_experiments = results['curr_opt_vals'].shape
   methods = [str(method).strip() for method in results['methods']]
 
   if x_bounds is None or x_bounds == []:
@@ -196,6 +204,14 @@ def gen_curves(
   plot_means = np.zeros((num_methods, NUM_GRID_PTS))
   plot_stds = np.zeros((num_methods, NUM_GRID_PTS))
 
+  if 'smac' in methods or 'hyperopt' in methods or 'spearmint' in methods or \
+     'gpyopt' in methods:
+    init_opt_vals = None
+  else:
+    init_opt_vals = []
+    for i in range(num_experiments):
+      init_opt_vals.append(np.amax(results['prev_eval_vals'][-1, :][i]))
+
   for i in range(num_methods):
     meth_curr_opt_vals = results['curr_true_opt_vals'][i, :]
     meth_costs = results['query_eval_times'][i, :]
@@ -205,8 +221,8 @@ def gen_curves(
         cum_costs,
         meth_costs,
         grid_pts,
-        results['true_maxval'],
         outlier_frac,
+        init_opt_vals
     )
 
     plot_means[i, :] = meth_plot_mean
@@ -217,7 +233,6 @@ def gen_curves(
   err_bar_stds = plot_stds[:, err_bar_idxs]
 
   for i, method in enumerate(methods):
-
     plot_idx = plot_order.index(method)
     if plot_type == 'plot':
       plt.plot(
@@ -256,7 +271,6 @@ def gen_curves(
           label=plot_legends[plot_idx],
       )
 
-
     if not fill_error:
       plt.errorbar(
           grid_pts[plot_idx%err_bar_freq::err_bar_freq],
@@ -265,6 +279,7 @@ def gen_curves(
           marker=plot_markers[plot_idx],
           color=plot_colors[plot_idx],
           linewidth=LINE_WIDTH,
+          fmt='o',
       )
     else:
       plt.fill_between(
@@ -314,15 +329,20 @@ def get_file_paths(fname):
 def plot_results():
   """ plots the results using matplotlib. """
   options = get_options()
-  file_paths = get_file_paths(options.fileName)
+  if options.filelist != '':
+    file_paths = get_file_paths(options.filelist)
+  elif options.file != '':
+    file_paths = [os.path.realpath(os.path.abspath(options.file))]
+  else:
+    raise ValueError('Missing Filelist.')
   results = load_results(file_paths)
   x_label = 'Time'
   y_label = 'Max Value'
   plot_title = options.title
   #plot_order = ['ucb', 'add_ucb', 'mf_ucb', 'add_mf_ucb']
   #plot_legends = ['GP-UCB', 'Add-GP-UCB', 'MF-GP-UCB', 'Dragonfly']
-  plot_order = ['slice', 'nuts', 'rand_exp_sampling', 'direct']
-  plot_legends = ['slice', 'nuts', 'rand_exp_sampling', 'direct']
+  plot_order = ['ml', 'post_sampling', 'ml+post_sampling', 'rand']
+  plot_legends = ['ml', 'post_sampling', 'ml+post_sampling', 'rand']
   plot_markers = ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.']
   plot_line_markers = ['--', ':', '-.', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
 
@@ -375,7 +395,8 @@ def get_options():
       a namespace with the values.
   """
   parser = argparse.ArgumentParser(description='Plotting.')
-  parser.add_argument('fileName', help='File name containing file paths.')
+  parser.add_argument('--file', default='', help='File path of single plot file.')
+  parser.add_argument('--filelist', default='', help='File name containing file paths.')
   parser.add_argument('--type', default='plot', help='Type of plot -- default is plot, \
                       other options are semilogy, loglog, semilogx.')
   parser.add_argument('--title', help='Title of plot.')

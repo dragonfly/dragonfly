@@ -15,9 +15,12 @@ import numpy as np
 from scipy.sparse import dok_matrix
 from scipy.linalg import solve_triangular
 
+
+# Some very generic utility functions
 def map_to_cube(pts, bounds):
   """ Maps bounds to [0,1]^d and returns the representation in the cube. """
   return (pts - bounds[:, 0])/(bounds[:, 1] - bounds[:, 0])
+
 
 def map_to_bounds(pts, bounds):
   """ Given a point in [0,1]^d, returns the representation in the original space. """
@@ -30,9 +33,15 @@ def get_sublist_from_indices(orig_list, idxs):
   return [orig_list[idx] for idx in idxs]
 
 
+def get_idxs_from_list_of_lists(list_of_lists, idx):
+  """ Returns a list of objects corresponding to index idx from a list of lists. """
+  return [elem[idx] for elem in list_of_lists]
+
+
 def compute_average_sq_prediction_error(Y1, Y2):
   """ Returns the average prediction error. """
   return np.linalg.norm(np.array(Y1) - np.array(Y2))**2 / len(Y1)
+
 
 def dist_squared(X1, X2):
   """ If X1 is n1xd and X2 is n2xd, this returns an n1xn2 matrix where the (i,j)th
@@ -49,6 +58,43 @@ def dist_squared(X1, X2):
   return dist_sq
 
 
+def pairwise_hamming_kernel(X1, X2, weights=None):
+  """ Computes the pairwise hamming kernels between X1 and X2.
+  """
+  # An internal function to compute weighted distances between an array and a vector.
+  def _compute_dist_between_2D_1D_array(arr_2d, arr_1d, wts):
+    """ Returns distance between 2D and 1D array. """
+    return (np.equal(arr_2d, arr_1d) * wts).sum(axis=1)
+  # An internal function to compute weighted distances between a large array and
+  # a small array
+  def _compute_dist_between_large_small_array(arr_large, arr_small, wts):
+    """ Returns distances between large and small arrays. """
+    ret = np.zeros((arr_large.shape[0], arr_small.shape[0]))
+    for idx, small_vec in enumerate(arr_small):
+      ret[:, idx] = _compute_dist_between_2D_1D_array(arr_large, small_vec, wts)
+    return ret
+  # ---------------------------------------------------------------------------------
+  if len(X1) == 0 and len(X2) == 0:
+    return np.zeros((0, 0))
+  elif len(X1) == 0:
+    return np.zeros((0, len(X2)))
+  elif len(X2) == 0:
+    return np.zeros((len(X1), 0))
+  else:
+    if weights is None:
+      dim = len(X1[0])
+      weights = np.ones((dim, ))/float(dim)
+    X1 = np.array(X1, dtype=np.object)
+    X2 = np.array(X2, dtype=np.object)
+    n1, _ = X1.shape
+    n2, _ = X2.shape
+    if n2 < n1:
+      return _compute_dist_between_large_small_array(X2, X1, weights).T
+    else:
+      return _compute_dist_between_large_small_array(X1, X2, weights)
+
+
+# Some linear algebraic utilities
 def project_symmetric_to_psd_cone(M, is_symmetric=True, epsilon=0):
   """ Projects the symmetric matrix M to the PSD cone. """
   if is_symmetric:
@@ -140,6 +186,42 @@ def reorder_list_or_array(M, ordering):
     return [M[i] for i in ordering]
   else:
     return M[ordering]
+
+def reorder_list(L, ordering):
+  """ reorders a list. """
+  return reorder_list_or_array(L, ordering)
+
+def get_original_order_from_reordered_list(L, ordering):
+  """ Returns the original order from a reordered list. """
+  ret = [None] * len(ordering)
+  for orig_idx, ordered_idx in enumerate(ordering):
+    ret[ordered_idx] = L[orig_idx]
+  return ret
+
+def flatten_nested_lists(L):
+  """ Each element of L could be a list or any object other than a list. This function
+      returns a list of non-list objects, where the internal lists or lists_of_lists
+      have been 'flattened'.
+  """
+  ret = []
+  for elem in L:
+    if isinstance(elem, list):
+      ret.extend(flatten_nested_lists(elem))
+    else:
+      ret.append(elem)
+  return ret
+
+def flatten_list_of_objects_and_lists(L):
+  """ Each element of L could be a non-list object or a list of non-objects. This function
+      returns a list of non-list objects, where the internal lists have been 'flattened'.
+  """
+  ret = []
+  for elem in L:
+    if isinstance(elem, list):
+      ret.extend(elem)
+    else:
+      ret.append(elem)
+  return ret
 
 def reorder_rows_and_cols_in_matrix(M, ordering):
   """ Reorders the rows and columns in matrix M. """

@@ -3,14 +3,12 @@
   -- kandasamy@cs.cmu.edu
 """
 
-# pylint: disable=abstract-class-not-used
-
 from argparse import Namespace
 import random
 from time import time
-import numpy as np
 import pickle
 from scipy.io import savemat as sio_savemat
+import numpy as np
 # Local imports
 from utils.reporters import get_reporter
 
@@ -57,13 +55,17 @@ class BaseMethodEvaluator(object):
 
   def save_results(self):
     """ Saves results in save_file_full_name. """
-    self.reporter.write('Saving results (trial-iter:%d) to %s ...  '%(self.trial_iter,
+    self.reporter.write('Saving results (trial-iter:%d) to %s ...  '%(self.trial_iter, \
                          self.save_file_full_name))
     try:
       if self.save_file_extension == 'mat':
         dict_to_be_saved = vars(self.to_be_saved)
         dict_to_be_mat_saved = {key:val for key, val in dict_to_be_saved.items()
                                 if key not in self.data_not_to_be_mat_saved}
+        # Fix for crash in single fidelity case -- replacing None with 'xx'.
+        eval_times = [val if val is not None else 'xx' for val in \
+                      dict_to_be_mat_saved['query_eval_times'][0, -1]]
+        dict_to_be_mat_saved['query_eval_times'][0, -1] = eval_times
         sio_savemat(self.save_file_full_name, mdict=dict_to_be_mat_saved)
       else:
         raise NotImplementedError('Only implemented saving mat files so far.')
