@@ -21,15 +21,7 @@ def load_parameters(config):
   exp_info['name'] = unicode_to_str(config.get('name'))
   if exp_info['name'] is None:
     raise ValueError('Experiment name is required')
-  exp_info['num_trials'] = config.get('num_trials', 1)
   exp_info['num_workers'] = config.get('num_workers', 1)
-  exp_info['time_distro'] = unicode_to_str(config.get('time_distro', 'const').lower())
-  exp_info['results_dir'] = unicode_to_str(config.get('results_dir', 'results'))
-  exp_info['method'] = unicode_to_str(config.get('method', 'slice').lower())
-  exp_info['noisy_evals'] = config.get('noisy_evals', True)
-  exp_info['noise_scale'] = config.get('noise_scale', 0.1)
-  exp_info['reporter'] = config.get('reporter', 'default')
-  exp_info['initial_pool_size'] = config.get('initial_pool_size', 20)
 
   parameters = []
   _parameters = config['domain']
@@ -61,39 +53,73 @@ def load_parameters(config):
 
 def load_parameter(parameter, key=None):
   """ Parses each parameter and return a dict """
+  # pylint: disable=too-many-branches
+  # pylint: disable=too-many-statements
+  # Common parameters
   _name = parameter.get('name', key)
   if _name is None:
     raise ValueError('Parameter name is required')
   _type = parameter.get('type', 'float')
+  _kernel = parameter.get('kernel', '')
+  # Common for Euclidean, Integral, Discrete, Discrete Numeric domains
   _dim = parameter.get('dim', "")
+  # For Euclidean/Integral
   _min = parameter.get('min', -np.inf)
   _max = parameter.get('max', np.inf)
-  _kernel = parameter.get('kernel', '')
+  # For Discrete
   _items = parameter.get('items', '')
-  if _dim != "":
-    _dim = int(_dim)
-  if not isinstance(_dim, (int, float, long)):
-    _dim = unicode_to_str(_dim)
+  # For neural networks -- see below
+
+  # Now process them
   param = {}
   param['name'] = unicode_to_str(_name)
-  param['type'] = unicode_to_str(_type).lower()
-  if param['type'] in ['float', 'int']:
-    param['min'] = _min
-    param['max'] = _max
-  elif param['type'] == 'discrete':
-    if _items == '':
-      raise ValueError('List of items required')
-    param['items'] = unicode_to_str(_items).split('-')
-  elif param['type'] == 'discrete_numeric':
-    if _items == '':
-      raise ValueError('List or range of items required')
-    elif ':' not in _items:
-      param['items'] = [float(x) for x in unicode_to_str(_items).split('-')]
-    else:
-      _range = [float(x) for x in unicode_to_str(_items).split(':')]
-      param['items'] = list(np.arange(_range[0], _range[2], _range[1]))
   param['kernel'] = unicode_to_str(_kernel)
-  param['dim'] = _dim
+  param['type'] = unicode_to_str(_type).lower()
+  # First for regular domains
+  if param['type'] in ['float', 'int', 'discrete', 'discrete_numeric']:
+    if not isinstance(_dim, (int, float, long)):
+      _dim = unicode_to_str(_dim)
+    if _dim != "":
+      _dim = int(_dim)
+    param['dim'] = _dim
+    if param['type'] in ['float', 'int']:
+      param['min'] = _min
+      param['max'] = _max
+    elif param['type'] == 'discrete':
+      if _items == '':
+        raise ValueError('List of items required')
+      param['items'] = unicode_to_str(_items).split('-')
+    elif param['type'] == 'discrete_numeric':
+      if _items == '':
+        raise ValueError('List or range of items required')
+      elif ':' not in _items:
+        param['items'] = [float(x) for x in unicode_to_str(_items).split('-')]
+      else:
+        _range = [float(x) for x in unicode_to_str(_items).split(':')]
+        param['items'] = list(np.arange(_range[0], _range[2], _range[1]))
+  elif param['type'].startswith(('cnn', 'mlp')):
+    nn_params = {}
+    nn_params['max_num_layers'] = parameter.get('max_num_layers', 'inf')
+    nn_params['min_num_layers'] = parameter.get('min_num_layers', 0)
+    nn_params['max_mass'] = parameter.get('max_mass', 'inf')
+    nn_params['min_mass'] = parameter.get('min_mass', 'inf')
+    nn_params['max_in_degree'] = parameter.get('max_in_degree', 'inf')
+    nn_params['max_out_degree'] = parameter.get('max_out_degree', 'inf')
+    nn_params['max_num_edges'] = parameter.get('max_num_edges', 'inf')
+    nn_params['max_num_units_per_layer'] = parameter.get('max_num_units_per_layer', 'inf')
+    nn_params['min_num_units_per_layer'] = parameter.get('min_num_units_per_layer', 0)
+    # For CNNs add strides
+    if param['type'].startswith('cnn'):
+      nn_params['max_num_2strides'] = parameter.get('max_num_2strides', 'inf')
+    for nnp_key, nnp_val in nn_params.iteritems():
+      if isinstance(nnp_val, str):
+        nnp_val = unicode_to_str(nnp_val)
+      nnp_val = np.inf if nnp_val == 'inf' else nnp_val
+      param[nnp_key] = nnp_val
+    # Finally add the following
+    param['dim'] = ''
+  else:
+    raise ValueError('Unknown type %s.'%(param['type']))
 
   return param
 
@@ -110,6 +136,7 @@ def read_json(config_file):
 
 def read_pb(config_file):
   """ Read from protocol buffer file. """
+  # pylint: disable=import-error
   try:
     from google.protobuf import text_format
     from google.protobuf.json_format import MessageToDict

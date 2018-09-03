@@ -63,9 +63,12 @@ class BaseMethodEvaluator(object):
         dict_to_be_mat_saved = {key:val for key, val in dict_to_be_saved.items()
                                 if key not in self.data_not_to_be_mat_saved}
         # Fix for crash in single fidelity case -- replacing None with 'xx'.
-        eval_times = [val if val is not None else 'xx' for val in \
-                      dict_to_be_mat_saved['query_eval_times'][0, -1]]
-        dict_to_be_mat_saved['query_eval_times'][0, -1] = eval_times
+        for i in range(dict_to_be_mat_saved['query_eval_times'].shape[0]):
+          if isinstance(dict_to_be_mat_saved['query_eval_times'][i, -1], str):
+            continue
+          query_eval_times = [val if val is not None else 'xx' for val in \
+                              dict_to_be_mat_saved['query_eval_times'][i, -1]]
+          dict_to_be_mat_saved['query_eval_times'][i, -1] = query_eval_times
         sio_savemat(self.save_file_full_name, mdict=dict_to_be_mat_saved)
       else:
         raise NotImplementedError('Only implemented saving mat files so far.')

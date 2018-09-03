@@ -1,7 +1,7 @@
 {
 "name": "branin",
 
-"parameters" : {
+"domain" : {
   "x1" : {
     "name":"x1",
     "type":"float",

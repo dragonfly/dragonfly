@@ -134,9 +134,6 @@ def main():
   obj = imp.load_source(exp_info['name'], os.path.join(expt_dir, exp_info['name']+'.py'))
 
   options.capital_type = 'return_value'
-  if exp_info['method'] == 'slice' or exp_info['method'] == 'nuts':
-    options.gpb_hp_tune_criterion = 'post_sampling'
-    options.gpb_post_hp_tune_method = exp_info['method']
   if options.max_capital == 0.0:
     if options.budget == 0.0:
       raise ValueError('Specify the budget in budget or max_capital.')

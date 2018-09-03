@@ -1,7 +1,7 @@
 {
 "name": "face_rec",
 
-"parameters" : {
+"domain" : {
   "N" : {
     "name":"N",
     "type":"int",

@@ -1,16 +1,8 @@
 message Experiment {
   required string name        = 1;
-  optional uint32 num_trials  = 2 [default = 1];
-  optional uint32 num_workers = 3 [default = 1];
-  optional string time_distro = 4 [default = "const"];
-  optional string results_dir = 5 [default = "results"];
-  optional string method      = 6 [default = "slice"];
-  optional bool   noisy_evals = 7 [default = true];
-  optional float  noise_scale = 8 [default = 0.1];
-  optional string reporter    = 9 [default = "default"];
-  optional uint32 initial_pool_size = 10 [default = 20];
-  repeated ParameterSpec domain = 11;
-  repeated ParameterSpec fidel_space = 12;
+  optional uint32 num_workers = 2 [default = 1];
+  repeated ParameterSpec domain = 3;
+  repeated ParameterSpec fidel_space = 4;
 
   message ParameterSpec {
     required string name   = 1;

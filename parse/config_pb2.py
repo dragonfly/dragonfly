@@ -18,7 +18,7 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='config.proto',
   package='',
-  serialized_pb=_b('\n\x0c\x63onfig.proto\"\xf0\x03\n\nExperiment\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x15\n\nnum_trials\x18\x02 \x01(\r:\x01\x31\x12\x16\n\x0bnum_workers\x18\x03 \x01(\r:\x01\x31\x12\x1a\n\x0btime_distro\x18\x04 \x01(\t:\x05\x63onst\x12\x1c\n\x0bresults_dir\x18\x05 \x01(\t:\x07results\x12\x15\n\x06method\x18\x06 \x01(\t:\x05slice\x12\x19\n\x0bnoisy_evals\x18\x07 \x01(\x08:\x04true\x12\x18\n\x0bnoise_scale\x18\x08 \x01(\x02:\x03\x30.1\x12\x19\n\x08reporter\x18\t \x01(\t:\x07\x64\x65\x66\x61ult\x12\x1d\n\x11initial_pool_size\x18\n \x01(\r:\x02\x32\x30\x12)\n\x06\x64omain\x18\x0b \x03(\x0b\x32\x19.Experiment.ParameterSpec\x12.\n\x0b\x66idel_space\x18\x0c \x03(\x0b\x32\x19.Experiment.ParameterSpec\x1a\x89\x01\n\rParameterSpec\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x13\n\x04type\x18\x02 \x01(\t:\x05\x66loat\x12\x11\n\x03min\x18\x03 \x01(\x01:\x04-inf\x12\x10\n\x03max\x18\x04 \x01(\x01:\x03inf\x12\r\n\x03\x64im\x18\x05 \x01(\t:\x00\x12\x10\n\x06kernel\x18\x06 \x01(\t:\x00\x12\x0f\n\x05items\x18\x07 \x01(\t:\x00')
+  serialized_pb=_b('\n\x0c\x63onfig.proto\"\x99\x02\n\nExperiment\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x16\n\x0bnum_workers\x18\x02 \x01(\r:\x01\x31\x12)\n\x06\x64omain\x18\x03 \x03(\x0b\x32\x19.Experiment.ParameterSpec\x12.\n\x0b\x66idel_space\x18\x04 \x03(\x0b\x32\x19.Experiment.ParameterSpec\x1a\x89\x01\n\rParameterSpec\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x13\n\x04type\x18\x02 \x01(\t:\x05\x66loat\x12\x11\n\x03min\x18\x03 \x01(\x01:\x04-inf\x12\x10\n\x03max\x18\x04 \x01(\x01:\x03inf\x12\r\n\x03\x64im\x18\x05 \x01(\t:\x00\x12\x10\n\x06kernel\x18\x06 \x01(\t:\x00\x12\x0f\n\x05items\x18\x07 \x01(\t:\x00')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -92,8 +92,8 @@ _EXPERIMENT_PARAMETERSPEC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=376,
-  serialized_end=513,
+  serialized_start=161,
+  serialized_end=298,
 )
 
 _EXPERIMENT = _descriptor.Descriptor(
@@ -111,78 +111,22 @@ _EXPERIMENT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='num_trials', full_name='Experiment.num_trials', index=1,
+      name='num_workers', full_name='Experiment.num_workers', index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='num_workers', full_name='Experiment.num_workers', index=2,
-      number=3, type=13, cpp_type=3, label=1,
-      has_default_value=True, default_value=1,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='time_distro', full_name='Experiment.time_distro', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=True, default_value=_b("const").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='results_dir', full_name='Experiment.results_dir', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=True, default_value=_b("results").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='method', full_name='Experiment.method', index=5,
-      number=6, type=9, cpp_type=9, label=1,
-      has_default_value=True, default_value=_b("slice").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='noisy_evals', full_name='Experiment.noisy_evals', index=6,
-      number=7, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='noise_scale', full_name='Experiment.noise_scale', index=7,
-      number=8, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0.1,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='reporter', full_name='Experiment.reporter', index=8,
-      number=9, type=9, cpp_type=9, label=1,
-      has_default_value=True, default_value=_b("default").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='initial_pool_size', full_name='Experiment.initial_pool_size', index=9,
-      number=10, type=13, cpp_type=3, label=1,
-      has_default_value=True, default_value=20,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='domain', full_name='Experiment.domain', index=10,
-      number=11, type=11, cpp_type=10, label=3,
+      name='domain', full_name='Experiment.domain', index=2,
+      number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='fidel_space', full_name='Experiment.fidel_space', index=11,
-      number=12, type=11, cpp_type=10, label=3,
+      name='fidel_space', full_name='Experiment.fidel_space', index=3,
+      number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -199,7 +143,7 @@ _EXPERIMENT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=17,
-  serialized_end=513,
+  serialized_end=298,
 )
 
 _EXPERIMENT_PARAMETERSPEC.containing_type = _EXPERIMENT
