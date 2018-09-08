@@ -37,9 +37,8 @@ dragonfly_args = [ \
                  ]
 
 
-def maximise_function(func, max_capital, domain=None, domain_bounds=None,
-                      config=None, num_workers=1, options=None,
-                      hp_tune_criterion='post_sampling',
+def maximise_function(func, max_capital, domain=None, domain_bounds=None, config=None,
+                      options=None, hp_tune_criterion='post_sampling',
                       hp_tune_method='slice', init_capital=None,
                       init_capital_frac=None, num_init_evals=20):
   """
@@ -67,16 +66,20 @@ def maximise_function(func, max_capital, domain=None, domain_bounds=None,
       raise ValueError('Domain or path to config file or domain_bounds have to be given.')
 
   # Create worker manager and function caller
-  worker_manager = SyntheticWorkerManager(num_workers, time_distro='caller_eval_cost')
+  worker_manager = SyntheticWorkerManager(num_workers=1, time_distro='caller_eval_cost')
   if isinstance(domain, domains.EuclideanDomain):
     func_caller = EuclideanFunctionCaller(func, domain, vectorised=False)
   else:
     func_caller = FunctionCaller(func, domain)
   # Create GPBandit opbject and run optimiser
   gpb = EuclideanGPBandit(func_caller, worker_manager, reporter=reporter, options=options)
-  opt_val, opt_pt, _ = gpb.optimise(max_capital)
+  opt_val, opt_pt, history = gpb.optimise(max_capital)
   opt_pt = func_caller.get_raw_domain_coords(opt_pt)
-  return opt_val, opt_pt
+  history.curr_opt_points = [func_caller.get_raw_domain_coords(pt)
+                             for pt in history.curr_opt_points]
+  history.query_points = [func_caller.get_raw_domain_coords(pt)
+                          for pt in history.query_points]
+  return opt_val, opt_pt, history
 
 
 def create_domain(parameters):
@@ -140,9 +143,8 @@ def main():
     options.max_capital = options.budget
 
   domain = create_domain(param_spec['domain'])
-  opt_val, opt_pt = maximise_function(obj.main, domain=domain, options=options,
-                                      num_workers=exp_info['num_workers'],
-                                      max_capital=options.max_capital)
+  opt_val, opt_pt, history = maximise_function(obj.main, domain=domain, options=options,
+                                               max_capital=options.max_capital)
   print('Optimum Value in %d evals: %0.4f'%(options.max_capital, opt_val))
   print('Optimum Point: %s'%(opt_pt))
 

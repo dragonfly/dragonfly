@@ -1,8 +1,7 @@
 message Experiment {
   required string name        = 1;
-  optional uint32 num_workers = 2 [default = 1];
-  repeated ParameterSpec domain = 3;
-  repeated ParameterSpec fidel_space = 4;
+  repeated ParameterSpec domain = 2;
+  repeated ParameterSpec fidel_space = 3;
 
   message ParameterSpec {
     required string name   = 1;

@@ -1,5 +1,5 @@
 # Acquisition function type
---acq ei
+--acq ttei-ei-ucb
 
 # No. of initial samples to ignore during sampling
 --gpb_post_hp_tune_burn 170

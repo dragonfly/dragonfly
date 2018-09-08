@@ -4,8 +4,9 @@
   -- kandasamy@cs.cmu.edu
 """
 
+# pylint: disable=invalid-name
+
 import numpy as np
-import math
 
 def branin(x):
   """ Computes the Branin function. """
@@ -20,7 +21,9 @@ def branin(x):
   neg_ret = float(a * (x2 - b*x1**2 + c*x1 - r)**2 + s*(1-t)*np.cos(x1) + s)
   return -neg_ret
 
+
 # Write a function like this called 'main'
 def main(x):
+  """ main function. """
   return branin(x)
 

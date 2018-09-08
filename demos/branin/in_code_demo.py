@@ -3,6 +3,8 @@
   -- kvysyara@andrew.cmu.edu
 """
 
+# pylint: disable=invalid-name
+
 from __future__ import print_function
 from dragonfly import maximise_function
 # Local imports

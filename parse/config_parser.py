@@ -21,7 +21,6 @@ def load_parameters(config):
   exp_info['name'] = unicode_to_str(config.get('name'))
   if exp_info['name'] is None:
     raise ValueError('Experiment name is required')
-  exp_info['num_workers'] = config.get('num_workers', 1)
 
   parameters = []
   _parameters = config['domain']
