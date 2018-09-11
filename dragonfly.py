@@ -43,7 +43,9 @@ def maximise_function(func, max_capital, domain=None, domain_bounds=None, config
                       init_capital_frac=None, num_init_evals=20):
   """
     Maximizes a function given a function and domain bounds of the hyperparameters
-    and returns optimal value and optimal point.
+    and returns optimal value and optimal point and the history. history.query_points
+    contains the points queried by the algorithm and history.query_vals contains the
+    function values.
   """
   reporter = get_reporter('default')
   if options is None:

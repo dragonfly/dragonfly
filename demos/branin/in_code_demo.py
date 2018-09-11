@@ -14,9 +14,10 @@ def main():
   """ Main function. """
   domain_bounds = [[-5, 10], [0, 15]]
   max_capital = 100
-  opt_val, opt_pt = maximise_function(branin, max_capital, domain_bounds=domain_bounds,
-                                      hp_tune_criterion='post_sampling',
-                                      hp_tune_method='slice')
+  opt_val, opt_pt, history = maximise_function(branin, max_capital,
+                                               domain_bounds=domain_bounds,
+                                               hp_tune_criterion='post_sampling',
+                                               hp_tune_method='slice')
   print('Optimum Value in %d evals: %0.4f'%(max_capital, opt_val))
   print('Optimum Point: %s'%(opt_pt))
 

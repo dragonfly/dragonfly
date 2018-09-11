@@ -12,8 +12,9 @@ scale up Bayesian optimisation to expensive large scale problems.
 These include features/functionality that are especially suited for
 high dimensional optimisation (optimising for a large number of variables),
 parallel evaluations in synchronous or asynchronous settings (conducting multiple
-evaluations in parallel), and multi-fidelity optimisation (using cheap approximations
-to speed up the optimisation process).
+evaluations in parallel), multi-fidelity optimisation (using cheap approximations
+to speed up the optimisation process), and multi-objective optimisation (optimising
+multiple functions simultaneously).
 
 By default, Dragonfly *maximises* functions.
 To minimise a function, simply pass the negative of the function.
@@ -112,14 +113,16 @@ You can import the main API in python code via,
 ```python
 from dragonfly.dragonfly import maximise_function
 ...
-max_val, max_pt = maximise_function(func, domain, max_capital)
+max_val, max_pt, history = maximise_function(func, domain, max_capital)
 ```
 Here, `func` is the function to be maximised,
 `domain` is the domain over which `func` is to be maximised,
 and `max_capital` is the capital available for optimisation.
 In simple sequential settings, `max_capital` is simply the maximum number of evaluations
 to `func`, but it can also be used to specify an available time budget and other forms
-of resource constraints.
+of resource constraints. The `maximise_function` returns history along with the optimum value
+and the corresponding optimum point. `history.query_points` contains the points queried by the
+algorithm and `history.query_vals` contains the function values.
 
 [`demos/branin/in_code_demo.py`](demos/branin/in_code_demo.py) and
 [`demos/face_rec/in_code_demo.py`](demos/face_rec/in_code_demo.py)
