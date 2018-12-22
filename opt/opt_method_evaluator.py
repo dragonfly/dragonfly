@@ -24,12 +24,12 @@ class OptMethodEvaluator(BaseMethodEvaluator):
                method_options=None, reporter=None, **kwargs):
     """ Constructor. Also see BasicExperimenter for more args. """
     # pylint: disable=too-many-arguments
+    self.func_caller = func_caller
     save_file_name = self._get_save_file_name(save_dir, study_name, \
                      worker_manager.num_workers, save_file_prefix, \
                      worker_manager.get_time_distro_info(), max_capital)
     super(OptMethodEvaluator, self).__init__(study_name, num_trials,
                                              save_file_name, reporter=reporter, **kwargs)
-    self.func_caller = func_caller
     self.worker_manager = worker_manager
     self.max_capital = float(max_capital)
     # Methods
@@ -43,12 +43,12 @@ class OptMethodEvaluator(BaseMethodEvaluator):
     self.evaluation_options = evaluation_options
     self._set_up_saving()
 
-  @classmethod
-  def _get_save_file_name(cls, save_dir, study_name, num_workers, save_file_prefix,
+  def _get_save_file_name(self, save_dir, study_name, num_workers, save_file_prefix,
                           time_distro_str, max_capital):
     """ Gets the save file name. """
     save_file_prefix = save_file_prefix if save_file_prefix else study_name
-    save_file_name = '%s-M%d-%s-c%d-%s.mat'%(save_file_prefix, num_workers, \
+    noisy_str = 'noisy' if self.func_caller.is_noisy() else 'noiseless'
+    save_file_name = '%s-%s-M%d-%s-c%d-%s.mat'%(save_file_prefix, noisy_str, num_workers,
       time_distro_str, int(max_capital), datetime.now().strftime('%m%d-%H%M%S'))
     save_file_name = os.path.join(save_dir, save_file_name)
     return save_file_name
@@ -67,6 +67,7 @@ class OptMethodEvaluator(BaseMethodEvaluator):
     self.to_be_saved.true_argmax = (self.func_caller.argmax \
                                   if self.func_caller.argmax is not None else 'not-known')
     self.to_be_saved.domain_type = self.domain.get_type()
+    self.to_be_saved.is_noisy = self.func_caller.is_noisy()
     # For the results
     self.data_to_be_saved = ['query_step_idxs',
                              'query_points',
@@ -130,8 +131,10 @@ class OptMethodEvaluator(BaseMethodEvaluator):
 
   def _get_prev_eval_qinfos(self):
     """ Gets the initial qinfos for all methods. """
-    if self.evaluation_options.prev_eval_points == 'generate':
+    if self.evaluation_options.prev_eval_points.lower() == 'generate':
       init_pool_qinfos = self._get_initial_pool_qinfos()
+    elif self.evaluation_options.prev_eval_points.lower() == 'none':
+      return None
     else:
       # Load from the file.
       raise NotImplementedError('Not written reading results from file yet.')
@@ -162,16 +165,23 @@ class OptMethodEvaluator(BaseMethodEvaluator):
     # Fetch pre-evaluation points.
     self.worker_manager.reset()
     prev_eval_qinfos = self._get_prev_eval_qinfos()
-    prev_eval_vals = [qinfo.val for qinfo in prev_eval_qinfos]
-    self.reporter.writeln('Using %d pre-eval points with values. eval: %s (%0.4f).'%( \
-                          len(prev_eval_qinfos), prev_eval_vals, max(prev_eval_vals)))
+    if prev_eval_qinfos is not None:
+      prev_eval_vals = [qinfo.val for qinfo in prev_eval_qinfos]
+      self.reporter.writeln('Using %d pre-eval points with values. eval: %s (%0.4f).'%( \
+                            len(prev_eval_qinfos), prev_eval_vals, max(prev_eval_vals)))
+    else:
+      self.reporter.writeln('Not using any pre-eval points.')
+
 
     # Will go through each method in this loop.
     for meth_iter in range(self.num_methods):
       curr_method = self.methods[meth_iter]
       curr_meth_options = self.method_options[curr_method]
       # Set prev_eval points and vals
-      curr_meth_options.prev_evaluations = Namespace(qinfos=prev_eval_qinfos)
+      if prev_eval_qinfos is not None:
+        curr_meth_options.prev_evaluations = Namespace(qinfos=prev_eval_qinfos)
+      else:
+        curr_meth_options.prev_evaluations = None
       # Reset worker manager
       self.worker_manager.reset()
       self.reporter.writeln( \

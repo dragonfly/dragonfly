@@ -2,54 +2,23 @@
   Some generic utilities for Experiment Design.
   -- kandasamy@cs.cmu.edu
 """
-# pylint: disable=import-error
-# pylint: disable=no-member
+
 # pylint: disable=invalid-name
-# pylint: disable=relative-import
-# pylint: disable=super-on-old-class
+# pylint: disable=unbalanced-tuple-unpacking
 
 from argparse import Namespace
 import numpy as np
 # Local imports
-from utils.general_utils import map_to_bounds
+from exd.cp_domain_utils import sample_from_cp_domain
+from utils.general_utils import map_to_bounds, flatten_list_of_lists
+from utils.oper_utils import direct_ft_maximise, latin_hc_sampling, pdoo_maximise, \
+                             random_maximise
 
 # Define constants
 EVAL_ERROR_CODE = 'eval_error_250320181729'
 
 # For initialisation
 # ========================================================================================
-def latin_hc_indices(dim, num_samples):
-  """ Obtains indices for Latin Hyper-cube sampling. """
-  index_set = [list(range(num_samples))] * dim
-  lhs_indices = []
-  for i in range(num_samples):
-    curr_idx_idx = np.random.randint(num_samples-i, size=dim)
-    curr_idx = [index_set[j][curr_idx_idx[j]] for j in range(dim)]
-    index_set = [index_set[j][:curr_idx_idx[j]] + index_set[j][curr_idx_idx[j]+1:]
-                 for j in range(dim)]
-    lhs_indices.append(curr_idx)
-  return lhs_indices
-
-def latin_hc_sampling(dim, num_samples):
-  """ Latin Hyper-cube sampling in the unit hyper-cube. """
-  if num_samples == 0:
-    return np.zeros((0, dim))
-  elif num_samples == 1:
-    return 0.5 * np.ones((1, dim))
-  lhs_lower_boundaries = (np.linspace(0, 1, num_samples+1)[:num_samples]).reshape(1, -1)
-  width = lhs_lower_boundaries[0][1] - lhs_lower_boundaries[0][0]
-  lhs_lower_boundaries = np.repeat(lhs_lower_boundaries, dim, axis=0).T
-  lhs_indices = latin_hc_indices(dim, num_samples)
-  lhs_sample_boundaries = []
-  for i in range(num_samples):
-    curr_idx = lhs_indices[i]
-    curr_sample_boundaries = [lhs_lower_boundaries[curr_idx[j]][j] for j in range(dim)]
-    lhs_sample_boundaries.append(curr_sample_boundaries)
-  lhs_sample_boundaries = np.array(lhs_sample_boundaries)
-  uni_random_width = width * np.random.random((num_samples, dim))
-  lhs_samples = lhs_sample_boundaries + uni_random_width
-  return lhs_samples
-
 def random_sampling_cts(dim, num_samples):
   """ Just picks uniformly random samples from a  dim-dimensional space. """
   return np.random.random((num_samples, dim))
@@ -83,6 +52,7 @@ def random_sampling_discrete(param_values, num_samples):
     ret.append(curr_sample)
   return ret
 
+
 # A wrapper to get initial points ------------------------------------------
 def get_euclidean_initial_points(init_method, num_samples, domain_bounds):
   """ Gets the initial set of points for a Euclidean space depending on the init_method.
@@ -98,6 +68,14 @@ def get_euclidean_initial_points(init_method, num_samples, domain_bounds):
     raise ValueError('Unknown init method %s.'%(init_method))
   return map_to_bounds(ret, domain_bounds)
 
+
+def _process_fidel_for_initialisation(fidel, fidel_to_opt, set_to_fidel_to_opt_with_prob):
+  """ Returns fidel to fidel_to_opt with probability set_to_fidel_to_opt_with_prob. """
+  if np.random.random() < set_to_fidel_to_opt_with_prob:
+    return fidel_to_opt
+  else:
+    return fidel
+
 def get_euclidean_initial_fidels(init_method, num_samples, fidel_space_bounds,
                                  fidel_to_opt, set_to_fidel_to_opt_with_prob=None):
   """ Returns an initial set of fidels for Euclidean spaces depending on the init_method.
@@ -106,14 +84,28 @@ def get_euclidean_initial_fidels(init_method, num_samples, fidel_space_bounds,
   # An internal function to process fidelity
   set_to_fidel_to_opt_with_prob = 0.0 if set_to_fidel_to_opt_with_prob is None else \
                                   set_to_fidel_to_opt_with_prob
-  def _process_fidel(fidel):
-    """ Returns fidel to fidel_to_opt with probability set_to_fidel_to_opt_with_prob. """
-    if np.random.random() < set_to_fidel_to_opt_with_prob:
-      return fidel_to_opt
-    else:
-      return fidel
   init_fidels = get_euclidean_initial_points(init_method, num_samples, fidel_space_bounds)
-  return [_process_fidel(fidel) for fidel in init_fidels]
+  return [_process_fidel_for_initialisation(fidel, fidel_to_opt,
+                                            set_to_fidel_to_opt_with_prob)
+          for fidel in init_fidels]
+
+
+def get_cp_domain_initial_fidels(fidel_space, num_samples, fidel_to_opt,
+                                 set_to_fidel_to_opt_with_prob,
+                                 euclidean_sample_type='latin_hc',
+                                 integral_sample_type='latin_hc',
+                                 nn_sample_type='rand'):
+  """ Function to return the initial fidelities for CP Domain. """
+  set_to_fidel_to_opt_with_prob = 0.0 if set_to_fidel_to_opt_with_prob is None else \
+                                  set_to_fidel_to_opt_with_prob
+  init_fidels = sample_from_cp_domain(fidel_space, num_samples,
+                              euclidean_sample_type=euclidean_sample_type,
+                              integral_sample_type=integral_sample_type,
+                              nn_sample_type=nn_sample_type)
+  return [_process_fidel_for_initialisation(fidel, fidel_to_opt,
+                                            set_to_fidel_to_opt_with_prob)
+          for fidel in init_fidels]
+
 
 def get_euclidean_initial_qinfos(domain_init_method, num_samples, domain_bounds,
                                  fidel_init_method=None, fidel_space_bounds=None,
@@ -128,4 +120,209 @@ def get_euclidean_initial_qinfos(domain_init_method, num_samples, domain_bounds,
                    fidel_space_bounds, fidel_to_opt, set_to_fidel_to_opt_with_prob)
     return [Namespace(point=ipt, fidel=ifl) for (ipt, ifl)
             in zip(init_points, init_fidels)]
+
+
+def get_cp_domain_initial_qinfos(domain, num_samples, fidel_space=None, fidel_to_opt=None,
+                                 set_to_fidel_to_opt_with_prob=None,
+                                 dom_euclidean_sample_type='latin_hc',
+                                 dom_integral_sample_type='latin_hc',
+                                 dom_nn_sample_type='rand',
+                                 fidel_space_euclidean_sample_type='latin_hc',
+                                 fidel_space_integral_sample_type='latin_hc',
+                                 fidel_space_nn_sample_type='rand'):
+  """ Get initial qinfos in Cartesian product domain. """
+  # pylint: disable=too-many-arguments
+  ret_dom_pts = sample_from_cp_domain(domain, num_samples,
+                                      euclidean_sample_type=dom_euclidean_sample_type,
+                                      integral_sample_type=dom_integral_sample_type,
+                                      nn_sample_type=dom_nn_sample_type)
+  if fidel_space is None:
+    ret_dom_pts = ret_dom_pts[:num_samples]
+    return [Namespace(point=x) for x in ret_dom_pts]
+  else:
+    ret_fidels = get_cp_domain_initial_fidels(fidel_space, num_samples, fidel_to_opt,
+                   set_to_fidel_to_opt_with_prob,
+                   euclidean_sample_type=fidel_space_euclidean_sample_type,
+                   integral_sample_type=fidel_space_integral_sample_type,
+                   nn_sample_type=fidel_space_nn_sample_type)
+    return [Namespace(point=ipt, fidel=ifl) for (ipt, ifl) in
+            zip(ret_dom_pts, ret_fidels)]
+
+# Maximise with method here.
+# Some wrappers for all methods
+def maximise_with_method(method, obj, domain, max_evals, return_history=False,
+                         *args, **kwargs):
+  """ A wrapper which optimises obj over the domain domain. """
+  # If the method itself is a function, just use it.
+  if hasattr(method, '__call__'):
+    return method(obj, domain, max_evals, return_history, *args, **kwargs)
+  # The common use case is that the method is a string.
+  if domain.get_type() == 'euclidean':
+    return maximise_with_method_on_euclidean_domain(method, obj, domain.bounds, max_evals,
+                                                    return_history, *args, **kwargs)
+  elif domain.get_type() == 'integral':
+    return maximise_with_method_on_integral_domain(method, obj, domain.bounds, max_evals,
+                                                   domain.get_dim(), return_history,
+                                                   *args, **kwargs)
+  elif domain.get_type() == 'prod_discrete':
+    return maximise_with_method_on_prod_discrete_domain(method, obj, domain, max_evals,
+                                                        return_history, *args, **kwargs)
+  elif domain.get_type() == 'cartesian_product':
+    return maximise_with_method_on_cp_domain(method, obj, domain, max_evals,
+                                             return_history, *args, **kwargs)
+  else:
+    raise ValueError('Unknown domain type %s.'%(domain.get_type()))
+
+
+def maximise_with_method_on_euclidean_domain(method, obj, bounds, max_evals, dim,
+                                             return_history=False, *args, **kwargs):
+  """ A wrapper for euclidean spaces which calls one of the functions below based on the
+      method. """
+  if method.lower().startswith('rand'):
+    max_val, max_pt, history = \
+      random_maximise(obj, bounds, max_evals, return_history, *args, **kwargs)
+  elif method.lower().startswith('direct') and dim <= 60:
+    max_val, max_pt, history = \
+      direct_ft_maximise(obj, bounds, max_evals, return_history, *args, **kwargs)
+  elif method.lower().startswith('pdoo') or (method.lower().startswith('direct')
+                                             and dim > 60):
+    max_val, max_pt, history = \
+      pdoo_maximise(obj, bounds, max_evals, *args, **kwargs)
+  else:
+    raise ValueError('Unknown maximisation method: %s.'%(method))
+  if return_history:
+    return max_val, max_pt, history
+  else:
+    return max_val, max_pt
+
+def maximise_with_method_on_integral_domain(method, obj, bounds, max_evals,
+                                            return_history=False, *args, **kwargs):
+  """ A wrapper for integral spaces which calls one of the functions below based on the
+      method. """
+  # pylint: disable=unused-argument
+  raise NotImplementedError('Not implemented integral domain optimisers yet.')
+
+
+def maximise_with_method_on_prod_discrete_domain(method, obj, domain, max_evals,
+                                                 return_history=False, *args, **kwargs):
+  """ A wrapper for discrete spaces which calls one of the functions below based on the
+      method. """
+  # pylint: disable=unused-argument
+  raise NotImplementedError('Not implemented discrete domain optimisers yet.')
+
+
+def maximise_with_method_on_product_euclidean_spaces(method, obj, list_of_euc_domains,
+                                                     max_evals, return_history=False,
+                                                     *args, **kwargs):
+  """ Maximises an objective with method on a product Euclidean space. """
+  def _regroup_flattended_point(pt, _dom_dims, _cum_dims):
+    """ Regroups a flattened point into a list of lists. """
+    ret = [pt[cd:cd+d] for (cd, d) in zip(_cum_dims, _dom_dims)]
+    assert len(ret) == len(_dom_dims) # TODO: remove this, debugging only for now.
+    return ret
+  dom_dims = [dom.dim for dom in list_of_euc_domains]
+  cum_dims = list(np.cumsum(dom_dims))
+  cum_dims = [0] + cum_dims[:-1]
+  euc_dom_bounds = flatten_list_of_lists([dom.bounds for dom in list_of_euc_domains])
+  modified_obj = lambda x: obj(_regroup_flattended_point(x, dom_dims, cum_dims))
+  opt_result = maximise_with_method_on_euclidean_domain(method, modified_obj,
+    euc_dom_bounds, max_evals, return_history, *args, **kwargs)
+  if return_history:
+    max_val, max_pt, history = opt_result
+  else:
+    max_val, max_pt = opt_result
+  # regroup the maximum point
+  regrouped_max_pt = _regroup_flattended_point(max_pt, dom_dims, cum_dims)
+  if return_history:
+    return max_val, regrouped_max_pt, history
+  else:
+    return max_val, regrouped_max_pt
+
+
+def maximise_with_method_on_cp_domain(method, obj, domain, max_evals,
+                                      return_history=False, *args, **kwargs):
+  """ A wrapper for maximising an objective on a CartesianProductDomain. """
+  # pylint: disable=too-many-locals
+  # pylint: disable=too-many-branches
+  if method.lower().startswith(('direct', 'pdoo')): # ------------------------------------
+    # If the domain consists entirely of Euclidean parts, use PDOO or DiRect
+    return maximise_with_method_on_product_euclidean_spaces(method, obj,
+      domain.list_of_domains, max_evals, return_history, *args, **kwargs)
+  elif method.lower() == 'rand': # -------------------------------------------------------
+    # Use a random optimiser
+    from exd.experiment_caller import CPFunctionCaller
+    from exd.worker_manager import SyntheticWorkerManager
+    from opt.random_optimiser import random_optimiser_from_func_caller
+    obj_in_func_caller = CPFunctionCaller(obj, domain, orderings=None)
+    worker_manager = SyntheticWorkerManager(1, time_distro='const')
+    ret = random_optimiser_from_func_caller(obj_in_func_caller, worker_manager,
+                                            max_evals, mode='asy', options=None,
+                                            reporter='silent')
+    if return_history:
+      return ret
+    else:
+      return ret[0], ret[1]
+  elif method.lower().startswith('ga'): # ------------------------------------------------
+    # First decide if there is a follow up Euclidean opt method
+    ga_opt_methods = method.lower().split('-')
+    euc_domains = [dom for dom in domain.list_of_domains if dom.get_type() == 'euclidean']
+    if len(ga_opt_methods) == 2 and len(euc_domains) > 0:
+      to_follow_up_with_euc_opt = True
+      euc_opt_method = ga_opt_methods[1]
+      euc_domain_idxs = [idx for (idx, dom) in enumerate(domain.list_of_domains) if
+                         dom.get_type() == 'euclidean']
+    else:
+      to_follow_up_with_euc_opt = False
+    # Run a GA optimiser ---------------------------------------
+    from exd.worker_manager import SyntheticWorkerManager
+    from exd.experiment_caller import CPFunctionCaller
+    from opt.cp_ga_optimiser import cp_ga_optimiser_from_proc_args
+    obj_in_func_caller = CPFunctionCaller(obj, domain, domain_orderings=None)
+    worker_manager = SyntheticWorkerManager(1, time_distro='const')
+    ga_max_val, ga_max_pt, ga_history = cp_ga_optimiser_from_proc_args(obj_in_func_caller,
+      domain, worker_manager, max_evals, mode='asy', options=None, reporter='silent')
+    # Finished running a GA optimiser --------------------------
+    if to_follow_up_with_euc_opt:
+      # If you need to do an additional optimisation on the Euclidean part, do so.
+      def _swap_indices_at_point(swap_pt, orig_pt, swap_idxs):
+        """ Swap indices at point swap_pt. """
+        ret = orig_pt[:]
+        for sidx, spt in zip(swap_idxs, swap_pt):
+          ret[sidx] = spt
+        return ret
+      def _get_swapped_obj(_obj, _orig_pt, _swap_idxs):
+        """ Returns an objective which swaps in new points at _swap_idxs. """
+        return lambda x: _obj(_swap_indices_at_point(x, _orig_pt, _swap_idxs))
+      swapped_obj = _get_swapped_obj(obj, ga_max_pt, euc_domain_idxs)
+      euc_max_val, euc_max_pt = \
+        maximise_with_method_on_product_euclidean_spaces(euc_opt_method, swapped_obj,
+        euc_domains, max_evals, return_history=False)
+      if euc_max_val > ga_max_val:
+        max_val = euc_max_val
+        history = ga_history
+        max_pt = _swap_indices_at_point(euc_max_pt, ga_max_pt, euc_domain_idxs)
+      else:
+        max_val, max_pt, history = (ga_max_val, ga_max_pt, ga_history)
+    else:
+      max_val, max_pt, history = (ga_max_val, ga_max_pt, ga_history)
+    # return
+    if return_history:
+      return max_val, max_pt, history
+    else:
+      return max_val, max_pt
+  else:
+    raise NotImplementedError('Not implemented yet!')
+
+
+# Miscellaneous
+# ======================================================================
+def get_unique_list_of_option_args(all_args):
+  """ Returns a unique list of option args. """
+  ret = []
+  ret_names = []
+  for arg in all_args:
+    if arg['name'] not in ret_names:
+      ret.append(arg)
+      ret_names.append(arg['name'])
+  return ret
 

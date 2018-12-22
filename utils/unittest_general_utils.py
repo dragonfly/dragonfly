@@ -155,10 +155,10 @@ class GeneralUtilsTestCase(BaseTestClass):
       res_11 = np.array(td[-2])
       res_01 = np.array(td[-1])
       res_10 = res_01.T
-      kern_00 = general_utils.pairwise_hamming_kernels(td[0], td[0], td[2])
-      kern_11 = general_utils.pairwise_hamming_kernels(td[1], td[1], td[2])
-      kern_01 = general_utils.pairwise_hamming_kernels(td[0], td[1], td[2])
-      kern_10 = general_utils.pairwise_hamming_kernels(td[1], td[0], td[2])
+      kern_00 = general_utils.pairwise_hamming_kernel(td[0], td[0], td[2])
+      kern_11 = general_utils.pairwise_hamming_kernel(td[1], td[1], td[2])
+      kern_01 = general_utils.pairwise_hamming_kernel(td[0], td[1], td[2])
+      kern_10 = general_utils.pairwise_hamming_kernel(td[1], td[0], td[2])
 #       print res_00
 #       print kern_00
 #       print res_11

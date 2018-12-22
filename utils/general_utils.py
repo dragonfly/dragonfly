@@ -33,9 +33,21 @@ def get_sublist_from_indices(orig_list, idxs):
   return [orig_list[idx] for idx in idxs]
 
 
+def project_to_bounds(x, bounds):
+  """ Projects to bounds. """
+  bounds = np.array(bounds)
+  ret = np.clip(x, bounds[:, 0], bounds[:, 1])
+  return ret
+
+
 def get_idxs_from_list_of_lists(list_of_lists, idx):
   """ Returns a list of objects corresponding to index idx from a list of lists. """
   return [elem[idx] for elem in list_of_lists]
+
+
+def transpose_list_of_lists(list_of_lists):
+  """ Transposes a list of lists. """
+  return [list(i) for i in zip(*list_of_lists)]
 
 
 def compute_average_sq_prediction_error(Y1, Y2):
@@ -222,6 +234,22 @@ def flatten_list_of_objects_and_lists(L):
     else:
       ret.append(elem)
   return ret
+
+def flatten_list_of_objects_and_iterables(L):
+  """ Each element of L could be a non-list object or a list of non-objects. This function
+      returns a list of non-list objects, where the internal lists have been 'flattened'.
+  """
+  ret = []
+  for elem in L:
+    if hasattr(elem, '__iter__') and not isinstance(elem, str):
+      ret.extend(elem)
+    else:
+      ret.append(elem)
+  return ret
+
+def flatten_list_of_lists(L):
+  """ Flattens a list of lists to return a single list of objects. """
+  return [item for sublist in L for item in sublist]
 
 def reorder_rows_and_cols_in_matrix(M, ordering):
   """ Reorders the rows and columns in matrix M. """

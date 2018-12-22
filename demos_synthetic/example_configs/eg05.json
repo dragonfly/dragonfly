@@ -1,0 +1,40 @@
+{
+"name": "branin",
+
+"domain" : {
+  "x1" : {
+    "name":"x1",
+    "type":"float",
+    "min":-5,
+    "max":10,
+    "dim":1
+  },
+
+  "x2" : {
+    "name":"x2",
+    "type":"float",
+    "min":0,
+    "max":15,
+    "dim":1
+  }
+}
+
+"fidel_space" : {
+  "z1" : {
+    "name":"z1",
+    "type":"float",
+    "min":-1.2,
+    "max":10,
+    "dim":1
+  },
+
+  "z2" : {
+    "name":"z2",
+    "type":"int",
+    "min":0,
+    "max":15,
+    "dim":1
+  }
+
+}
+}

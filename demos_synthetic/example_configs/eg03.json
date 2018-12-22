@@ -1,0 +1,64 @@
+{
+"name": "test_domain",
+
+"domain" : {
+  "x1" : {
+    "name":"x1",
+    "type":"float",
+    "min":-5,
+    "max":10,
+    "dim":1
+  },
+
+  "x2" : {
+    "name":"x2",
+    "type":"float",
+    "min":0,
+    "max":15,
+    "dim":1
+  },
+
+  "x3" : {
+    "name":"x3",
+    "type":"int",
+    "min":-111,
+    "max":111,
+    "dim":1
+  },
+
+  "x4" : {
+    "name":"x4",
+    "type":"float",
+    "min":0.11,
+    "max":15.99,
+    "dim":2
+  },
+
+  "x5" : {
+    "name":"x5",
+    "type":"int",
+    "min":0,
+    "max":26,
+    "dim":1,
+    "kernel":"se"
+  },
+
+  "x6" : {
+    "name":"x6",
+    "type":"discrete",
+    "items":"kk-kr-wn",
+    "dim":5,
+    "kernel":"hadamard"
+  },
+
+  "x7" : {
+    "name":"x7",
+    "type":"float",
+    "min":28.5,
+    "max":100,
+    "dim":3,
+    "kernel":"matern"
+  }
+
+}
+}

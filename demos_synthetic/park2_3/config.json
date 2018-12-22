@@ -1,0 +1,30 @@
+{
+"name": "park2_3",
+
+"domain" : {
+
+  "foo_or_bar" : {
+    "name":"foo_or_bar",
+    "type":"discrete",
+    "items":"foo-bar",
+    "dim":2
+  },
+
+  "x0" : {
+    "name":"x0",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":2
+  },
+
+  "x1" : {
+    "name":"x1",
+    "type":"float",
+    "min":10.0,
+    "max":14.0,
+    "dim":2
+  }
+ }
+}
+

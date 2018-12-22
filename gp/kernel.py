@@ -513,6 +513,7 @@ class CartesianProductKernel(Kernel):
     """
     super(CartesianProductKernel, self).__init__()
     self.kernel_list = kernel_list
+    self.num_kernels = len(kernel_list)
     self.add_hyperparams(scale=scale)
 
   def is_guaranteed_psd(self):

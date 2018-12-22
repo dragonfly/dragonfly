@@ -24,6 +24,19 @@ class Domain(object):
     """ Returns True if point is a member of this domain. """
     raise NotImplementedError('Implement in a child class.')
 
+  @classmethod
+  def members_are_equal(cls, point_1, point_2):
+    """ Compares two members and returns True if they are the same. """
+    return point_1 == point_2
+
+  def compute_distance(self, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    raise NotImplementedError('Implement in a child class.')
+
+  def __str__(self):
+    """ Returns a string representation. """
+    raise NotImplementedError('Implement in a child class.')
+
 
 # Universal Domain ----------
 class UniversalDomain(Domain):
@@ -43,6 +56,11 @@ class UniversalDomain(Domain):
     """ Returns true if point is in the domain. """
     return True
 
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    raise ValueError('Distance not defined for Universal Domain.')
+
   def __str__(self):
     """ Returns a string representation. """
     return 'Universal Domain'
@@ -55,6 +73,7 @@ class EuclideanDomain(Domain):
   def __init__(self, bounds):
     """ Constructor. """
     self.bounds = np.array(bounds)
+    self.diameter = np.linalg.norm(self.bounds[:, 1] - self.bounds[:, 0])
     self.dim = len(bounds)
     super(EuclideanDomain, self).__init__()
 
@@ -70,6 +89,15 @@ class EuclideanDomain(Domain):
     """ Returns true if point is in the domain. """
     return is_within_bounds(self.bounds, point)
 
+  def members_are_equal(self, point_1, point_2):
+    """ Compares two members and returns True if they are the same. """
+    return self.compute_distance(point_1, point_2) < 1e-8 * self.diameter
+
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return np.linalg.norm(np.array(point_1) - np.array(point_2))
+
   def __str__(self):
     """ Returns a string representation. """
     return 'Euclidean: %s'%(_get_bounds_as_str(self.bounds))
@@ -82,6 +110,7 @@ class IntegralDomain(Domain):
   def __init__(self, bounds):
     """ Constructor. """
     self.bounds = np.array(bounds, dtype=np.int)
+    self.diameter = np.linalg.norm(self.bounds[:, 1] - self.bounds[:, 0])
     self.dim = len(bounds)
     super(IntegralDomain, self).__init__()
 
@@ -95,8 +124,17 @@ class IntegralDomain(Domain):
 
   def is_a_member(self, point):
     """ Returns true if point is in the domain. """
-    are_ints = [isinstance(x, (int, np.int)) for x in point]
+    are_ints = [isinstance(x, (int, np.int, np.int64)) for x in point]
     return all(are_ints) and is_within_bounds(self.bounds, point)
+
+  def members_are_equal(self, point_1, point_2):
+    """ Compares two members and returns True if they are the same. """
+    return self.compute_distance(point_1, point_2) < 1e-8 * self.diameter
+
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return np.linalg.norm(np.array(point_1) - np.array(point_2))
 
   def __str__(self):
     """ Returns a string representation. """
@@ -111,6 +149,7 @@ class DiscreteDomain(Domain):
     """ Constructor. """
     self.list_of_items = list_of_items
     self.size = len(list_of_items)
+    super(DiscreteDomain, self).__init__()
 
   def get_type(self):
     """ Returns the type of the domain. """
@@ -128,6 +167,11 @@ class DiscreteDomain(Domain):
   def _get_disc_domain_type(cls):
     """ Prefix for __str__. Can be overridden by a child class. """
     return "Disc"
+
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return float(point_1 == point_2)
 
   def __str__(self):
     """ Returns a string representation. """
@@ -154,8 +198,17 @@ class DiscreteNumericDomain(DiscreteDomain):
     """ Prefix for __str__. Can be overridden by a child class. """
     return "DiscNum"
 
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return abs(point_1 - point_2)
 
-# A product of discrete spaces -----------
+  def is_a_member(self, point):
+    """ Returns true if point is in the domain. """
+    return discrete_numeric_element_is_in_list(point, self.list_of_items)
+
+
+# A product of discrete spaces -----------------------------------------------------
 class ProdDiscreteDomain(Domain):
   """ A product of discrete objects. """
 
@@ -180,10 +233,20 @@ class ProdDiscreteDomain(Domain):
     ret = [elem in loi for elem, loi in zip(point, self.list_of_list_of_items)]
     return all(ret)
 
+  def members_are_equal(self, point_1, point_2):
+    """ Compares two members and returns True if they are the same. """
+    elems_are_equal = [point_1[i] == point_2[i] for i in range(self.dim)]
+    return all(elems_are_equal)
+
   @classmethod
   def _get_prod_disc_domain_type(cls):
     """ Prefix for __str__. Can be overridden by a child class. """
     return "ProdDisc"
+
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return float(sum([elem_1 == elem_2 for (elem_1, elem_2) in zip(point_1, point_2)]))
 
   def __str__(self):
     """ Returns a string representation. """
@@ -204,6 +267,19 @@ class ProdDiscreteNumericDomain(ProdDiscreteDomain):
     """ Returns the type of the domain. """
     return 'prod_discrete_numeric'
 
+  def is_a_member(self, point):
+    """ Returns True if point is in the domain. """
+    if not hasattr(point, '__iter__') or len(point) != self.dim:
+      return False
+    ret = [discrete_numeric_element_is_in_list(elem, loi)
+           for elem, loi in zip(point, self.list_of_list_of_items)]
+    return all(ret)
+
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return np.linalg.norm(np.array(point_1) - np.array(point_2))
+
   @classmethod
   def _get_prod_disc_domain_type(cls):
     """ Prefix for __str__. Can be overridden by a child class. """
@@ -223,7 +299,7 @@ class CartesianProductDomain(Domain):
         belongs to list_of_domains[i].
     """
     self.list_of_domains = list_of_domains
-    self._num_of_domains = len(list_of_domains)
+    self.num_domains = len(list_of_domains)
     try:
       self.dim = sum([dom.get_dim() for dom in self.list_of_domains])
     except TypeError:
@@ -239,17 +315,29 @@ class CartesianProductDomain(Domain):
 
   def is_a_member(self, point):
     """ Returns true if the point is in the domain. """
-    if not hasattr(point, '__iter__') or len(point) != self._num_of_domains:
+    if not hasattr(point, '__iter__') or len(point) != self.num_domains:
       return False
     for dom_pt, dom in zip(point, self.list_of_domains):
       if not dom.is_a_member(dom_pt): # check if each element is in the respective domain.
         return False
     return True
 
+  def members_are_equal(self, point_1, point_2):
+    """ Compares two members and returns True if they are the same. """
+    for i, dom in enumerate(self.list_of_domains):
+      if not dom.members_are_equal(point_1[i], point_2[i]):
+        return False
+    return True
+
+  def compute_distance(self, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return sum([dom.compute_distance(elem_1, elem_2) for (elem_1, elem_2, dom) in
+                zip(point_1, point_2, self.list_of_domains)])
+
   def __str__(self):
     """ Returns a string representation of the domain. """
     list_of_domains_str = ', '.join([str(dom) for dom in self.list_of_domains])
-    return 'CartProd(N=%d,d=%d)::[%s]'%(self._num_of_domains, self.dim,
+    return 'CartProd(N=%d,d=%d)::[%s]'%(self.num_domains, self.dim,
                                         list_of_domains_str)
 
 
@@ -283,4 +371,16 @@ def all_lists_of_items_are_numeric(list_of_list_of_items):
     if not all_items_are_numeric(elem):
       return False
   return True
+
+def discrete_numeric_element_is_in_list(elem, list_of_num_elements, tol=1e-8):
+  """ Returns True if elem is in list_of_num_elements. Writing this separately due to
+      precision issues with Python.
+  """
+  if not isinstance(elem, Number):
+    return False
+  # Iterate through the list and check if the element exists within tolerance.
+  for list_elem in list_of_num_elements:
+    if abs(elem - list_elem) < tol:
+      return True
+  return False
 

@@ -8,7 +8,6 @@ from __future__ import division
 
 # pylint: disable=invalid-name
 # pylint: disable=no-member
-# pylint: disable=redefined-builtin
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-statements
 
@@ -325,8 +324,9 @@ class GPFitter(object):
     self.param_order = []
     # Set up for common things - including mean and noise variance hyper-parameters
     # -----------------------------------------------------------------------------
-    episilon = 0.0001
-    self.Y_var = np.array(self.Y).std() ** 2 + episilon
+    epsilon = 0.0001
+    self.Y_var = np.array(self.Y).std() ** 2 + epsilon if len(self.Y) > 0 else \
+                 epsilon
     self._set_up_mean_and_noise_variance_bounds()
     # Set up hyper-parameters for the child.
     # -----------------------------------------------------------------------------
@@ -390,7 +390,7 @@ class GPFitter(object):
       and self.options.mean_func_type == 'tune':
       Y_median = np.median(self.Y)
       Y_std = np.sqrt(self.Y_var)
-      Y_half_range = 0.5 * (max(self.Y) - min(self.Y))
+      Y_half_range = 0.5 * (max(self.Y) - min(self.Y)) if len(self.Y) > 0 else 1.0
       Y_width = 0.5 * (Y_half_range + Y_std)
       self.mean_func_bounds = [Y_median - 3 * Y_width, Y_median + 3 * Y_width]
       self.cts_hp_bounds.append(self.mean_func_bounds)

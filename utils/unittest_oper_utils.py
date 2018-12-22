@@ -179,6 +179,41 @@ class OptimisersTestCase(BaseTestClass):
                   clock_time, real_time, self.max_evals), 'test_result')
 
 
+class SamplersTestCase(BaseTestClass):
+  """Unit test class for sampling utilities. """
+
+  def setUp(self):
+    """ Sets up unit tests. """
+    self.lhs_data = [(1, 10), (2, 5), (4, 10), (10, 100)]
+
+  @classmethod
+  def _check_sample_sizes(cls, data, samples):
+    """ Data is a tuple of the form (dim, num_samples) ans samples is an ndarray."""
+    assert (data[1], data[0]) == samples.shape
+
+  def test_latin_hc_indices(self):
+    """ Tests latin hyper-cube index generation. """
+    self.report('Test Latin hyper-cube indexing. Only a sufficient condition check.')
+    for data in self.lhs_data:
+      lhs_true_sum = data[1] * (data[1] - 1) / 2
+      lhs_idxs = oper_utils.latin_hc_indices(data[0], data[1])
+      lhs_idx_sums = np.array(lhs_idxs).sum(axis=0)
+      assert np.all(lhs_true_sum == lhs_idx_sums)
+
+  def test_latin_hc_sampling(self):
+    """ Tests latin hyper-cube sampling. """
+    self.report('Test Latin hyper-cube sampling. Only a sufficient condition check.')
+    for data in self.lhs_data:
+      lhs_max_sum = float(data[1] + 1)/2
+      lhs_min_sum = float(data[1] - 1)/2
+      lhs_samples = oper_utils.latin_hc_sampling(data[0], data[1])
+      lhs_sample_sums = lhs_samples.sum(axis=0)
+      self._check_sample_sizes(data, lhs_samples)
+      assert lhs_sample_sums.max() <= lhs_max_sum
+      assert lhs_sample_sums.min() >= lhs_min_sum
+
+
+
 if __name__ == '__main__':
   execute_tests()
 

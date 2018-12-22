@@ -105,7 +105,8 @@ class WorkerManager(object):
 class SyntheticWorkerManager(WorkerManager):
   """ A Worker manager for synthetic functions. Mostly to be used in simulations. """
 
-  def __init__(self, num_workers, time_distro='const', time_distro_params=None):
+  def __init__(self, num_workers, time_distro='caller_eval_cost',
+               time_distro_params=None):
     """ Constructor. """
     self.worker_pipe = None
     super(SyntheticWorkerManager, self).__init__(num_workers)
@@ -169,14 +170,13 @@ class SyntheticWorkerManager(WorkerManager):
     qinfo.worker_id = worker_id # indicate which worker
     qinfo = func_caller.eval_from_qinfo(qinfo, **kwargs)
     if self.time_distro == 'caller_eval_cost':
-      qinfo.eval_time = qinfo.caller_eval_cost
+      if hasattr(qinfo, 'caller_eval_cost') and qinfo.caller_eval_cost is not None:
+        qinfo.eval_time = qinfo.caller_eval_cost
+      else:
+        qinfo.eval_time = 1.0
     else:
       qinfo.eval_time = float(self.time_sampler(1))
-    if qinfo.eval_time is None:
-      eval_time = 1.0
-    else:
-      eval_time = qinfo.eval_time
-    qinfo.receive_time = qinfo.send_time + eval_time
+    qinfo.receive_time = qinfo.send_time + qinfo.eval_time
     # Store the result in latest_results
     self.latest_results.append(qinfo)
     return qinfo

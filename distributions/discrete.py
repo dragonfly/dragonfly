@@ -22,7 +22,7 @@ class Bernoulli(Discrete):
     super(Bernoulli, self).__init__()
     self.p = float(p)
     self.dim = 1
-    self.domain = domains.IntegralDomain(np.array([0, 1]))
+    self.domain = domains.IntegralDomain([[0, 1]])
 
   def pmf(self, x):
     """ Returns pmf of distribution at x. """
@@ -65,7 +65,7 @@ class Binomial(Discrete):
     self.n = n
     self.p = float(p)
     self.dim = 1
-    self.domain = domains.IntegralDomain(np.array([0, self.n]))
+    self.domain = domains.IntegralDomain([[0, self.n]])
 
   def pmf(self, k):
     """ Returns pmf of distribution at x. """
@@ -114,7 +114,7 @@ class Categorical(Discrete):
     self.k = len(categories)
     self.p = np.array(p)
     self.dim = 1
-    self.domain = domains.IntegralDomain(np.array([1, self.k]))
+    self.domain = domains.IntegralDomain([[1, self.k]])
 
   def pmf(self, i):
     """ Returns pmf of distribution at x. """
@@ -170,7 +170,7 @@ class DiscreteUniform(Discrete):
     self.lower = np.floor(lower)
     self.upper = np.floor(upper)
     self.dim = 1
-    self.domain = domains.IntegralDomain(np.array([self.lower, self.upper]))
+    self.domain = domains.IntegralDomain([[self.lower, self.upper]])
 
   def pmf(self, x):
     """ Returns pmf of distribution at x. """
@@ -204,3 +204,4 @@ class DiscreteUniform(Discrete):
   def __str__(self):
     """ Returns a string representation. """
     return 'Discrete Uniform: lower=%0.3f, upper=%0.3f' % (self.lower, self.upper)
+

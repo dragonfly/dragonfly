@@ -126,9 +126,9 @@ class BlackboxOptimiser(ExperimentDesigner):
     if self.func_caller.is_mf():
       window_length = 20
       window_queries_at_f2o = self.history.query_at_fidel_to_opts[-window_length:]
-      fidel_to_opt_str = ', #f2o: %d[%0.2f](%d/%d)'%(self.num_fidel_to_opt_calls, \
-                           self.num_fidel_to_opt_calls / float(self.step_idx), \
-                           sum(window_queries_at_f2o), window_length)
+      fidel_to_opt_str = ', #f2o: %d[%0.2f](%d/%d)'%(self.num_fidel_to_opt_calls,
+        self.num_fidel_to_opt_calls / float(len(self.history.query_vals)),
+        sum(window_queries_at_f2o), window_length)
     else:
       fidel_to_opt_str = ''
     opt_method_str = self._get_opt_method_report_results_str()
@@ -179,12 +179,16 @@ class OptInitialiser(BlackboxOptimiser):
   """ An initialiser class. """
   # pylint: disable=no-self-use
 
-  def __init__(self, func_caller, worker_manager, options=None, reporter=None):
+  def __init__(self, func_caller, worker_manager, get_initial_qinfos=None,
+               initialisation_capital=None, options=None, reporter=None):
     """ Constructor. """
     if options is None:
       options = load_options(blackbox_opt_args, reporter=reporter)
     super(OptInitialiser, self).__init__(func_caller, worker_manager, model=None,
                                          options=options, reporter=reporter)
+    self.options.max_num_steps = 0
+    self.options.get_initial_qinfos = get_initial_qinfos
+    self.options.init_capital = initialisation_capital
 
   def _opt_method_set_up(self):
     """ Any set up for the specific optimisation method. """

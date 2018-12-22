@@ -90,6 +90,14 @@ class MFGP(GP):
     ZX_test = None if ZZ_test is None else self.get_ZX_from_ZZ_XX(ZZ_test, XX_test)
     return self.draw_samples(num_samples, ZX_test, *args, **kwargs)
 
+  def get_fidel_kernel(self):
+    """ Return the fidel_space kernel. """
+    return self.fidel_kernel
+
+  def get_domain_kernel(self):
+    """ Return the domain kernel. """
+    return self.domain_kernel
+
   def _child_str(self):
     """ Returns a string representation of the MF-GP. """
     if hasattr(self, 'fidel_kernel') and hasattr(self, 'domain_kernel'):

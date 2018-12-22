@@ -1,0 +1,13 @@
+{
+"name": "cnn_syn_1",
+
+"domain":{
+  "cnn0":{
+    "name":"cnn0",
+    "type":"cnn",
+    "max_num_layers":109,
+    "min_num_layers":7,
+    "max_num_edges":246
+  }
+ }
+}

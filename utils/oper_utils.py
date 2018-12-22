@@ -28,8 +28,7 @@ except ImportError:
   print('Could not import fortran direct library.')
   direct_ft_wrap = None
 from utils.general_utils import map_to_bounds
-from utils.doo import DOOFunction
-from utils.doo import pdoo_wrap
+from utils.doo import DOOFunction, pdoo_wrap
 
 
 # Optimal transport and Earth mover's distance ===========================================
@@ -50,66 +49,6 @@ def opt_transport(supply, demand, costs):
   min_val = np.sum(T * costs)
   emd = min_val/tot_supply
   return T, min_val, emd
-
-
-# Various utilities for global optimisation of *cheap* functions on Euclidean domains ====
-# Some wrappers for all methods
-def maximise_with_method(method, obj, domain, max_evals, return_history=False,
-                         *args, **kwargs):
-  """ A wrapper which optimises obj over the domain domain. """
-  # If the method itself is a function, just use it.
-  if hasattr(method, '__call__'):
-    return method(obj, domain, max_evals, return_history, *args, **kwargs)
-  # The common use case is that the method is a string.
-  if domain.get_type() == 'euclidean':
-    return maximise_with_method_on_euclidean_domain(method, obj, domain.bounds, max_evals,
-                                                    return_history, *args, **kwargs)
-  elif domain.get_type() == 'integral':
-    return maximise_with_method_on_integral_domain(method, obj, domain.bounds, max_evals,
-                                                   return_history, *args, **kwargs)
-  elif domain.get_type() == 'prod_discrete':
-    return maximise_with_method_on_prod_discrete_domain(method, obj, domain, max_evals,
-                                                        return_history, *args, **kwargs)
-  else:
-    raise ValueError('Unknown domain type %s.'%(domain.get_type()))
-
-
-def maximise_with_method_on_euclidean_domain(method, obj, bounds, max_evals,
-                                             return_history=False, *args, **kwargs):
-  """ A wrapper for euclidean spaces which calls one of the functions below based on the
-      method. """
-  if method.lower().startswith('rand'):
-    max_val, max_pt, history = \
-      random_maximise(obj, bounds, max_evals, return_history, *args, **kwargs)
-  elif method.lower().startswith('direct'):
-    max_val, max_pt, history = \
-      direct_ft_maximise(obj, bounds, max_evals, return_history, *args, **kwargs)
-  elif method.lower().startswith('pdoo'):
-    max_val, max_pt, history = \
-      pdoo_maximise(obj, bounds, max_evals, *args, **kwargs)
-  else:
-    raise ValueError('Unknown maximisation method: %s.'%(method))
-  if return_history:
-    return max_val, max_pt, history
-  else:
-    return max_val, max_pt
-
-
-def maximise_with_method_on_integral_domain(method, obj, bounds, max_evals,
-                                            return_history=False, *args, **kwargs):
-  """ A wrapper for integral spaces which calls one of the functions below based on the
-      method. """
-  # pylint: disable=unused-argument
-  raise NotImplementedError('Not implemented integral domain optimisers yet.')
-
-
-def maximise_with_method_on_prod_discrete_domain(method, obj, domain, max_evals,
-                                                 return_history=False, *args, **kwargs):
-  """ A wrapper for discrete spaces which calls one of the functions below based on the
-      method. """
-  # pylint: disable=unused-argument
-  raise NotImplementedError('Not implemented discrete domain optimisers yet.')
-
 
 # Random sampling -------------------------------
 def random_sample(obj, bounds, max_evals, vectorised=True):
@@ -321,7 +260,7 @@ def pdoo_maximise(obj, bounds, max_evals):
   rho_max = 0.9
   POO_mult = 0.5
   doo_obj = DOOFunction(obj, bounds)
-  max_val, max_pt, history = pdoo_wrap(doo_obj, nu_max, rho_max, max_evals, K,
+  max_val, max_pt, history = pdoo_wrap(doo_obj, max_evals, nu_max, rho_max, K,
                                        C_init, tol, POO_mult)
   return max_val, max_pt, history
 
@@ -338,6 +277,53 @@ def pdoo_minimise(obj, bounds, max_evals):
 
 
 # Utilities for sampling from combined domains ===================================
+def latin_hc_indices(dim, num_samples):
+  """ Obtains indices for Latin Hyper-cube sampling. """
+  index_set = [list(range(num_samples))] * dim
+  lhs_indices = []
+  for i in range(num_samples):
+    curr_idx_idx = np.random.randint(num_samples-i, size=dim)
+    curr_idx = [index_set[j][curr_idx_idx[j]] for j in range(dim)]
+    index_set = [index_set[j][:curr_idx_idx[j]] + index_set[j][curr_idx_idx[j]+1:]
+                 for j in range(dim)]
+    lhs_indices.append(curr_idx)
+  return lhs_indices
+
+def latin_hc_sampling(dim, num_samples):
+  """ Latin Hyper-cube sampling in the unit hyper-cube. """
+  if num_samples == 0:
+    return np.zeros((0, dim))
+  elif num_samples == 1:
+    return 0.5 * np.ones((1, dim))
+  lhs_lower_boundaries = (np.linspace(0, 1, num_samples+1)[:num_samples]).reshape(1, -1)
+  width = lhs_lower_boundaries[0][1] - lhs_lower_boundaries[0][0]
+  lhs_lower_boundaries = np.repeat(lhs_lower_boundaries, dim, axis=0).T
+  lhs_indices = latin_hc_indices(dim, num_samples)
+  lhs_sample_boundaries = []
+  for i in range(num_samples):
+    curr_idx = lhs_indices[i]
+    curr_sample_boundaries = [lhs_lower_boundaries[curr_idx[j]][j] for j in range(dim)]
+    lhs_sample_boundaries.append(curr_sample_boundaries)
+  lhs_sample_boundaries = np.array(lhs_sample_boundaries)
+  uni_random_width = width * np.random.random((num_samples, dim))
+  lhs_samples = lhs_sample_boundaries + uni_random_width
+  return lhs_samples
+
+def random_sample_from_euclidean_domain(bounds, num_samples, sample_type='rand'):
+  """ Samples from a Euclidean Domain. """
+  if sample_type == 'rand':
+    ret = map_to_bounds(np.random.random((int(num_samples), len(bounds))), bounds)
+  elif sample_type == 'latin_hc':
+    ret = map_to_bounds(latin_hc_sampling(len(bounds), num_samples), bounds)
+  else:
+    raise ValueError('Unknown sample_type %s.'%(sample_type))
+  return list(ret)
+
+def random_sample_from_integral_domain(bounds, num_samples, sample_type='rand'):
+  """ Samples from a Integral Domain. """
+  ret = random_sample_from_euclidean_domain(bounds, num_samples, sample_type)
+  return [x.astype(np.int) for x in ret]
+
 def random_sample_from_discrete_domain(dscr_vals, num_points=None):
   """ Samples from a discrete domain. """
   def _sample_single_point():
@@ -353,6 +339,10 @@ def random_sample_from_discrete_domain(dscr_vals, num_points=None):
     return ret[0]
   else:
     return ret
+
+def random_sample_from_prod_discrete_domain(list_of_list_of_vals, num_samples):
+  """ Sample from a product of discrete domains. """
+  return random_sample_from_discrete_domain(list_of_list_of_vals, num_samples)
 
 def random_sample_cts_dscr(obj, cts_bounds, dscr_vals, max_evals, vectorised=True):
   """ Sample from a joint continuous and discrete space. """

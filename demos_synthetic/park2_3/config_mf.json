@@ -1,0 +1,50 @@
+{
+"name": "park2_3",
+
+"domain" : {
+
+  "foo_or_bar" : {
+    "name":"foo_or_bar",
+    "type":"discrete",
+    "items":"foo-bar",
+    "dim":2
+  },
+
+  "x0" : {
+    "name":"x0",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":2
+  },
+
+  "x1" : {
+    "name":"x1",
+    "type":"float",
+    "min":10.0,
+    "max":14.0,
+    "dim":2
+  }
+ },
+
+"fidel_space":{
+  "f0":{
+    "name":"f0",
+    "type":"int",
+    "min":10,
+    "max":5000,
+    "dim":1
+  },
+
+  "f1":{
+    "name":"f1",
+    "type":"float",
+    "min":1,
+    "max":10,
+    "dim":""
+  }
+ },
+
+"fidel_to_opt":[[5000], 10]
+}
+

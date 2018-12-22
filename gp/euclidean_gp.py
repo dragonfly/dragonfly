@@ -212,7 +212,7 @@ class EuclideanGPFitter(gp_core.GPFitter):
     self.dim = len(X[0])
     reporter = get_reporter(reporter)
     if options is None:
-      options = load_options(euclidean_gp_args, 'EuclideanGP', reporter=reporter)
+      options = load_options(euclidean_gp_args, 'EuclideanGPFitter', reporter=reporter)
     super(EuclideanGPFitter, self).__init__(X, Y, options, reporter)
 
   def _child_set_up(self):
@@ -377,14 +377,6 @@ class EuclideanMFGP(mf_gp.MFGP):
       # Otherwise, we assume mf_kernel is already an appropriate kernel
     super(EuclideanMFGP, self).__init__(ZZ, XX, YY, mf_kernel, mean_func, noise_var,
                                         *args, **kwargs)
-
-  def get_fidel_kernel(self):
-    """ Return the fidel_space kernel. """
-    return self.fidel_kernel
-
-  def get_domain_kernel(self):
-    """ Return the domain kernel. """
-    return self.domain_kernel
 
   def _test_fidel_domain_dims(self, test_fidel_dim, test_domain_dim):
     """ Tests if test_fidel_dim and test_domain_dim are equal to self.fidel_dim and

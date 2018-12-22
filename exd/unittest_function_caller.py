@@ -9,14 +9,31 @@
 
 import numpy as np
 # Local imports
+from exd import cp_domain_utils, experiment_caller
 import utils.euclidean_synthetic_functions as esf
 from utils.base_test_class import BaseTestClass, execute_tests
 from utils.ancillary_utils import get_list_of_floats_as_str
+# Synthetic functons for CP Domain
+from demos_synthetic.borehole_6.borehole_6 import borehole_6
+from demos_synthetic.borehole_6.borehole_6_mf import borehole_6_mf
+from demos_synthetic.borehole_6.borehole_6_mf import cost as cost_borehole_6
+from demos_synthetic.hartmann3_2.hartmann3_2 import hartmann3_2
+from demos_synthetic.hartmann6_4.hartmann6_4 import hartmann6_4
+from demos_synthetic.hartmann6_4.hartmann6_4_mf import hartmann6_4_mf
+from demos_synthetic.hartmann6_4.hartmann6_4_mf import cost as cost_hartmann6_4
+from demos_synthetic.park2_4.park2_4 import park2_4
+from demos_synthetic.park2_4.park2_4_mf import park2_4_mf
+from demos_synthetic.park2_4.park2_4_mf import cost as cost_park2_4
+from demos_synthetic.park2_3.park2_3 import park2_3
+from demos_synthetic.park1_3.park1_3 import park1_3
+from demos_synthetic.syn_cnn_1.syn_cnn_1 import syn_cnn_1
+from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
+
 
 _TOL = 1e-5
 
 
-class EuclideanSyntheticFunctionTestCase(BaseTestClass):
+class EuclideanFunctionCallerTestCase(BaseTestClass):
   """ Unit test for synthetic function. """
 
   def setUp(self):
@@ -161,6 +178,79 @@ class EuclideanSyntheticFunctionTestCase(BaseTestClass):
       # Print variation along a fidelity dimension
       if func_caller.is_mf() and not func_caller.is_noisy():
         self._test_variation_along_fidel_dim(func_caller, unnorm_func_caller, 0)
+
+
+class CPFunctionCaller(BaseTestClass):
+  """ Unit test for Cartesian Product Function Caller. """
+
+  def setUp(self):
+    """ set up. """
+    self.test_function_data = [
+      ('../demos_synthetic/hartmann3_2/config.json', hartmann3_2, 'no_noise', None, None),
+      ('../demos_synthetic/hartmann6_4/config.json', hartmann6_4, 'gauss', 0.2, None),
+      ('../demos_synthetic/borehole_6/config.json', borehole_6, 'no_noise', None, None),
+      ('../demos_synthetic/park2_4/config.json', park2_4, 'gauss', 2.1, None),
+      ('../demos_synthetic/park2_3/config.json', park2_3, 'no_noise', None, None),
+      ('../demos_synthetic/park1_3/config.json', park1_3, 'no_noise', None, None),
+      ('../demos_synthetic/syn_cnn_1/config.json', syn_cnn_1, 'gauss', 0.5, None),
+      ('../demos_synthetic/syn_cnn_2/config.json', syn_cnn_2, 'no_noise', None, None),
+      ]
+    self.mf_test_function_data = [
+      ('../demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf,
+       'no_noise', None, cost_hartmann6_4),
+      ('../demos_synthetic/borehole_6/config_mf.json', borehole_6_mf,
+       'gauss', 1.0, cost_borehole_6),
+      ('../demos_synthetic/park2_4/config_mf.json', park2_4_mf,
+       'gauss', 0.1, cost_park2_4),
+      ]
+    self.num_test_points = 100
+
+  def test_all_functions(self):
+    """ Unit test to test if the function callers are calling correctly. """
+    # pylint: disable=too-many-locals
+    num_samples = 5
+    test_data = self.test_function_data + self.mf_test_function_data
+    num_noise_tests = 0.0
+    num_noise_successes = 0.0
+    for idx, (domain_config_file, raw_func, noise_type, noise_scale,
+              raw_fidel_cost_func) in enumerate(test_data):
+      config = cp_domain_utils.load_config_file(domain_config_file)
+      func_caller = experiment_caller.get_multifunction_caller_from_config(
+        raw_func, domain_config_file, raw_fidel_cost_func=raw_fidel_cost_func,
+        noise_type=noise_type, noise_scale=noise_scale)
+      proc_samples = cp_domain_utils.sample_from_config_space(config, num_samples)
+      raw_samples = [cp_domain_utils.get_raw_from_processed_via_config(x, config)
+                       for x in proc_samples]
+      if hasattr(config, 'fidel_space') and config.fidel_space is not None:
+        raw_vals = [raw_func(z, x) for (z, x) in raw_samples]
+        fc_vals = [func_caller.eval_at_fidel_single(z, x)[0] for (z, x) in proc_samples]
+        # Check if the cost functions are evaluated properly
+        raw_fidel_cost_vals = [raw_fidel_cost_func(z) for z, _ in raw_samples]
+        fc_fidel_cost_vals = [func_caller.fidel_cost_func(z) for z, _ in proc_samples]
+        fidel_cost_err = np.linalg.norm(np.array(raw_fidel_cost_vals) -
+                                        np.array(fc_fidel_cost_vals))
+        assert fidel_cost_err < 1e-4 * np.linalg.norm(raw_fidel_cost_vals)
+        fidel_cost_err_str = ', fidel_cost_err=%0.3f'%(fidel_cost_err)
+      else:
+        raw_vals = [raw_func(x) for x in raw_samples]
+        fc_vals = [func_caller.eval_single(x)[0] for x in proc_samples]
+        fidel_cost_err_str = ''
+      err = np.linalg.norm(np.array(raw_vals) - np.array(fc_vals))
+      noise_scale = 0.0 if noise_type == 'no_noise' else noise_scale
+      noise_tolerance = 3 * noise_scale * np.sqrt(num_samples)
+      is_succ = err < 1e-4 * np.linalg.norm(np.array(raw_vals)) + noise_tolerance
+      if noise_type == 'no_noise':
+        assert is_succ
+      else:
+        num_noise_tests += 1.0
+        num_noise_successes += float(is_succ)
+      self.report('[%d/%d] Testing functionevals for %s, err=%0.5f, is_succ=%d%s.'%(
+        idx + 1, len(test_data), domain_config_file, err, is_succ, fidel_cost_err_str),
+        'test_result')
+    self.report('num_noise_successes/num_noise_tests = %d/%d.'%(
+      num_noise_successes, num_noise_tests), 'test_result')
+    assert num_noise_tests == 0 or num_noise_successes/num_noise_tests > 0.75
+    self.report('', '')
 
 
 if __name__ == '__main__':

@@ -1,0 +1,22 @@
+{
+"name": "hartmann3_2",
+
+"domain": {
+
+  "var_1": {
+    "name":"var_1",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":2
+  },
+
+  "var_2": {
+    "name":"var_2",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":1
+  }
+ }
+}

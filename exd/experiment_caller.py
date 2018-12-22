@@ -2,16 +2,21 @@
   Harness for calling experiments including Multi-fidelity.
   -- kandasamy@cs.cmu.edu
 """
-# Keep in mind: fidel always comes before point --KK
+# Convention: fidel/fidel_space always comes before point/domain --KK
 
 # pylint: disable=abstract-class-little-used
 # pylint: disable=abstract-method
-# pylint: disable=attribute-defined-outside-init
 # pylint: disable=invalid-name
+# pylint: disable=too-many-arguments
+
+from __future__ import print_function
 
 from argparse import Namespace
 import numpy as np
 # Local imports
+from exd.cp_domain_utils import load_config_file, sample_from_cp_domain, \
+                                get_processed_func_from_raw_func_via_config, \
+                                get_processed_func_from_raw_func_for_cp_domain
 from exd.domains import EuclideanDomain
 from exd.exd_utils import EVAL_ERROR_CODE
 from utils.general_utils import map_to_cube, map_to_bounds
@@ -38,7 +43,6 @@ class ExperimentCaller(object):
   def __init__(self, experiment, domain, descr='',
                noise_type='no_noise', noise_scale=None,
                fidel_space=None, fidel_cost_func=None, fidel_to_opt=None):
-    # pylint: disable=too-many-arguments
     """ Constructor. """
     self.experiment = experiment
     self.domain = domain
@@ -96,7 +100,7 @@ class ExperimentCaller(object):
         be overridden by a child class. """
     if not self.is_mf():
       raise CalledMultiFidelOnSingleFidelCaller()
-    return all(fidel == self.fidel_to_opt)
+    return self.fidel_space.members_are_equal(fidel, self.fidel_to_opt)
 
   # Evaluation --------------------------------------------------------------------------
   def get_noisy_value(self, true_val):
@@ -123,11 +127,14 @@ class ExperimentCaller(object):
   def _get_true_val_from_experiment_at_point(self, point):
     """ Returns the true value from the experiment. Can be overridden by child class if
         experiment is represented differently. """
+    assert self.domain.is_a_member(point)
     return self.experiment(point)
 
   def _get_true_val_from_experiment_at_fidel_point(self, fidel, point):
     """ Returns the true value from the experiment. Can be overridden by child class if
         experiment is represented differently. """
+    assert self.fidel_space.is_a_member(fidel)
+    assert self.domain.is_a_member(point)
     return self.experiment(fidel, point)
 
   # Single fidelity evaluations --------------------------------------------
@@ -239,8 +246,10 @@ class ExperimentCaller(object):
     """
     if not self.is_mf():
       raise CalledMultiFidelOnSingleFidelCaller(self)
-    return self._child_get_candidate_fidels(domain_point, filter_by_cost,
-                                            *args, **kwargs)
+    candidate_fidels = self._child_get_candidate_fidels(domain_point, filter_by_cost,
+                                                        *args, **kwargs)
+    candidate_fidels.append(self.fidel_to_opt)
+    return candidate_fidels
 
   def _child_get_candidate_fidels(self, domain_point, filter_by_cost=True,
                                   *args, **kwargs):
@@ -279,7 +288,9 @@ class MultiFunctionCaller(ExperimentCaller):
   """ An Experiment Caller specifically for evaluating a collection of functions. """
 
   def __init__(self, funcs, domain, descr='',
-               argmax=None, maxval=None, argmin=None, minval=None, *args, **kwargs):
+               argmax=None, maxval=None, argmin=None, minval=None,
+               noise_type='no_noise', noise_scale=None,
+               fidel_space=None, fidel_cost_func=None, fidel_to_opt=None):
     """ Constructor. """
     self.funcs = funcs
     self.argmax = argmax
@@ -288,7 +299,8 @@ class MultiFunctionCaller(ExperimentCaller):
     self.minval = minval
     experiment_caller = self._get_experiment_caller()
     super(MultiFunctionCaller, self).__init__(experiment_caller, domain, descr,
-                                              *args, **kwargs)
+      noise_type=noise_type, noise_scale=noise_scale,
+      fidel_space=fidel_space, fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt)
 
   def _get_experiment_caller(self):
     """ Returns the experiment caller. If funcs is a list, then the function caller
@@ -429,6 +441,12 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
     raw_fidel_coords = self.get_raw_fidel_coords(fidel)
     assert self.raw_fidel_space.is_a_member(raw_fidel_coords)
     raw_dom_coords = self.get_raw_domain_coords(point)
+    try:
+      assert self.raw_domain.is_a_member(raw_dom_coords)
+    except AssertionError:
+      print('raw_dom_coords: %s not in raw_domain.'%(raw_dom_coords))
+      import pdb
+      pdb.set_trace()
     assert self.raw_domain.is_a_member(raw_dom_coords)
     if self.vectorised:
       raw_dom_coords = raw_dom_coords.reshape((-1, 1))
@@ -476,7 +494,6 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
       candidates = candidates[filtered_idxs, :]
     # Finally, always add the highest fidelity
     candidates = list(candidates)
-    candidates.append(self.fidel_to_opt)
     return candidates
 
   def get_information_gap(self, fidels):
@@ -487,7 +504,44 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
             for fidel in fidels]
 
 
-# A wrapper on top of MultiFunctionCaller for single function callers =======
+class CPMultiFunctionCaller(MultiFunctionCaller):
+  """ Cartesian product multi-function caller. """
+
+  def __init__(self, funcs, domain, descr='', raw_funcs=None, domain_orderings=None,
+               argmax=None, maxval=None, argmin=None, minval=None,
+               noise_type='no_noise', noise_scale=None,
+               fidel_space=None, fidel_cost_func=None, fidel_to_opt=None,
+               fidel_space_orderings=None):
+    """ Constructor. """
+    self.raw_funcs = raw_funcs
+    self.domain_orderings = domain_orderings
+    self.fidel_space_orderings = fidel_space_orderings
+    super(CPMultiFunctionCaller, self).__init__(funcs, domain, descr,
+      argmax=argmax, maxval=maxval, argmin=argmin, minval=minval,
+      noise_type=noise_type, noise_scale=noise_scale,
+      fidel_space=fidel_space, fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt
+      )
+
+  def _child_get_candidate_fidels(self, domain_point, filter_by_cost=True,
+                                  *args, **kwargs):
+    """ Returns candidate fidelities at domain_point for the child class.
+        If filter_by_cost is true returns only those for which cost is larger than
+        fidel_to_opt.
+    """
+    num_samples = np.clip(100 * self.fidel_space.get_dim(), 100, 8000)
+    return sample_from_cp_domain(self.fidel_space, num_samples,
+                                 euclidean_sample_type='latin_hc',
+                                 integral_sample_type='latin_hc')
+
+  def get_information_gap(self, fidels):
+    """ Returns the information gap to fidel_to_opt. """
+    if not self.is_mf():
+      raise CalledMultiFidelOnSingleFidelCaller(self)
+    return [self.fidel_space.compute_distance(self.fidel_to_opt, fidel) for fidel
+            in fidels]
+
+
+# A wrapper on top of MultiFunctionCaller for single function callers ==================
 class FunctionCaller(MultiFunctionCaller):
   """ A function caller on Euclidean spaces. """
 
@@ -504,4 +558,56 @@ class EuclideanFunctionCaller(EuclideanMultiFunctionCaller):
     """ Constructor. """
     self.func = func
     super(EuclideanFunctionCaller, self).__init__(func, *args, **kwargs)
+
+
+class CPFunctionCaller(CPMultiFunctionCaller):
+  """ Cartesian product function caller. """
+
+  def __init__(self, func, domain, descr='', raw_func=None, *args, **kwargs):
+    """ Constructor. """
+    self.func = func
+    self.raw_func = raw_func
+    super(CPFunctionCaller, self).__init__(func, domain, descr, raw_func, *args, **kwargs)
+
+
+# An API to obtain a MultiFunctionCaller on a CPDomain from cp_domain ==================
+def get_multifunction_caller_from_config(raw_funcs, domain_config_file, descr='',
+                                         raw_fidel_cost_func=None, **kwargs):
+  """ Returns a multi-function caller from the raw functions and configuration file. """
+  # pylint: disable=no-member
+  # pylint: disable=maybe-no-member
+  if isinstance(domain_config_file, str):
+    config = load_config_file(domain_config_file)
+  else:
+    config = domain_config_file
+  if isinstance(raw_funcs, (list, tuple)):
+    is_multi_function = True
+  else:
+    is_multi_function = False
+    raw_funcs = [raw_funcs]
+  funcs = [get_processed_func_from_raw_func_via_config(rf, config) for rf in raw_funcs]
+  # Check multi-fidelity
+  if hasattr(config, 'fidel_space') and config.fidel_space is not None:
+    fidel_cost_func = get_processed_func_from_raw_func_for_cp_domain(raw_fidel_cost_func,
+      config.fidel_space, config.fidel_space_orderings.index_ordering,
+      config.fidel_space_orderings.dim_ordering)
+    fidel_space_orderings = config.fidel_space_orderings
+    fidel_to_opt = config.fidel_to_opt
+    fidel_space = config.fidel_space
+  else:
+    fidel_cost_func = None
+    fidel_space_orderings = None
+    fidel_to_opt = None
+    fidel_space = None
+  # Now return
+  if is_multi_function:
+    return CPMultiFunctionCaller(funcs, config.domain, descr, raw_funcs,
+             config.domain_orderings, fidel_space=fidel_space,
+             fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt,
+             fidel_space_orderings=fidel_space_orderings, **kwargs)
+  else:
+    return CPFunctionCaller(funcs[0], config.domain, descr, raw_funcs[0],
+             config.domain_orderings, fidel_space=fidel_space,
+             fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt,
+             fidel_space_orderings=fidel_space_orderings, **kwargs)
 

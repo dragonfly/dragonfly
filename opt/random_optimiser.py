@@ -8,9 +8,13 @@
 from argparse import Namespace
 import numpy as np
 # Local imports
+from exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
+                            load_cp_domain_from_config_file
 import exd.domains as domains
-from exd.exd_utils import get_euclidean_initial_qinfos
+from exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
 from exd.exd_core import mf_exd_args
+from exd.experiment_caller import CPFunctionCaller
+from exd.cp_domain_utils import sample_from_cp_domain
 from opt.blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args, \
                                    CalledMFOptimiserWithSFCaller
 from utils.option_handler import load_options
@@ -19,7 +23,9 @@ from utils.general_utils import map_to_bounds
 
 random_optimiser_args = blackbox_opt_args
 euclidean_random_optimiser_args = random_optimiser_args
+cp_random_optimiser_args = random_optimiser_args
 mf_euclidean_random_optimiser_args = euclidean_random_optimiser_args + mf_exd_args
+mf_cp_random_optimiser_args = cp_random_optimiser_args + mf_exd_args
 
 
 # Base class for Random Optimisation -----------------------------------------------
@@ -85,10 +91,6 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
       multi-fidelity.
   """
 
-  def is_an_mf_method(self):
-    """ Returns Truee since this is a MF method. """
-    return True
-
   # Constructor.
   def __init__(self, func_caller, worker_manager, call_fidel_to_opt_prob=0.25,
                *args, **kwargs):
@@ -101,6 +103,10 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
     self.call_fidel_to_opt_prob = call_fidel_to_opt_prob
     if not func_caller.is_mf():
       raise CalledMFOptimiserWithSFCaller(self, func_caller)
+
+  def is_an_mf_method(self):
+    """ Returns Truee since this is a MF method. """
+    return True
 
   def _determine_next_query(self):
     """ Determines the next query. """
@@ -129,6 +135,81 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
              self.options.init_set_to_fidel_to_opt_with_prob)
 
 
+# A random optimiser in Cartesian product spaces --------------------------------------
+class CPRandomOptimiser(RandomOptimiser):
+  """ A random optimiser for cartesian product domains. """
+
+  def is_an_mf_method(self):
+    """ Returns False since it is not a False method. """
+    return False
+
+  def _determine_next_query(self):
+    """ Determines the next query. """
+    qinfo = Namespace(point=sample_from_cp_domain(self.domain, 1)[0])
+    return qinfo
+
+  def _determine_next_batch_of_queries(self, batch_size):
+    """ Determines the next batch of queries. """
+    qinfos = [self._determine_next_query() for _ in range(batch_size)]
+    return qinfos
+
+  def _get_initial_qinfos(self, num_init_evals):
+    """ Returns initial qinfos. """
+    return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
+                                        dom_euclidean_sample_type='latin_hc',
+                                        dom_integral_sample_type='latin_hc',
+                                        dom_nn_sample_type='rand')
+
+
+class MFCPRandomOptimiser(RandomOptimiser):
+  """ A class which optimises in Cartesian product spaces using random evaluations. """
+
+  def __init__(self, func_caller, worker_manager, call_fidel_to_opt_prob=0.25,
+               *args, **kwargs):
+    """ Constructor. """
+    super(MFCPRandomOptimiser, self).__init__(func_caller, worker_manager,
+                                              *args, **kwargs)
+    self.call_fidel_to_opt_prob = call_fidel_to_opt_prob
+    if not func_caller.is_mf():
+      raise CalledMFOptimiserWithSFCaller(self, func_caller)
+
+  def is_an_mf_method(self):
+    """ Returns False since it is not a False method. """
+    return True
+
+  def _determine_next_query(self):
+    """ Determines next query. """
+    # An internal function which returns the next fidelity.
+    def _get_next_fidel():
+      """ Returns the next fidelity. """
+      if np.random.random() <= self.call_fidel_to_opt_prob:
+        return self.func_caller.fidel_to_opt
+      else:
+        return sample_from_cp_domain(self.func_caller.fidel_space, 1)[0]
+    # Create and return qinfo
+    qinfo = Namespace(point=sample_from_cp_domain(self.func_caller.domain, 1)[0],
+                      fidel=_get_next_fidel())
+    return qinfo
+
+  def _determine_next_batch_of_queries(self, batch_size):
+    """ Determines the next batch of queries. """
+    qinfos = [self._determine_next_query() for _ in range(batch_size)]
+    return qinfos
+
+  def _get_initial_qinfos(self, num_init_evals):
+    """ Returns initial qinfos. """
+    return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
+             self.fidel_space, self.func_caller.fidel_to_opt,
+             set_to_fidel_to_opt_with_prob=self.call_fidel_to_opt_prob,
+             dom_euclidean_sample_type='latin_hc',
+             dom_integral_sample_type='latin_hc',
+             dom_nn_sample_type='rand',
+             fidel_space_euclidean_sample_type='latin_hc',
+             fidel_space_integral_sample_type='latin_hc',
+             fidel_space_nn_sample_type='rand',
+             )
+
+
 # APIs for random optimisation ===========================================================
 
 # An API for single fidelity optimisation
@@ -139,6 +220,9 @@ def random_optimiser_from_func_caller(func_caller, worker_manager, max_capital, 
   if isinstance(func_caller.domain, domains.EuclideanDomain):
     optimiser_constructor = EuclideanRandomOptimiser
     dflt_list_of_options = euclidean_random_optimiser_args
+  elif isinstance(func_caller.domain, domains.CartesianProductDomain):
+    optimiser_constructor = CPRandomOptimiser
+    dflt_list_of_options = cp_random_optimiser_args
   else:
     raise ValueError('Random optimiser not implemented for domain of type %s.'%(
                      type(func_caller.domain)))
@@ -151,6 +235,17 @@ def random_optimiser_from_func_caller(func_caller, worker_manager, max_capital, 
   # optimise and return
   return optimiser.optimise(max_capital)
 
+def cp_random_optimiser_from_raw_args(raw_func, domain_config_file, *args, **kwargs):
+  """ A random optimiser on Cartesian product spaces. """
+  # pylint: disable=no-member
+  cp_dom, orderings = load_cp_domain_from_config_file(domain_config_file)
+  proc_func = get_processed_func_from_raw_func_for_cp_domain(
+                raw_func, cp_dom, orderings.index_ordering, orderings.dim_ordering)
+  func_caller = CPFunctionCaller(proc_func, cp_dom, raw_func=raw_func,
+                                 orderings=orderings)
+  return random_optimiser_from_func_caller(func_caller, *args, **kwargs)
+
+
 # An API for multi-fidelity optimisation
 def mf_random_optimiser_from_func_caller(func_caller, worker_manager, max_capital, mode,
                                          options=None, reporter='default',
@@ -161,6 +256,10 @@ def mf_random_optimiser_from_func_caller(func_caller, worker_manager, max_capita
      isinstance(func_caller.fidel_space, domains.EuclideanDomain):
     optimiser_constructor = MFEuclideanRandomOptimiser
     dflt_list_of_options = mf_euclidean_random_optimiser_args
+  elif isinstance(func_caller.domain, domains.CartesianProductDomain) and \
+    isinstance(func_caller.fidel_space, domains.CartesianProductDomain):
+    optimiser_constructor = MFCPRandomOptimiser
+    dflt_list_of_options = mf_cp_random_optimiser_args
   else:
     raise ValueError(('MF Random optimiser not implemented for (domain, fidel_space) '
                       + 'of types (%s, %s).')%(

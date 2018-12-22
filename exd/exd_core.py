@@ -4,10 +4,9 @@
   -- kandasamy@cs.cmu.edu
 """
 
-# pylint: disable=import-error
 # pylint: disable=no-member
-# pylint: disable=invalid-name
 # pylint: disable=super-on-old-class
+# pylint: disable=invalid-name
 # pylint: disable=redefined-builtin
 
 from __future__ import division
@@ -32,7 +31,7 @@ exd_core_args = [ \
   get_option_specs('report_results_every', False, 13,
                    'Report results every this many iterations.'),
   # Initialisation
-  get_option_specs('init_capital', False, None,
+  get_option_specs('init_capital', False, 'default',
                    ('The capital to be used for initialisation.')),
   get_option_specs('init_capital_frac', False, None,
                    ('The fraction of the total capital to be used for initialisation.')),
@@ -54,6 +53,7 @@ mf_exd_args = [ \
   get_option_specs('init_set_to_fidel_to_opt_with_prob', False, 0.25, \
     'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'), \
   ]
+
 
 class ExperimentDesigner(object):
   """ BlackboxExperimenter Class. """
@@ -81,7 +81,6 @@ class ExperimentDesigner(object):
     """ Some additional set up routines. """
     # Set up some book keeping parameters
     self.available_capital = 0.0
-    self.init_capital = 0.0
     self.num_completed_evals = 0
     self.step_idx = 0
     self.num_succ_queries = 0
@@ -116,17 +115,17 @@ class ExperimentDesigner(object):
         'eval_time': 'query_eval_times',
         'worker_id': 'query_worker_ids', \
       }
-    # Post child set up.
-    method_prefix = 'asy' if self.is_asynchronous() else 'syn'
-    self.full_method_name = method_prefix + '-' + self._get_method_str()
-    self.history.full_method_name = self.full_method_name
     # Set pre_eval_points and results
     self.prev_eval_points = []
     # Multi-fidelity Set up
     if self.is_an_mf_method() or self.experiment_caller.is_mf():
       self._mf_set_up()
-    # Finally call the child set up.
+    # Call the child set up.
     self._exd_child_set_up()
+    # Post child set up.
+    method_prefix = 'asy' if self.is_asynchronous() else 'syn'
+    self.full_method_name = method_prefix + '-' + self._get_method_str()
+    self.history.full_method_name = self.full_method_name
 
   def _mf_set_up(self):
     """ Multi-fidelity set up. """
@@ -223,28 +222,53 @@ class ExperimentDesigner(object):
   def perform_initial_queries(self):
     """ Perform initial queries. """
     # If we already have some pre_eval points then do this.
+    # pylint: disable=too-many-branches
     if (hasattr(self.options, 'prev_evaluations') and
         self.options.prev_evaluations is not None):
       self._exd_child_handle_prev_evals()
     else:
       # Get the initial points
-      if self.options.init_capital is not None:
+      if self.options.init_capital == 'default':
+        if self.options.capital_type == 'return_value' or \
+           self.options.capital_type == 'realtime':
+          self.init_capital = np.clip(5 * self.domain.get_dim(),
+                                      max(5.0, 0.025 * self.available_capital),
+                                      max(5.0, 0.075 * self.available_capital))
+          num_initial_queries_w_init_capital = 2 * int(self.init_capital)
+        else:
+          raise NotImplementedError(('Not implemented init_capital for capital_type ' +
+                                     '%s yet.')%(self.capital_type))
+      elif self.options.init_capital is not None:
         self.init_capital = self.options.init_capital
       elif self.options.init_capital_frac is not None:
         self.init_capital = self.options.init_capital_frac*self.available_capital
-
+      else:
+        self.init_capital = None
+      # Set the function to return the initial qinfos
       if hasattr(self.options, 'get_initial_qinfos') and \
          self.options.get_initial_qinfos is not None:
         get_initial_qinfos = self.options.get_initial_qinfos
       else:
         get_initial_qinfos = self._get_initial_qinfos
-
-      if self.init_capital != 0.0:
-        while not self._terminate_initialization():
-          qinfo = get_initial_qinfos(1)
+      # Send out the initial queries to the worker manager
+      if self.init_capital is not None:
+        initial_qinfos_w_init_capital = []
+        while True:
+          if len(initial_qinfos_w_init_capital) == 0:
+            self.reporter.writeln('Fetching %d initial points via %s.'%(
+                num_initial_queries_w_init_capital, self.options.init_method))
+            initial_qinfos_w_init_capital = \
+              get_initial_qinfos(num_initial_queries_w_init_capital)
+          qinfo = initial_qinfos_w_init_capital.pop(0)
           self.step_idx += 1
           self._wait_for_a_free_worker()
-          self._dispatch_single_experiment_to_worker_manager(qinfo[0])
+          if self._terminate_initialisation():
+            cap_frac = (np.nan if self.available_capital <= 0 else
+                        self.get_curr_spent_capital()/self.available_capital)
+            self.reporter.writeln('Capital spent on initialisation: %0.4f(%0.4f).'%(
+                self.get_curr_spent_capital(), cap_frac))
+            break
+          self._dispatch_single_experiment_to_worker_manager(qinfo)
       else:
         num_init_evals = int(self.options.num_init_evals)
         if num_init_evals > 0:
@@ -369,7 +393,7 @@ class ExperimentDesigner(object):
       return True
     return self.get_curr_spent_capital() >= self.available_capital
 
-  def _terminate_initialization(self):
+  def _terminate_initialisation(self):
     """ Returns true if we should terminate initialization now. """
     return self.get_curr_spent_capital() >= self.init_capital
 

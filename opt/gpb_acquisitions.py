@@ -14,7 +14,7 @@ from scipy.stats import norm as normal_distro
 from utils.general_utils import solve_lower_triangular
 from gp.gp_core import get_post_covar_from_raw_covar
 from exd.domains import EuclideanDomain
-from utils.oper_utils import maximise_with_method
+from exd.exd_utils import maximise_with_method
 
 # TODO: add hallucinations for add_ucb
 # TODO: implement using different samples for synchronous methods
@@ -27,11 +27,15 @@ def _maximise_acquisition(acq_fn, anc_data, *args, **kwargs):
   """
   # pylint: disable=unbalanced-tuple-unpacking
   acq_opt_method = anc_data.acq_opt_method
-  if acq_opt_method in ['rand']:
-    acquisition = acq_fn
-  else:
+  if anc_data.domain.get_type() == 'euclidean':
+    if acq_opt_method in ['rand']:
+      acquisition = acq_fn
+    else:
+      # these methods cannot handle vectorised functions.
+      acquisition = lambda x: acq_fn(x.reshape((1, -1)))
+  elif anc_data.domain.get_type() == 'cartesian_product':
     # these methods cannot handle vectorised functions.
-    acquisition = lambda x: acq_fn(x.reshape((1, -1)))
+    acquisition = lambda x: acq_fn([x])
   _, opt_pt = maximise_with_method(acq_opt_method, acquisition, anc_data.domain,
                                    anc_data.max_evals, *args, **kwargs)
   return opt_pt
@@ -192,7 +196,8 @@ def asy_add_ucb(gp, anc_data):
 def syn_add_ucb(num_workers, list_of_gps, anc_datas):
   """ Synchronous Add UCB. """
   # pylint: disable=unused-argument
-  raise NotImplementedError('Not implemented Synchronous Add UCB yet.')
+  return _get_syn_recommendations_from_asy(asy_add_ucb, num_workers, list_of_gps,
+                                           anc_datas)
 
 # UCB ------------------------------------------------------------------------------
 def _get_gp_ucb_dim(gp):
@@ -370,10 +375,10 @@ def asy_add_ucb_for_boca(mfgp, fidel_to_opt, anc_data):
   """ Asynchronous Add UCB. """
   return _add_ucb_for_boca(mfgp, fidel_to_opt, None, anc_data)
 
-def syn_add_ucb_for_boca(mfgp, fidel_to_opt, anc_data):
+def syn_add_ucb_for_boca(num_workers, list_of_mfgps, fidel_to_opt, anc_data):
   """ Synchronous Add UCB. """
   # pylint: disable=unused-argument
-  raise NotImplementedError('Not implemented Synchronous Add UCB yet.')
+  raise NotImplementedError('Not Implemented Yet!')
 
 def boca(select_pt_func, mfgp, anc_data, func_caller):
   """ Uses the BOCA strategy to pick the next point and fidelity as described in

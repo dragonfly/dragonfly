@@ -2,12 +2,23 @@
   Parser for json and protocol buffer files
   -- kvysyara@andrew.cmu.edu
 """
+
+# pylint: disable=invalid-name
+
 from __future__ import absolute_import
 
 import sys
 import json
 from collections import OrderedDict
+from numbers import Number
 import numpy as np
+
+# Python 3 issue with unicode classes
+try:
+  UNICODE_EXISTS = bool(type(unicode))
+except NameError:
+  unicode = str
+
 
 def unicode_to_str(data):
   """ Unicode to string conversion. """
@@ -15,13 +26,27 @@ def unicode_to_str(data):
     return data.encode('utf-8')
   return data
 
+
+def _load_fidel_to_opt_parameters(param):
+  """ Loads fidel_to_opt parameters. """
+  if isinstance(param, (list, tuple)):
+    ret = []
+    for elem in param:
+      ret.append(_load_fidel_to_opt_parameters(elem))
+  else:
+    ret = param # just return the param
+    if isinstance(param, unicode):
+      ret = unicode_to_str(ret)
+  return ret
+
+
 def load_parameters(config):
   """ Parses all the parameters from json config file. """
   exp_info = {}
   exp_info['name'] = unicode_to_str(config.get('name'))
   if exp_info['name'] is None:
     raise ValueError('Experiment name is required')
-
+  # Domain -------------------------------------------------------
   parameters = []
   _parameters = config['domain']
   if isinstance(_parameters, dict):
@@ -34,7 +59,7 @@ def load_parameters(config):
       parameters.append(param)
   else:
     raise ValueError('Wrong parameter type.')
-
+  # Fidelity space -----------------------------------------------
   fidel_parameters = []
   _parameters = config.get('fidel_space', {})
   if isinstance(_parameters, dict):
@@ -47,8 +72,14 @@ def load_parameters(config):
       fidel_parameters.append(param)
   else:
     raise ValueError('Wrong parameter type.')
+  # fidel_to_opt --------------------------------------------------
+  fidel_to_opt = config.get('fidel_to_opt', None)
+  if fidel_to_opt is not None:
+    fidel_to_opt = _load_fidel_to_opt_parameters(fidel_to_opt)
+  # Return
+  return {"exp_info":exp_info, "domain":parameters, "fidel_space":fidel_parameters,
+          "fidel_to_opt":fidel_to_opt}
 
-  return {"exp_info" : exp_info, "domain" : parameters, "fidel_space" : fidel_parameters}
 
 def load_parameter(parameter, key=None):
   """ Parses each parameter and return a dict """
@@ -76,7 +107,7 @@ def load_parameter(parameter, key=None):
   param['type'] = unicode_to_str(_type).lower()
   # First for regular domains
   if param['type'] in ['float', 'int', 'discrete', 'discrete_numeric']:
-    if not isinstance(_dim, (int, float, long)):
+    if not isinstance(_dim, Number):
       _dim = unicode_to_str(_dim)
     if _dim != "":
       _dim = int(_dim)
@@ -101,7 +132,7 @@ def load_parameter(parameter, key=None):
     nn_params['max_num_layers'] = parameter.get('max_num_layers', 'inf')
     nn_params['min_num_layers'] = parameter.get('min_num_layers', 0)
     nn_params['max_mass'] = parameter.get('max_mass', 'inf')
-    nn_params['min_mass'] = parameter.get('min_mass', 'inf')
+    nn_params['min_mass'] = parameter.get('min_mass', 0)
     nn_params['max_in_degree'] = parameter.get('max_in_degree', 'inf')
     nn_params['max_out_degree'] = parameter.get('max_out_degree', 'inf')
     nn_params['max_num_edges'] = parameter.get('max_num_edges', 'inf')
@@ -119,8 +150,8 @@ def load_parameter(parameter, key=None):
     param['dim'] = ''
   else:
     raise ValueError('Unknown type %s.'%(param['type']))
-
   return param
+
 
 def read_json(config_file):
   """ Read from json file. """
@@ -128,10 +159,10 @@ def read_json(config_file):
     with open(config_file, 'r') as _file:
       config = json.load(_file, object_pairs_hook=OrderedDict)
       _file.close()
-  except:
-    raise Exception('Error in loading config file: ' + config_file)
-
+  except Exception as e:
+    raise Exception('Error in loading config file: ' + config_file + '.\n -- ' + str(e))
   return load_parameters(config)
+
 
 def read_pb(config_file):
   """ Read from protocol buffer file. """
@@ -141,17 +172,17 @@ def read_pb(config_file):
     from google.protobuf.json_format import MessageToDict
   except ImportError:
     raise ImportError('Protocol Buffer library is not installed')
-
+  # Read PB file
   from parse import config_pb2
   config_pb = config_pb2.Experiment()
-
   _file = open(config_file, "rb")
   text_format.Merge(_file.read(), config_pb)
   _file.close()
-
+  # Load parameters and return
   config = MessageToDict(config_pb)
   config['fidel_space'] = config.pop('fidelSpace', {})
   return load_parameters(config)
+
 
 def config_parser(config_file):
   """Reads config files and creates domain objects. """
@@ -161,11 +192,11 @@ def config_parser(config_file):
     params = read_pb(config_file)
   else:
     raise ValueError('Wrong Config file: %s' % (config_file))
-
   return params
+
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
     raise ValueError('Need Config File.')
-
   config_parser(sys.argv[1])
+

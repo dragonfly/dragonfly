@@ -25,7 +25,7 @@ class Normal(Continuous):
     self.mean = float(mean)
     self.var = float(var)
     self.dim = 1
-    self.domain = domains.EuclideanDomain(np.array([-np.inf, np.inf]))
+    self.domain = domains.EuclideanDomain([[-np.inf, np.inf]])
 
   def pdf(self, x):
     """ Returns value of pdf at x """
@@ -114,7 +114,7 @@ class ContinuousUniform(Continuous):
     self.lower = float(lower)
     self.upper = float(upper)
     self.dim = 1
-    self.domain = domains.EuclideanDomain(np.array([self.lower, self.upper]))
+    self.domain = domains.EuclideanDomain([[self.lower, self.upper]])
 
   def pdf(self, x):
     """ Returns value of pdf at x """
@@ -162,7 +162,7 @@ class Exponential(Continuous):
     super(Exponential, self).__init__()
     self.lam = float(lam)
     self.dim = 1
-    self.domain = domains.EuclideanDomain(np.array([0, np.inf]))
+    self.domain = domains.EuclideanDomain([[0, np.inf]])
 
   def pdf(self, x):
     """ Returns value of pdf at x """
@@ -213,7 +213,7 @@ class Beta(Continuous):
     self.dim = 1
     self.B = (np.math.factorial(self.alpha - 1)*np.math.factorial(self.beta - 1))/\
                   (float(np.math.factorial(self.alpha+self.beta-1)))
-    self.domain = domains.EuclideanDomain(np.array([0, 1]))
+    self.domain = domains.EuclideanDomain([[0, 1]])
 
   def pdf(self, x):
     """ Returns value of pdf at x """

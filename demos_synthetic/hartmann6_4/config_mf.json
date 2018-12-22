@@ -1,0 +1,66 @@
+{
+"name": "hartmann6_4_mf",
+
+"domain": {
+
+  "var_0": {
+    "name":"var_0",
+    "type":"int",
+    "min":224,
+    "max":324,
+    "dim":1
+  },
+  
+  "var_1": {
+    "name":"var_1",
+    "type":"float", 
+    "min":0,
+    "max":10,
+    "kernel":"matern",
+    "dim":2
+  },
+  
+  "var_2": {
+    "name":"var_2",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":1
+  },
+
+  "var_3": {
+    "name":"var_3",
+    "type":"int",
+    "min":0,
+    "max":92,
+    "dim":2
+  }
+
+ },
+
+"fidel_space": {
+  "f_0": {
+    "name":"f_0",
+    "type":"float",
+    "min":1234.9,
+    "max":9467.18,
+    "dim":2
+  }, 
+  "f_1": {
+    "name":"f_1",
+    "type":"discrete",
+    "items":"a-bc-def-ghij"
+  }, 
+  "f_2": {
+    "name":"f_2",
+    "type":"int",
+    "min":123,
+    "max":234,
+    "dim":1
+  }
+ },
+
+"fidel_to_opt":[[9467.18, 9452.8], "def", [234]]
+
+}
+

@@ -39,7 +39,7 @@ class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase):
                                    options=None, reporter=None):
     """ Instantiates an additive GP bandit in Euclidean space. """
     if options is None:
-      opt_args = gp_bandit.get_all_gp_bandit_args_from_gp_args(euclidean_gp_args)
+      opt_args = gp_bandit.get_all_gp_bandit_args(euclidean_gp_args)
       options = load_options(opt_args)
     options.use_additive_gp = True
     return gp_bandit.EuclideanGPBandit(func_caller, worker_manager, is_mf=False,
@@ -80,7 +80,7 @@ class MFEuclideanAddGPBanditTestCase(MFEuclideanOptimisersBaseTestCase):
                                    options=None, reporter=None):
     """ Instantiates an additive MF GP bandit in Euclidean space. """
     if options is None:
-      opt_args = gp_bandit.get_all_gp_bandit_args_from_gp_args(euclidean_gp_args)
+      opt_args = gp_bandit.get_all_gp_bandit_args(euclidean_gp_args)
       options = load_options(opt_args)
     options.use_additive_gp = True
     return gp_bandit.EuclideanGPBandit(func_caller, worker_manager, is_mf=False,
@@ -103,7 +103,7 @@ class MFEuclideanESPGPBanditTestCase(MFEuclideanOptimisersBaseTestCase):
                                    options=None, reporter=None):
     """ Instantiates an additive MF GP bandit in Euclidean space. """
     if options is None:
-      opt_args = gp_bandit.get_all_gp_bandit_args_from_gp_args(euclidean_gp_args)
+      opt_args = gp_bandit.get_all_gp_bandit_args(euclidean_gp_args)
       options = load_options(opt_args)
     options.domain_kernel_type = 'esp'
     return gp_bandit.EuclideanGPBandit(func_caller, worker_manager, is_mf=False,

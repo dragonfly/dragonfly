@@ -87,7 +87,8 @@ class DiscreteNumericDomainTestCase(DomainBaseTestCase, BaseTestClass):
 
   def test_non_numeric_discrete_domain(self):
     """ Constructor. """
-    self.report('Testing if exception is raised non numeric discrete domain.')
+    self.report('Testing if exception is raised for non numeric elements in a ' +
+                'discrete domain.')
     exception_raised = False
     try:
       domains.DiscreteNumericDomain(['abc', 5, 6.5, int, 'k'])

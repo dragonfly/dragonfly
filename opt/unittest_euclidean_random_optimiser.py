@@ -65,6 +65,7 @@ class EuclideanOptimisersBaseTestCase(object):
 
   def test_optimisation_single(self):
     """ Test optimisation with a single worker. """
+    self.report('')
     self.report('Testing %s with one worker.'%(type(self)))
     opt_val, opt_point, history = self.run_optimiser(self.func_caller,
       self.worker_manager_1, self.test_max_capital, 'asy')
@@ -81,14 +82,14 @@ class EuclideanOptimisersBaseTestCase(object):
     self.report('')
     return opt_val, opt_point, history
 
-#   def test_optimisation_synchronous(self):
-#     """ Testing random optimiser with three synchronous workers. """
-#     self.report('Testing %s with three synchronous workers.'%(type(self)))
-#     opt_val, opt_point, history = self.run_optimiser(self.func_caller,
-#       self.worker_manager_3, self.test_max_capital, 'syn')
-#     self._test_optimiser_results(opt_val, opt_point, history)
-#     self.report('')
-#     return opt_val, opt_point, history
+  def test_optimisation_synchronous(self):
+    """ Testing random optimiser with three synchronous workers. """
+    self.report('Testing %s with three synchronous workers.'%(type(self)))
+    opt_val, opt_point, history = self.run_optimiser(self.func_caller,
+      self.worker_manager_3, self.test_max_capital, 'syn')
+    self._test_optimiser_results(opt_val, opt_point, history)
+    self.report('')
+    return opt_val, opt_point, history
 
 
 # A test class for MF random optimisers ---------------------------------------------

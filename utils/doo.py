@@ -16,6 +16,7 @@
 from __future__ import division
 
 from functools import total_ordering
+from argparse import Namespace
 try:
   import Queue as Qu
 except ImportError:
@@ -105,13 +106,23 @@ class OptTree(object):
     self.qcount = 0
     self.last_z_hist = []
     self.Randomize = Randomize
+    self.query_vals = []
+    self.query_pts = []
 
   def get_value(self, cell, fidel):
     """ cell: tuple """
     # pylint: disable=unused-argument
     self.qcount = self.qcount + 1
     x = np.array([(s[0]+s[1])/2.0 for s in list(cell)])
-    return self.doo_obj.eval_single_point_normalised(x)
+    y = self.doo_obj.eval_single_point_normalised(x)
+    if len(self.query_vals) <= self.total_budget:
+      self.query_pts.append(x)
+      self.query_vals.append(y)
+    return y
+
+  def get_queried_pts(self):
+    """ Returns queried points and corresponding values. """
+    return self.query_pts, self.query_vals
 
   def querie(self, cell, height, rho, nu, dimension, option=1):
     """ Query. """
@@ -194,7 +205,6 @@ class OptTree(object):
       cost = cost + curr_cost
       for child in children:
         leaf_Q.put(child)
-
     while not leaf_Q.empty():
       c = leaf_Q.get()
       dict_of_points[c.cell] = {'val':c.value, 'fidel': c.fidelity, 'height':c.height}
@@ -235,14 +245,38 @@ class OptTree(object):
     index = np.argmax(temp)
     self.last_results = (temp[index], results[index][2], total_cost)
 
-    return results[index][0], results[index][2]
+    return results, index
 
-def pdoo_wrap(doo_obj, nu_max, rho_max, total_budget, K, C_init, tol, POO_mult,
-              Randomize=False):
+def pdoo_wrap(doo_obj, total_budget, nu_max=1.0, rho_max=0.9, K=2, C_init=0.8, tol=1e-3,
+              POO_mult=0.5, Randomize=False, return_history=False):
   """ Wrapper for running PDOO optimisation. """
+  # pylint: disable=too-many-locals
   total_budget = total_budget * doo_obj.eval_cost_single_point_normalised([1.0])
   opt_tree = OptTree(doo_obj, nu_max, rho_max, total_budget, K, C_init, tol, Randomize)
-  result = opt_tree.run_PDOO(POO_mult)
-  max_pt = doo_obj.get_unnormalised_coords(result[1])
-  return result[0], max_pt, None
+  results, index = opt_tree.run_PDOO(POO_mult)
+  max_pt = doo_obj.get_unnormalised_coords(results[index][2])
+  # IF not return history
+  if not return_history:
+    return results[index][0], max_pt, None
+  history = Namespace()
+  max_iter = int(total_budget)
+  query_pts, query_vals = opt_tree.get_queried_pts()
+  max_val = max(query_vals)
+  history.query_step_idxs = [i for i in range(max_iter)]
+  history.query_send_times = list(range(0, max_iter))
+  history.query_receive_times = list(range(1, max_iter+1))
+  history.query_points = [doo_obj.get_unnormalised_coords(x) for x in query_pts]
+  history.query_vals = query_vals
+  history.query_true_vals = query_vals
+  history.curr_opt_vals = []
+  history.curr_opt_points = []
+  curr_max = -np.inf
+  for idx, qv in enumerate(history.query_vals):
+    if qv >= curr_max:
+      curr_max = qv
+      curr_opt_point = history.query_points[idx]
+    history.curr_opt_vals.append(curr_max)
+    history.curr_opt_points.append(curr_opt_point)
+  history.query_eval_times = [1 for _ in range(max_iter)]
+  return max_val, max_pt, history
 

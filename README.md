@@ -4,10 +4,11 @@
 ---
 
 Dragonfly is an open source python library for scalable Bayesian optimisation.
+The library is in alpha version.
 
 Bayesian optimisation is used for optimising black-box functions whose evaluations are
-usually expensive. Beyond vanilla optimisation techniques, Dragonfly provides an array of
-tools to scale up Bayesian optimisation to expensive large scale problems.
+usually expensive. Beyond vanilla optimisation techniques, Dragonfly provides an array of tools to
+scale up Bayesian optimisation to expensive large scale problems.
 These include features/functionality that are especially suited for
 high dimensional optimisation (optimising for a large number of variables),
 parallel evaluations in synchronous or asynchronous settings (conducting multiple
@@ -62,7 +63,7 @@ used directly in the command line by calling
 [`dragonfly.py`](dragonfly.py)
 or be imported in python code via the `maximise_function` function in
 [`dragonfly.py`](dragonfly.py).
-To help get started, we have provided some demos in the `demos` directory.
+To help get started, we have provided some demos in the `demos_synthetic` directory.
 
 **Via command line**:
 
@@ -71,29 +72,40 @@ the function to be maximised and the domain) and the optimisation parameters.
 We have demonstrated these on the
 [`branin`](https://www.sfu.ca/~ssurjano/branin.html) function and a
 [`face recognition`](http://scikit-learn.org/0.15/auto_examples/applications/face_recognition.html)
-example from [`scikit`](http://scikit-learn.org/0.15/index.html) in the [`demos`](demos) directory.
+example from [`scikit`](http://scikit-learn.org/0.15/index.html) in the [`demos_synthetic`](demos_synthetic) directory.
 The former is a common benchmark for global optimisation while the latter is a
 model selection problem in machine learning.
 The functions to be maximised in these problems are defined in
-[`demos/branin/branin.py`](demos/branin/branin.py) and
-[`demos/face_rec/face_rec.py`](demos/face_rec/face_rec.py) respectively.
+[`demos_synthetic/branin/branin.py`](demos_synthetic/branin/branin.py) and
+[`demos_real/face_rec/face_rec.py`](demos_real/face_rec/face_rec.py) respectively.
 The name of this file and the domain should be specified in
 [JSON](https://en.wikipedia.org/wiki/JSON) or
 [protocol buffer](https://en.wikipedia.org/wiki/Protocol_Buffers) format.
 See
-[`demos/branin/config.json`](demos/branin/config.json) and
-[`demos/branin/config.pb`](demos/branin/config.pb) for examples.
+[`demos_synthetic/branin/config.json`](demos_synthetic/branin/config.json) and
+[`demos_synthetic/branin/config.pb`](demos_synthetic/branin/config.pb) for examples.
 Then, specify the optimisation parameters in an options file, in the format shown in
-[`demos/branin/options.txt`](demos/branin/options.txt).
+[`demos_synthetic/options_example.txt`](demos_synthetic/options_example.txt).
 
 If using protocol buffers, you might need to install this package via
 `pip install protobuf`.
 
 The branin demo can be run via following commands.
 ```bash
-$ python dragonfly.py --config demos/branin/config.json --options demos/branin/options.txt
-$ python dragonfly.py --config demos/branin/config.pb --options demos/branin/options.txt
+$ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example.txt
+$ python dragonfly.py --config demos_synthetic/branin/config.pb --options demos_synthetic/options_example.txt
 ```
+The multi-fidelity version of the branin demo can be run via following command.
+```bash
+$ python dragonfly.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
+```
+
+
+Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
+domain which includes a combination of these variables.
+See other demos on synthetic functions in the 
+[`demos_synthetic`](demos_synthetic) directory.
+
 
 The face recognition demo can be run via following commands.
 You will need to install 
@@ -102,8 +114,8 @@ You will need to install
 Running this demo the first time will be slow since the dataset needs to be downloaded.
 
 ```bash
-$ python dragonfly.py --config demos/face_rec/config.json --options demos/face_rec/options.txt
-$ python dragonfly.py --config demos/face_rec/config.pb --options demos/face_rec/options.txt
+$ python dragonfly.py --config demos_real/face_rec/config.json --options demos_real/face_rec/options.txt
+$ python dragonfly.py --config demos_real/face_rec/config.pb --options demos_real/face_rec/options.txt
 ```
 
 **In python code**:
@@ -123,13 +135,13 @@ of resource constraints. The `maximise_function` returns history along with the 
 and the corresponding optimum point. `history.query_points` contains the points queried by the
 algorithm and `history.query_vals` contains the function values.
 
-[`demos/branin/in_code_demo.py`](demos/branin/in_code_demo.py) and
-[`demos/face_rec/in_code_demo.py`](demos/face_rec/in_code_demo.py)
+[`demos_synthetic/branin/in_code_demo.py`](demos_synthetic/branin/in_code_demo.py) and
+[`demos_real/face_rec/in_code_demo.py`](demos_real/face_rec/in_code_demo.py)
 demonstrate the use case for the branin function and face recognition demos respectively.
 To execute this file, simply run
 ```bash
-$ python demos/branin/in_code_demo.py
-$ python demos/face_rec/in_code_demo.py
+$ python demos_synthetic/branin/in_code_demo.py
+$ python demos_real/face_rec/in_code_demo.py
 ```
 
 ### Contributors
