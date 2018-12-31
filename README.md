@@ -149,7 +149,7 @@ $ python demos_synthetic/branin/in_code_demo.py
 $ python demos_real/face_rec/in_code_demo.py
 ```
 
-** Multiobjective optimisation **
+**Multiobjective optimisation**
 
 Dragonfly also provides functionality for multi-objective optimisation.
 Some synthetic demos are available in the `multiobjective_xxx` directories in
@@ -180,7 +180,7 @@ Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
 Karun Raju Vysyaraju: [github](https://github.com/karunraju),
 [linkedin](https://www.linkedin.com/in/karunrajuvysyaraju)  
 Willie Neiswanger: [github](https://github.com/willieneis),
-[webpage](http://www.cs.cmu.edu/~wdn/) 
+[webpage](http://www.cs.cmu.edu/~wdn/)  
 Biswajit Paria: [github](https://github.com/biswajitsc),
 [webpage](https://biswajitsc.github.io/)
 
