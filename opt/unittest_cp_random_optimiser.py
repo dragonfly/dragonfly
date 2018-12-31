@@ -99,8 +99,6 @@ class CPOptimiserBaseTestCase(object):
                                   raw_fidel_cost_func=raw_fidel_cost_func)
       optimiser = self._child_instantiate_optimiser(func_caller, self.worker_manager_1,
                     options=None, reporter=get_reporter('silent'))
-      optimiser = self._child_instantiate_optimiser(func_caller, self.worker_manager_1,
-                    options=None, reporter=get_reporter('silent'))
       self.report('Instantiated %s object.'%(type(optimiser)))
       for attr in dir(optimiser):
         if not attr.startswith('_'):

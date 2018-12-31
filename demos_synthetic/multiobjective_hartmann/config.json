@@ -1,0 +1,40 @@
+{
+"name": "multiobjective_hartmann",
+
+"domain": {
+
+  "var_0": {
+    "name":"var_0",
+    "type":"int",
+    "min":224,
+    "max":324
+  },
+
+  "var_1": {
+    "name":"var_1",
+    "type":"float",
+    "min":0,
+    "max":10,
+    "kernel":"matern",
+    "dim":2
+  },
+
+  "var_2": {
+    "name":"var_2",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":1
+  },
+
+  "var_3": {
+    "name":"var_3",
+    "type":"int",
+    "min":0,
+    "max":92,
+    "dim":2
+  }
+
+ }
+}
+

@@ -36,8 +36,7 @@ $ git clone https://github.com/dragonfly/dragonfly.git
 $ source set_up
 ```
 In Windows systems, add the parent directory to the `PYTHONPATH` system variable.
-[This
-link](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10)
+[This link](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10)
 describes a few ways to do this.
 
 * Build the direct fortran library. For this `cd` into `utils/direct_fortran` and run
@@ -87,6 +86,7 @@ See
 Then, specify the optimisation parameters in an options file, in the format shown in
 [`demos_synthetic/options_example.txt`](demos_synthetic/options_example.txt).
 
+We recommend using JSON since we have exhaustively tested JSON format.
 If using protocol buffers, you might need to install this package via
 `pip install protobuf`.
 
@@ -100,15 +100,20 @@ The multi-fidelity version of the branin demo can be run via following command.
 $ python dragonfly.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
 ```
 
-
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
 domain which includes a combination of these variables.
-See other demos on synthetic functions in the 
+See other demos on synthetic functions in the
 [`demos_synthetic`](demos_synthetic) directory.
+For example, to run the multi-fidelity [`park2_3`](demos_synthetic/park2_3/park2_3_mf.py)
+demo, simpy run
+```bash
+$ python dragonfly.py --config demos_synthetic/park2_3/config_mf.json --options demos_synthetic/options_example.txt
+```
 
 
-The face recognition demo can be run via following commands.
-You will need to install 
+The face recognition demo tunes hyper-parameters of a face regognition model.
+It can be run via the following commands.
+You will need to install
 [`scikit-learn`](http://scikit-learn.org), which can be done via
 `pip install scikit-learn`.
 Running this demo the first time will be slow since the dataset needs to be downloaded.
@@ -144,6 +149,30 @@ $ python demos_synthetic/branin/in_code_demo.py
 $ python demos_real/face_rec/in_code_demo.py
 ```
 
+** Multiobjective optimisation **
+
+Dragonfly also provides functionality for multi-objective optimisation.
+Some synthetic demos are available in the `multiobjective_xxx` directories in
+[`demos_synthetic`](demos_synthetic).
+For example, to run the
+[`hartmann`](demos_synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
+demo, simpy run
+```bash
+$ python dragonfly.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt
+```
+
+Similarly, you can import and run this in python code via,
+```python
+from dragonfly.dragonfly import multiobjective_maximise_functions
+...
+pareto_values, pareto_points, history = multiobjective_maximise_functions(funcs, domain, max_capital)
+```
+Here, `funcs` is a list of functions to be maximised,
+`domain` is the domain  and `max_capital` is the capital available for optimisation.
+`pareto_values` are the
+[Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
+function values and `pareto_points` are the corresponding points in `domain`.
+
 ### Contributors
 
 Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
@@ -151,7 +180,9 @@ Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
 Karun Raju Vysyaraju: [github](https://github.com/karunraju),
 [linkedin](https://www.linkedin.com/in/karunrajuvysyaraju)  
 Willie Neiswanger: [github](https://github.com/willieneis),
-[webpage](http://www.cs.cmu.edu/~wdn/)
+[webpage](http://www.cs.cmu.edu/~wdn/) 
+Biswajit Paria: [github](https://github.com/biswajitsc),
+[webpage](https://biswajitsc.github.io/)
 
 ### Citation
 If you use any part of this code in your work, please cite

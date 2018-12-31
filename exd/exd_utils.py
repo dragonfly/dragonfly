@@ -239,6 +239,24 @@ def maximise_with_method_on_product_euclidean_spaces(method, obj, list_of_euc_do
     return max_val, regrouped_max_pt
 
 
+def _rand_maximise_vectorised_objective_in_cp_domain(obj, domain, max_evals,
+  return_history=False):
+  """ Maximises a vectorised function in Cartesian product spaces.
+      Mostly used for TS style acquisitions in BO.
+  """
+  rand_samples = sample_from_cp_domain(domain, max_evals)
+  rand_values = [obj(x) for x in rand_samples]
+  max_idx = np.argmax(rand_values)
+  max_pt = rand_samples[max_idx]
+  max_val = rand_values[max_idx]
+  if return_history:
+    history = Namespace(query_points=rand_samples,
+                        query_vals=rand_values)
+    return max_val, max_pt, history
+  else:
+    return max_val, max_pt
+
+
 def maximise_with_method_on_cp_domain(method, obj, domain, max_evals,
                                       return_history=False, *args, **kwargs):
   """ A wrapper for maximising an objective on a CartesianProductDomain. """
@@ -250,18 +268,8 @@ def maximise_with_method_on_cp_domain(method, obj, domain, max_evals,
       domain.list_of_domains, max_evals, return_history, *args, **kwargs)
   elif method.lower() == 'rand': # -------------------------------------------------------
     # Use a random optimiser
-    from exd.experiment_caller import CPFunctionCaller
-    from exd.worker_manager import SyntheticWorkerManager
-    from opt.random_optimiser import random_optimiser_from_func_caller
-    obj_in_func_caller = CPFunctionCaller(obj, domain, orderings=None)
-    worker_manager = SyntheticWorkerManager(1, time_distro='const')
-    ret = random_optimiser_from_func_caller(obj_in_func_caller, worker_manager,
-                                            max_evals, mode='asy', options=None,
-                                            reporter='silent')
-    if return_history:
-      return ret
-    else:
-      return ret[0], ret[1]
+    return _rand_maximise_vectorised_objective_in_cp_domain(obj, domain, max_evals,
+                                                            return_history)
   elif method.lower().startswith('ga'): # ------------------------------------------------
     # First decide if there is a follow up Euclidean opt method
     ga_opt_methods = method.lower().split('-')

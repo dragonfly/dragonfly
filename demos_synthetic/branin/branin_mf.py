@@ -13,7 +13,7 @@ def branin_mf(z, x):
   return branin_z_x([z[0], z[1][0], z[1][1]], x)
 
 
-def obj(z, x):
+def objective(z, x):
   """ Objective. """
   return branin_mf(z, x)
 

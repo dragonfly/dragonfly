@@ -36,7 +36,7 @@ mandatory_gp_args = [ \
     'With what probability should we choose each strategy given in hp_tune_criterion.' + \
     'If "uniform" we we will use uniform probabilities and if "adaptive" we will use ' + \
     'adaptive probabilities which weight acquisitions according to how well they do.'),
-  get_option_specs('ml_hp_tune_opt', False, 'direct',
+  get_option_specs('ml_hp_tune_opt', False, 'default',
                    'Which optimiser to use when maximising the tuning criterion.'),
   get_option_specs('hp_tune_max_evals', False, -1,
                    'How many evaluations to use when maximising the tuning criterion.'),
@@ -70,6 +70,13 @@ def _check_feature_label_lengths_and_format(X, Y):
   if len(X) != len(Y):
     raise ValueError('Length of X (' + len(X) + ') and Y (' + \
       len(Y) + ') do not match.')
+
+def _get_default_ml_hp_tune_opt(num_hps):
+  """ Return default optimisation method for maximum likelihood. """
+  if num_hps > 60:
+    return 'pdoo'
+  else:
+    return 'direct'
 
 
 # Main GP class -------------------------------------------------------
@@ -408,6 +415,7 @@ class GPFitter(object):
 
   def _set_up_ml_hp_tune(self):
     """ Sets up optimiser for ml hp tune. """
+    # pylint: disable=too-many-branches
     # define the following internal functions to abstract things out more.
     def _direct_wrap(*args):
       """ A wrapper so as to only return the optimal point. """
@@ -429,28 +437,32 @@ class GPFitter(object):
       sample_probs = sample_probs / sample_probs.sum()
       return sample_cts_hps, sample_dscr_hps, sample_probs
     # Set some parameters
+    if self.options.ml_hp_tune_opt == 'default':
+      self.ml_hp_tune_opt_method = _get_default_ml_hp_tune_opt(self.num_hps)
+    else:
+      self.ml_hp_tune_opt_method = self.options.ml_hp_tune_opt
     if (hasattr(self.options, 'hp_tune_max_evals') and
         self.options.hp_tune_max_evals is not None and
         self.options.hp_tune_max_evals > 0):
       self.hp_tune_max_evals = self.options.hp_tune_max_evals
     else:
-      if self.options.ml_hp_tune_opt in ['direct', 'pdoo']:
+      if self.ml_hp_tune_opt_method in ['direct', 'pdoo']:
         self.hp_tune_max_evals = min(1e4, max(500, self.num_hps * 50))
-      elif self.options.ml_hp_tune_opt == 'rand':
+      elif self.ml_hp_tune_opt_method == 'rand':
         self.hp_tune_max_evals = min(1e4, max(500, self.num_hps * 200))
-      elif self.options.ml_hp_tune_opt == 'rand_exp_sampling':
+      elif self.ml_hp_tune_opt_method == 'rand_exp_sampling':
         self.hp_tune_max_evals = min(1e5, max(500, self.num_hps * 400))
     # Now set up the function that will be used for optimising
-    if self.options.ml_hp_tune_opt == 'direct':
+    if self.ml_hp_tune_opt_method == 'direct':
       self.cts_hp_optimise = lambda obj, max_evals: _direct_wrap(obj, self.cts_hp_bounds,
                                                                  max_evals)
-    elif self.options.ml_hp_tune_opt == 'pdoo':
+    elif self.ml_hp_tune_opt_method == 'pdoo':
       self.cts_hp_optimise = lambda obj, max_evals: _pdoo_wrap(obj, self.cts_hp_bounds,
                                                                max_evals)
-    elif self.options.ml_hp_tune_opt == 'rand':
+    elif self.ml_hp_tune_opt_method == 'rand':
       self.cts_hp_optimise = lambda obj, max_evals: _rand_wrap(obj, self.cts_hp_bounds,
                                                                max_evals)
-    elif self.options.ml_hp_tune_opt == 'rand_exp_sampling':
+    elif self.ml_hp_tune_opt_method == 'rand_exp_sampling':
       self.hp_sampler = lambda obj, max_evals: _rand_exp_sampling_wrap(obj, \
                           self.cts_hp_bounds, self.dscr_hp_vals, max_evals)
 
@@ -722,10 +734,10 @@ class GPFitter(object):
                          build_posterior=False)
     return (fit_type, method, gp)
 
-  def update_hp_tune_method_weight(self, method):
+  def update_hp_tune_method_weight(self, method, weight_to_add=1):
     """ Updates hp_tune method weight in the case of adaptive tuning. """
     if self.options.hp_tune_probs == 'adaptive':
-      self.hp_tune_sampling_weights[method] += 1
+      self.hp_tune_sampling_weights[method] += weight_to_add
 
   def fit_gp_for_gp_bandit(self, num_samples=1):
     """ Fits a GP according to the tuning criterions. """
@@ -768,7 +780,7 @@ class GPFitter(object):
     if hp_tune_criterion is None:
       hp_tune_criterion = self.options.hp_tune_criterion
     if hp_tune_criterion == 'ml':
-      if self.options.ml_hp_tune_opt in ['direct', 'rand', 'pdoo']:
+      if self.ml_hp_tune_opt_method in ['direct', 'rand', 'pdoo']:
         best_cts_hps = None
         best_dscr_hps = None
         best_other_params = None
@@ -785,7 +797,7 @@ class GPFitter(object):
                                other_gp_params=best_other_params)
         opt_hps = (best_cts_hps, best_dscr_hps)
         return 'fitted_gp', opt_gp, opt_hps
-      elif self.options.ml_hp_tune_opt == 'rand_exp_sampling':
+      elif self.ml_hp_tune_opt_method == 'rand_exp_sampling':
         sample_cts_hps, sample_dscr_hps, sample_other_gp_params, sample_probs = \
           self._sample_cts_dscr_hps_for_rand_exp_sampling()
         return ('sample_hps_with_probs', sample_cts_hps, sample_dscr_hps,

@@ -33,7 +33,7 @@ def hartmann3_2_alpha(x, alpha):
 
 
 # Write a function like this called obj.
-def obj(x):
+def objective(x):
   """ Objective. """
   return hartmann3_2(x)
 

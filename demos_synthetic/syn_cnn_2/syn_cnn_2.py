@@ -55,7 +55,7 @@ def syn_cnn_2_z_x(z, x):
 
 
 # Write a function like this called 'obj'.
-def obj(x):
+def objective(x):
   """ Objective. """
   return syn_cnn_2(x)
 

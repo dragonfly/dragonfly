@@ -205,7 +205,6 @@ def park1(x, max_val):
 
 def get_mf_park1_function():
   """ Gets the MF Park1 function. """
-  # TODO: Add mf_branin_obj
   opt_val = 25.5872304
   opt_pt = None
   sf_park1_obj = lambda x: park1(x, opt_val)
@@ -223,7 +222,6 @@ def park2(x, max_val):
 
 def get_mf_park2_function():
   """ Gets the MF Park2 function. """
-  # TODO: Add mf_branin_obj
   opt_val = 5.925698
   opt_pt = None
   sf_park2_obj = lambda x: park2(x, opt_val)

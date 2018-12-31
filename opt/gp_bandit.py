@@ -56,7 +56,7 @@ gp_bandit_args = [ \
     'With what probability should we choose each strategy given in hp_tune_criterion.' + \
     'If "uniform" we we will use uniform probabilities and if "adaptive" we will use ' + \
     'adaptive probabilities which weight acquisitions according to how well they do.'),
-  get_option_specs('gpb_ml_hp_tune_opt', False, 'direct',
+  get_option_specs('gpb_ml_hp_tune_opt', False, 'default',
                    'Which optimiser to use when maximising the tuning criterion.'),
   get_option_specs('gpb_post_hp_tune_method', False, 'slice',
                    'Which sampling to use when maximising the tuning criterion. Other ' +
@@ -149,10 +149,16 @@ def get_default_acquisition_for_domain(domain):
 def get_default_acq_opt_method_for_domain(domain):
   """ Returns the default acquisition optimisation method for the domain. """
   if domain.get_type() == 'euclidean':
-    return 'direct'
+    if domain.get_dim() > 60:
+      return 'pdoo'
+    else:
+      return 'direct'
   elif domain.get_type() == 'cartesian_product':
     if all([dom.get_type() == 'euclidean' for dom in domain.list_of_domains]):
-      return 'direct'
+      if domain.get_dim() > 60:
+        return 'pdoo'
+      else:
+        return 'direct'
     else:
       return 'ga'
 
@@ -186,24 +192,9 @@ class GPBandit(BlackboxOptimiser):
     """ Some set up for the GPBandit class. """
     # Set up acquisition optimisation
     self.gp = None
-    # Acquisition
-    if self.options.acq == 'default':
-      acq = get_default_acquisition_for_domain(self.domain)
-    else:
-      acq = self.options.acq
-    self.acqs_to_use = [elem.lower() for elem in acq.split('-')]
-    self.acqs_to_use_counter = {key: 0 for key in self.acqs_to_use}
+    # Set up for acquisition optimisation and then acquisition
     self._set_up_acq_opt()
-    if self.options.acq_probs == 'uniform':
-      self.acq_probs = np.ones(len(self.acqs_to_use)) / float(len(self.acqs_to_use))
-    elif self.options.acq_probs == 'adaptive':
-      self.acq_uniform_sampling_prob = 0.05
-      self.acq_sampling_weights = {key: 1.0 for key in self.acqs_to_use}
-      self.acq_probs = self._get_adaptive_ensemble_acq_probs()
-    else:
-      self.acq_probs = np.array([float(x) for x in self.options.acq_probs.split('-')])
-    self.acq_probs = self.acq_probs / self.acq_probs.sum()
-    assert len(self.acq_probs) == len(self.acqs_to_use)
+    self._set_up_for_acquisition()
     # Override options for hp_tune_criterion and ml_hp_tune_opt
     self.options.hp_tune_criterion = self.options.gpb_hp_tune_criterion
     self.options.hp_tune_probs = self.options.gpb_hp_tune_probs
@@ -223,6 +214,30 @@ class GPBandit(BlackboxOptimiser):
         self.mf_params_for_anc_data['boca_max_low_fidel_cost_ratio'] = \
           self.options.boca_max_low_fidel_cost_ratio
     self._child_opt_method_set_up()
+
+  def _set_up_for_acquisition(self):
+    """ Set up for acquisition. """
+    if self.options.acq == 'default':
+      acq = self._get_default_acquisition_for_domain(self.domain)
+    else:
+      acq = self.options.acq
+    self.acqs_to_use = [elem.lower() for elem in acq.split('-')]
+    self.acqs_to_use_counter = {key: 0 for key in self.acqs_to_use}
+    if self.options.acq_probs == 'uniform':
+      self.acq_probs = np.ones(len(self.acqs_to_use)) / float(len(self.acqs_to_use))
+    elif self.options.acq_probs == 'adaptive':
+      self.acq_uniform_sampling_prob = 0.05
+      self.acq_sampling_weights = {key: 1.0 for key in self.acqs_to_use}
+      self.acq_probs = self._get_adaptive_ensemble_acq_probs()
+    else:
+      self.acq_probs = np.array([float(x) for x in self.options.acq_probs.split('-')])
+    self.acq_probs = self.acq_probs / self.acq_probs.sum()
+    assert len(self.acq_probs) == len(self.acqs_to_use)
+
+  @classmethod
+  def _get_default_acquisition_for_domain(cls, domain):
+    """ Return default acqusition for domain. """
+    return get_default_acquisition_for_domain(domain)
 
   def _child_opt_method_set_up(self):
     """ Set up for child class. Override this method in child class"""
@@ -269,8 +284,9 @@ class GPBandit(BlackboxOptimiser):
          (len(self.history.curr_opt_vals) >= 2 and
           self.history.curr_opt_vals[-1] > self.history.curr_opt_vals[-2]):
         self.acq_sampling_weights[qinfo.curr_acq] += 1
-    if hasattr(self, 'gp_processor') and (len(self.history.curr_opt_vals) >= 2 and \
-       self.history.curr_opt_vals[-1] > self.history.curr_opt_vals[-2]):
+    if hasattr(self, 'gp_processor') and hasattr(qinfo, 'hp_tune_method') and \
+       (len(self.history.curr_opt_vals) >= 2 and \
+        self.history.curr_opt_vals[-1] > self.history.curr_opt_vals[-2]):
       self.gp_processor.gp_fitter.update_hp_tune_method_weight(qinfo.hp_tune_method)
     self._child_opt_method_update_history(qinfo)
 
@@ -582,10 +598,10 @@ class EuclideanGPBandit(GPBandit):
 
   def _child_opt_method_update_history(self, qinfo):
     """ Update history for EuclideanGP bandit specific statistics. """
-    if hasattr(self, 'add_gp_processor') and (len(self.history.curr_opt_vals) >= 2 and \
+    if hasattr(self, 'add_gp_processor') and hasattr(qinfo, 'hp_tune_method') and \
+       (len(self.history.curr_opt_vals) >= 2 and \
        self.history.curr_opt_vals[-1] > self.history.curr_opt_vals[-2]):
-      self.add_gp_processor.gp_fitter.update_hp_tune_method_weight( \
-                                                     self.add_gp_processor.hp_tune_method)
+      self.add_gp_processor.gp_fitter.update_hp_tune_method_weight(qinfo.hp_tune_method)
 
   def _domain_specific_set_next_gp(self):
     if hasattr(self, 'add_gp_processor'):
@@ -941,9 +957,10 @@ def gpb_from_func_caller(func_caller, worker_manager, max_capital, is_mf, mode=N
     options.mode = mode
   if mf_strategy is not None:
     options.mf_strategy = mf_strategy
-  # Domain Specific Stuff
+  # Domain Specific Parameters
   if isinstance(func_caller.domain, domains.EuclideanDomain) \
     and domain_add_max_group_size >= 0:
+    # TODO (KK): this domain_add_max_group_size parameter is legacy and has no effect.
     if is_mf:
       options.domain_use_additive_gp = True
       if domain_add_max_group_size > 0:

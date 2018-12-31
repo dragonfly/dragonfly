@@ -19,7 +19,7 @@ def cost(z):
   return 0.1 + 0.9 * (z[0][0]/5000 + z[1]/10) / 2.0
 
 
-def obj(z, x):
+def objective(z, x):
   """ Objective. """
   return park2_3_mf(z, x)
 

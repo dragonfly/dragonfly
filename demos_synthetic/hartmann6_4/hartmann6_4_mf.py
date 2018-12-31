@@ -28,7 +28,7 @@ def cost(z):
 
 
 # Write a function like this called obj.
-def obj(z, x):
+def objective(z, x):
   """ Main function. """
   return hartmann6_4_mf(z, x)
 

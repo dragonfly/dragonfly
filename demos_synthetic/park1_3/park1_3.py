@@ -22,7 +22,7 @@ def park1_3_z_x(z, x):
   return ret1 + ret2
 
 # Write a function like this called obj.
-def obj(x):
+def objective(x):
   """ Objective. """
   return park1_3(x)
 

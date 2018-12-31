@@ -16,7 +16,7 @@ def borehole_6_mf(z, x):
 
 
 # Write a function like this called obj.
-def obj(z, x):
+def objective(z, x):
   """ Objective. """
   return borehole_6_mf(z, x)
 

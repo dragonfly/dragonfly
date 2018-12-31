@@ -70,6 +70,46 @@ def dist_squared(X1, X2):
   return dist_sq
 
 
+def pareto_dominates(u, v, tolerance=None):
+  """ Returns true if u >= v elementwise, and at least
+      one of the elements is not an equality.
+  """
+  u = np.asarray(u, dtype=np.float32)
+  v = np.asarray(v, dtype=np.float32)
+  if tolerance is None:
+    return np.all(u >= v) and not np.all(u == v)
+  else:
+    return np.all(u >= v) and not np.linalg.norm(u - v) <= tolerance
+
+
+def update_pareto_set(vals, points, new_val, new_point):
+  """ Updates the current pareto optimal values and points with the
+      new value and new point. vals is assummed to be a non-dominated
+      set. The returned updated vals and points is guaranteed to
+      be non-dominated provided the original values were
+      non-dominated.
+  """
+  num_points = len(points)
+  new_vals = []
+  new_points = []
+  for i in range(num_points):
+    # If new_val does not dominate vals[i], keep it
+    if not pareto_dominates(new_val, vals[i]):
+      new_vals.append(vals[i])
+      new_points.append(points[i])
+  # Check if new_vals is not dominated by any vals[i].
+  # If so, then keep it.
+  dominated = False
+  for i in range(num_points):
+    if pareto_dominates(vals[i], new_val):
+      dominated = True
+      break
+  if not dominated:
+    new_points.append(new_point)
+    new_vals.append(new_val)
+  return new_vals, new_points
+
+
 def pairwise_hamming_kernel(X1, X2, weights=None):
   """ Computes the pairwise hamming kernels between X1 and X2.
   """
@@ -149,7 +189,8 @@ def stable_cholesky(M, add_to_diag_till_psd=True):
             ((10**diag_noise_power) * max_M)  * np.eye(M.shape[0]))
         chol_decomp_succ = True
       except np.linalg.linalg.LinAlgError:
-        print('stable_cholesky failed with diag_noise_power=%d.'%(diag_noise_power))
+        if diag_noise_power > -9:
+          print('stable_cholesky failed with diag_noise_power=%d.'%(diag_noise_power))
         diag_noise_power += 1
       if diag_noise_power >= 5:
         print('**************** Cholesky failed: Added diag noise = %e'%(diag_noise))

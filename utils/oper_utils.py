@@ -113,7 +113,6 @@ def direct_ft_minimise(obj, bounds, max_evals,
   """
   # pylint: disable=too-many-locals
   # pylint: disable=too-many-arguments
-
   if direct_ft_wrap is None:
     report_str = 'Attempted to use direct, but fortran library could not be imported. '
     if alternative_if_direct_not_loaded is None:

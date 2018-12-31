@@ -66,7 +66,7 @@ def park2_4(x):
   return park2_4_z(0.93242, x)
 
 # Write a function like this called obj.
-def obj(x):
+def objective(x):
   """ Objective. """
   return park2_4(x)
 

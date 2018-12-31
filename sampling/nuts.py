@@ -7,6 +7,7 @@
 # pylint: disable=no-self-use
 # pylint: disable=arguments-differ
 # pylint: disable=too-many-locals
+# pylint: disable=unbalanced-tuple-unpacking
 
 from __future__ import division
 

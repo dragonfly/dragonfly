@@ -37,7 +37,7 @@ def hartmann6_4_alpha(x, alpha):
 
 
 # Write a function like this called main
-def obj(x):
+def objective(x):
   """ Main function. """
   return hartmann6_4(x)
 

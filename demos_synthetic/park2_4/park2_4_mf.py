@@ -12,7 +12,7 @@ def park2_4_mf(z, x):
   """ Computes the Parkd function. """
   return park2_4_z(z[0], x)
 
-def obj(z, x):
+def objective(z, x):
   """ Objective. """
   return park2_4_mf(z, x)
 

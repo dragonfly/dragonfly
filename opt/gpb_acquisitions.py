@@ -21,7 +21,7 @@ from exd.exd_utils import maximise_with_method
 
 
 # Some utilities we will use for all acquisitions below ---------------------------------
-def _maximise_acquisition(acq_fn, anc_data, *args, **kwargs):
+def maximise_acquisition(acq_fn, anc_data, *args, **kwargs):
   """ Maximises the acquisition and returns the highest point. acq_fn is the acquisition
       function to be maximised. anc_data is a namespace which contains ancillary data.
   """
@@ -65,7 +65,7 @@ def _get_gp_eval_for_parallel_strategy(gp, anc_data, uncert_form='std'):
     return _get_naive_gp_eval(gp, uncert_form)
 
 
-def _get_gp_sampler_for_parallel_strategy(gp, anc_data):
+def get_gp_sampler_for_parallel_strategy(gp, anc_data):
   """ Returns a function that can draw samples from the posterior gp depending on the
       parallel strategy and the evaluations in progress.
   """
@@ -124,8 +124,8 @@ def asy_ts(gp, anc_data):
   if anc_data.acq_opt_method != 'rand':
     anc_data.acq_opt_method = 'rand'
     anc_data.max_evals = 4 * anc_data.max_evals
-  gp_sample = _get_gp_sampler_for_parallel_strategy(gp, anc_data)
-  return _maximise_acquisition(gp_sample, anc_data, vectorised=True)
+  gp_sample = get_gp_sampler_for_parallel_strategy(gp, anc_data)
+  return maximise_acquisition(gp_sample, anc_data, vectorised=True)
 
 def syn_ts(num_workers, list_of_gps, anc_datas):
   """ Returns a batch of recommendations via TS in the synchronous setting. """
@@ -178,7 +178,7 @@ def _add_ucb(gp, add_kernel, mean_funcs, anc_data):
     # Objatin the jth group
     anc_data_j = copy(anc_data)
     anc_data_j.domain = EuclideanDomain(domain_bounds[group_j])
-    point_j = _maximise_acquisition(_add_ucb_acq_j, anc_data_j)
+    point_j = maximise_acquisition(_add_ucb_acq_j, anc_data_j)
     group_points.append(point_j)
     num_coordinates += len(point_j)
 
@@ -221,13 +221,30 @@ def asy_ucb(gp, anc_data):
     """ Computes the GP-UCB acquisition. """
     mu, sigma = gp_eval(x)
     return mu + beta_th * sigma
-  return _maximise_acquisition(_ucb_acq, anc_data)
+  return maximise_acquisition(_ucb_acq, anc_data)
 
 def syn_ucb(num_workers, list_of_gps, anc_datas):
   """ Returns a recommendation via Batch UCB in the synchronous setting. """
   return _get_syn_recommendations_from_asy(asy_ucb, num_workers, list_of_gps, anc_datas)
 
-# EI stuff ----------------------------------------------------------------------------
+# PI  ----------------------------------------------------------------------------
+def asy_pi(gp, anc_data):
+  """ Returns a recommendation based on PI (probability of improvement). """
+  curr_best = anc_data.curr_max_val
+  gp_eval = _get_gp_eval_for_parallel_strategy(gp, anc_data, 'std')
+  # PI acquisition with hallucinated observations
+  def _pi_acq(x):
+    """ Acquisition for GP EI. """
+    mu, sigma = gp_eval(x)
+    return normal_distro.cdf((mu - curr_best) / sigma)
+  return maximise_acquisition(_pi_acq, anc_data)
+
+def syn_pi(num_workers, list_of_gps, anc_datas):
+  """ Returns a recommendation via EI in the synchronous setting. """
+  return _get_syn_recommendations_from_asy(asy_pi, num_workers, list_of_gps, anc_datas)
+
+
+# EI  ----------------------------------------------------------------------------
 def _expected_improvement_for_norm_diff(norm_diff):
   """ The expected improvement. """
   return norm_diff * normal_distro.cdf(norm_diff) + normal_distro.pdf(norm_diff)
@@ -242,7 +259,7 @@ def asy_ei(gp, anc_data):
     mu, sigma = gp_eval(x)
     norm_diff = (mu - curr_best) / sigma
     return sigma * _expected_improvement_for_norm_diff(norm_diff)
-  return _maximise_acquisition(_ei_acq, anc_data)
+  return maximise_acquisition(_ei_acq, anc_data)
 
 def syn_ei(num_workers, list_of_gps, anc_datas):
   """ Returns a recommendation via EI in the synchronous setting. """
@@ -261,7 +278,7 @@ def _ttei(gp_eval, anc_data, ref_point):
     comb_std = np.sqrt(ref_std**2 + sigma**2)
     norm_diff = (mu - ref_mean)/comb_std
     return comb_std * _expected_improvement_for_norm_diff(norm_diff)
-  return _maximise_acquisition(_tt_ei_acq, anc_data)
+  return maximise_acquisition(_tt_ei_acq, anc_data)
 
 def asy_ttei(gp, anc_data):
   """ Top-Two expected improvement. """
@@ -287,7 +304,7 @@ def asy_rand(_, anc_data):
   def _rand_eval(_):
     """ Acquisition for asy_rand. """
     return np.random.random((1,))
-  return _maximise_acquisition(_rand_eval, anc_data)
+  return maximise_acquisition(_rand_eval, anc_data)
 
 def syn_rand(num_workers, list_of_gps, anc_data):
   """ Returns random values for the acquisition. """
@@ -359,7 +376,7 @@ def _add_ucb_for_boca(mfgp, fidel_to_opt, mean_funcs, anc_data):
     # Objatin the jth group
     anc_data_j = copy(anc_data)
     anc_data_j.domain = EuclideanDomain(domain_bounds[group_j])
-    point_j = _maximise_acquisition(_mf_add_ucb_acq_j, anc_data_j)
+    point_j = maximise_acquisition(_mf_add_ucb_acq_j, anc_data_j)
 
     group_points.append(point_j)
     num_coordinates += len(point_j)
@@ -428,6 +445,7 @@ syn = Namespace(
   ucb=syn_ucb,
   add_ucb=syn_add_ucb,
   ei=syn_ei,
+  pi=syn_pi,
   ttei=syn_ttei,
   ts=syn_ts,
   rand=syn_rand,
@@ -437,6 +455,7 @@ asy = Namespace(
   ucb=asy_ucb,
   add_ucb=asy_add_ucb,
   ei=asy_ei,
+  pi=asy_pi,
   ttei=asy_ttei,
   ts=asy_ts,
   rand=asy_rand,
@@ -446,6 +465,7 @@ seq = Namespace(
   ucb=asy_ucb,
   add_ucb=asy_add_ucb,
   ei=asy_ei,
+  pi=asy_pi,
   ttei=asy_ttei,
   ts=asy_ts,
   rand=asy_rand,

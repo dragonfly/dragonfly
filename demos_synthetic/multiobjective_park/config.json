@@ -1,0 +1,30 @@
+{
+"name": "multiobjective_park",
+
+"domain" : {
+
+  "x0" : {
+    "name":"x0",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":2
+  },
+
+  "x1" : {
+    "name":"x1",
+    "type":"int",
+    "min":103,
+    "max":194
+  },
+
+  "x2" : {
+    "name":"x2",
+    "type":"float",
+    "min":10.0,
+    "max":11.0,
+    "dim":""
+  }
+ }
+}
+

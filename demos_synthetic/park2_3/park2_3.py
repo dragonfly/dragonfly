@@ -32,7 +32,7 @@ def park2_3_z_x(z, x):
     raise ValueError('Unknown chooser %s.'%(chooser))
 
 # Write a function like this called 'obj'.
-def obj(x):
+def objective(x):
   """ Objective. """
   return park2_3(x)
 

@@ -9,7 +9,7 @@ from argparse import Namespace
 import numpy as np
 # Local imports
 from exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
-                            load_cp_domain_from_config_file
+                                load_cp_domain_from_config_file
 import exd.domains as domains
 from exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
 from exd.exd_core import mf_exd_args
@@ -37,7 +37,7 @@ class RandomOptimiser(BlackboxOptimiser):
   # Constructor.
   def __init__(self, func_caller, worker_manager, options=None, reporter=None):
     """ Constructor. """
-    self.reporter = get_reporter(reporter)
+    reporter = get_reporter(reporter)
     if options is None:
       options = load_options(random_optimiser_args, reporter=reporter)
     super(RandomOptimiser, self).__init__(func_caller, worker_manager, model=None,
@@ -215,7 +215,7 @@ class MFCPRandomOptimiser(RandomOptimiser):
 # An API for single fidelity optimisation
 def random_optimiser_from_func_caller(func_caller, worker_manager, max_capital, mode,
                                       options=None, reporter='default'):
-  """ Creates a EuclideanRandomOptimiser Object and optimises the function. """
+  """ Creates an appropriate RandomOptimiser Object and optimises the function. """
   reporter = get_reporter(reporter)
   if isinstance(func_caller.domain, domains.EuclideanDomain):
     optimiser_constructor = EuclideanRandomOptimiser
@@ -242,7 +242,7 @@ def cp_random_optimiser_from_raw_args(raw_func, domain_config_file, *args, **kwa
   proc_func = get_processed_func_from_raw_func_for_cp_domain(
                 raw_func, cp_dom, orderings.index_ordering, orderings.dim_ordering)
   func_caller = CPFunctionCaller(proc_func, cp_dom, raw_func=raw_func,
-                                 orderings=orderings)
+                                 domain_orderings=orderings)
   return random_optimiser_from_func_caller(func_caller, *args, **kwargs)
 
 

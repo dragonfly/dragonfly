@@ -255,8 +255,8 @@ class ExperimentDesigner(object):
         initial_qinfos_w_init_capital = []
         while True:
           if len(initial_qinfos_w_init_capital) == 0:
-            self.reporter.writeln('Fetching %d initial points via %s.'%(
-                num_initial_queries_w_init_capital, self.options.init_method))
+#             self.reporter.writeln('Fetching %d initial points via %s.'%(
+#                 num_initial_queries_w_init_capital, self.options.init_method))
             initial_qinfos_w_init_capital = \
               get_initial_qinfos(num_initial_queries_w_init_capital)
           qinfo = initial_qinfos_w_init_capital.pop(0)

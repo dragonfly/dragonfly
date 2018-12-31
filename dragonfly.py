@@ -22,11 +22,15 @@ from exd.cp_domain_utils import get_raw_from_processed_via_config, load_config_f
                                 get_processed_func_from_raw_func_for_cp_domain
 from exd.domains import EuclideanDomain
 from exd.exd_utils import get_unique_list_of_option_args
-from exd.experiment_caller import EuclideanFunctionCaller, CPFunctionCaller
+from exd.experiment_caller import EuclideanFunctionCaller, CPFunctionCaller, \
+                                  EuclideanMultiFunctionCaller, CPMultiFunctionCaller
 from exd.worker_manager import SyntheticWorkerManager
 from opt.gp_bandit import get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args, \
                           get_all_mf_euc_gp_bandit_args, get_all_mf_cp_gp_bandit_args, \
                           gpb_from_func_caller
+from opt.multiobjective_gp_bandit import multiobjective_gpb_from_multi_func_caller, \
+                                         get_all_euc_moo_gp_bandit_args, \
+                                         get_all_cp_moo_gp_bandit_args
 from utils.option_handler import get_option_specs, load_options
 
 dragonfly_args = [ \
@@ -34,16 +38,17 @@ dragonfly_args = [ \
   get_option_specs('options', False, None, 'Path to the options file. '),
   get_option_specs('max_capital', False, -1.0,
                    'Maximum capital to be used in the experiment. '),
+  get_option_specs('is_multi_objective', False, False,
+                   'If True, will treat it as a multiobjective optimisation problem. '),
   get_option_specs('budget', False, -1.0, \
       'The budget of evaluations. If max_capital is none, will use this as max_capital.'),
                  ]
 
 
-def _preprocess_multifidelity_arguments(fidel_space, domain, func, fidel_cost_func,
+def _preprocess_multifidelity_arguments(fidel_space, domain, funcs, fidel_cost_func,
                                         fidel_to_opt, config):
   """ Preprocess fidel_space, domain arguments and configuration file. """
   # Preprocess config argument
-  proc_func = func
   converted_cp_to_euclidean = False
   if isinstance(config, str):
     config = load_config_file(config)
@@ -55,14 +60,15 @@ def _preprocess_multifidelity_arguments(fidel_space, domain, func, fidel_cost_fu
     fidel_to_opt = config.fidel_to_opt
   # The function
   if config is not None:
-    proc_func = get_processed_func_from_raw_func_for_cp_domain_fidelity(func, config)
+    proc_funcs = [get_processed_func_from_raw_func_for_cp_domain_fidelity(f, config)
+                  for f in funcs]
     proc_fidel_cost_func = get_processed_func_from_raw_func_for_cp_domain(fidel_cost_func,
       config.fidel_space, config.fidel_space_orderings.index_ordering,
       config.fidel_space_orderings.dim_ordering)
   else:
-    proc_func = func
+    proc_funcs = funcs
     proc_fidel_cost_func = fidel_cost_func
-  ret_func = proc_func
+  ret_funcs = proc_funcs
   ret_fidel_cost_func = proc_fidel_cost_func
   # Preprocess domain argument
   if isinstance(fidel_space, (list, tuple)) and isinstance(domain, (list, tuple)):
@@ -98,16 +104,19 @@ def _preprocess_multifidelity_arguments(fidel_space, domain, func, fidel_cost_fu
       config.domain = domain
       converted_cp_to_euclidean = True
       # Functions
-      ret_func = lambda z, x: proc_func([z], [x])
+      def _get_ret_func_from_proc_func_for_euc_domains(_proc_func):
+        """ Get function to return. """
+        return lambda z, x: _proc_func([z], [x])
+      ret_funcs = [_get_ret_func_from_proc_func_for_euc_domains(pf) for pf in proc_funcs]
       ret_fidel_cost_func = lambda z: proc_fidel_cost_func([z])
   else:
     raise ValueError('fidel_space and domain should be either both instances of ' +
                      'EuclideanDomain or both CartesianProductDomain.')
-  return (fidel_space, domain, ret_func, ret_fidel_cost_func, fidel_to_opt, config,
+  return (fidel_space, domain, ret_funcs, ret_fidel_cost_func, fidel_to_opt, config,
           converted_cp_to_euclidean)
 
 
-def _preprocess_arguments(domain, func, config):
+def _preprocess_arguments(domain, funcs, config):
   """ Preprocess domain arguments and configuration file. """
   # Preprocess config argument
   converted_cp_to_euclidean = False
@@ -117,11 +126,12 @@ def _preprocess_arguments(domain, func, config):
     domain = config.domain
   # The function
   if config is not None:
-    proc_func = get_processed_func_from_raw_func_for_cp_domain(func, config.domain,
+    proc_funcs = [get_processed_func_from_raw_func_for_cp_domain(f, config.domain,
       config.domain_orderings.index_ordering, config.domain_orderings.dim_ordering)
+      for f in funcs]
   else:
-    proc_func = func
-  ret_func = proc_func
+    proc_funcs = funcs
+  ret_funcs = proc_funcs
   # Preprocess domain argument
   if isinstance(domain, (list, tuple)):
     domain = EuclideanDomain(domain)
@@ -137,11 +147,14 @@ def _preprocess_arguments(domain, func, config):
       config.domain = domain
       converted_cp_to_euclidean = True
       # The function
-      ret_func = lambda x: proc_func([x])
+      def _get_ret_func_from_proc_func_for_euc_domains(_proc_func):
+        """ Get function to return. """
+        return lambda x: _proc_func([x])
+      ret_funcs = [_get_ret_func_from_proc_func_for_euc_domains(pf) for pf in proc_funcs]
   else:
     raise ValueError('domain should be an instance of EuclideanDomain or ' +
                      'CartesianProductDomain.')
-  return domain, ret_func, config, converted_cp_to_euclidean
+  return domain, ret_funcs, config, converted_cp_to_euclidean
 
 
 def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
@@ -178,9 +191,10 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   """
   # Preprocess domain and config arguments
   raw_func = func
-  fidel_space, domain, func, fidel_cost_func, fidel_to_opt, config, _ = \
-    _preprocess_multifidelity_arguments(fidel_space, domain, func, fidel_cost_func,
+  fidel_space, domain, preproc_func_list, fidel_cost_func, fidel_to_opt, config, _ = \
+    _preprocess_multifidelity_arguments(fidel_space, domain, [func], fidel_cost_func,
                                         fidel_to_opt, config)
+  func = preproc_func_list[0]
   # Load arguments and function caller
   if fidel_space.get_type() == 'euclidean' and domain.get_type() == 'euclidean':
     func_caller = EuclideanFunctionCaller(func, domain, vectorised=False,
@@ -248,7 +262,8 @@ def maximise_function(func, domain, max_capital, config=None, options=None):
   """
   # Preprocess domain and config arguments
   raw_func = func
-  domain, func, config, _ = _preprocess_arguments(domain, func, config)
+  domain, preproc_func_list, config, _ = _preprocess_arguments(domain, [func], config)
+  func = preproc_func_list[0]
   # Load arguments depending on domain type
   if domain.get_type() == 'euclidean':
     func_caller = EuclideanFunctionCaller(func, domain, vectorised=False)
@@ -276,38 +291,79 @@ def maximise_function(func, domain, max_capital, config=None, options=None):
   return opt_val, opt_pt, history
 
 
+def multiobjective_maximise_functions(funcs, domain, max_capital,
+                                      config=None, options=None):
+  """
+    Co-optimises the functions 'funcs' over the domain 'domain'.
+    Inputs:
+      funcs: The functions to be co-optimised (maximised).
+      domain: The domain over which the function should be maximised, should be an
+              instance of the Domain class in exd/domains.py.
+              If domain is a list of the form [[l1, u1], [l2, u2], ...] where li < ui,
+              then we will create a Euclidean domain with lower bounds li and upper bounds
+              ui along each dimension.
+      max_capital: The maximum capital (budget) available for optimisation.
+      config: Contains configuration parameters that are typically returned by
+              exd.cp_domain_utils.load_config_file. config can be None only if domain
+              is a EuclideanDomain object.
+      options: Additional hyper-parameters for optimisation.
+      * Alternatively, domain could be None if config is either a path_name to a
+        configuration file or has configuration parameters.
+    Returns:
+      pareto_values: The pareto optimal values found during the optimisation procdure.
+      pareto_points: The corresponding pareto optimum points in the domain.
+      history: A record of the optimisation procedure which include the point evaluated
+               and the values at each time step.
+  """
+  # Preprocess domain and config arguments
+  raw_funcs = funcs
+  domain, funcs, config, _ = _preprocess_arguments(domain, funcs, config)
+  # Load arguments depending on domain type
+  if domain.get_type() == 'euclidean':
+    multi_func_caller = EuclideanMultiFunctionCaller(funcs, domain, vectorised=False)
+  else:
+    multi_func_caller = CPMultiFunctionCaller(funcs, domain, raw_funcs=raw_funcs,
+                          domain_orderings=config.domain_orderings)
+  # Create worker manager and function caller
+  worker_manager = SyntheticWorkerManager(num_workers=1)
+  # Optimise function here -----------------------------------------------------------
+  pareto_values, pareto_points, history = multiobjective_gpb_from_multi_func_caller(
+             multi_func_caller, worker_manager, max_capital, is_mf=False, options=options)
+  # Post processing
+  if domain.get_type() == 'euclidean' and config is None:
+    pareto_points = [multi_func_caller.get_raw_domain_coords(pt) for pt in pareto_points]
+    history.query_points = [multi_func_caller.get_raw_domain_coords(pt)
+                            for pt in history.query_points]
+  else:
+    pareto_points = [get_raw_from_processed_via_config(pt, config) for
+                     pt in pareto_points]
+    history.query_points_raw = [get_raw_from_processed_via_config(pt, config)
+                                for pt in history.query_points]
+  return pareto_values, pareto_points, history
+
+
 def main():
-  """
-    Maximizes a function given a config file containing the hyperparameters and the
-    corresponding domain bounds.
-  """
-  # First load the domain and the objective
+  """ Main function. """
+  # First load arguments
   all_args = dragonfly_args + get_all_euc_gp_bandit_args() + get_all_cp_gp_bandit_args() \
-             + get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args()
+             + get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args() \
+             + get_all_euc_moo_gp_bandit_args() + get_all_cp_moo_gp_bandit_args()
   all_args = get_unique_list_of_option_args(all_args)
   options = load_options(all_args, cmd_line=True)
+
+  # Load domain and objective
   config = load_config_file(options.config)
   if hasattr(config, 'fidel_space'):
     is_mf = True
   else:
     is_mf = False
-  objective_file_name = config.name
   expt_dir = os.path.dirname(os.path.abspath(os.path.realpath(options.config)))
   if not os.path.exists(expt_dir):
     raise ValueError("Experiment directory does not exist.")
-  objective = imp.load_source(objective_file_name,
-                              os.path.join(expt_dir, objective_file_name + '.py'))
-#   func = objective.obj
-#   if is_mf:
-#     cost_func = objective.cost
-#   # Preprocess domain and config arguments
-#   if is_mf:
-#     cost_func = objective.cost
-#     fidel_space, domain, config, converted_cp_to_euclidean = \
-#       _preprocess_multifidelity_arguments(config.fidel_space, config.domain, config)
-#   else:
-#     domain, config, converted_cp_to_euclidean = \
-#       _preprocess_domain_and_config(config.domain, config)
+  objective_file_name = config.name
+  obj_module = imp.load_source(objective_file_name,
+                               os.path.join(expt_dir, objective_file_name + '.py'))
+
   # Set capital
   options.capital_type = 'return_value'
   if options.budget < 0:
@@ -319,19 +375,33 @@ def main():
   options.max_capital = budget
 
   # Call optimiser
-  if is_mf:
-    print('Performing optimisation on fidel_space: %s, domain %s.'%(
-          config.fidel_space, config.domain))
-    opt_val, opt_pt, history = maximise_multifidelity_function(objective.obj,
-      domain=None, fidel_space=None, fidel_to_opt=config.fidel_to_opt,
-      fidel_cost_func=objective.cost, max_capital=options.max_capital, config=config,
-      options=options)
+  if not options.is_multi_objective:
+    if is_mf:
+      print('Performing optimisation on fidel_space: %s, domain %s.'%(
+            config.fidel_space, config.domain))
+      opt_val, opt_pt, history = maximise_multifidelity_function(obj_module.objective,
+        domain=None, fidel_space=None, fidel_to_opt=config.fidel_to_opt,
+        fidel_cost_func=obj_module.cost, max_capital=options.max_capital, config=config,
+        options=options)
+    else:
+      print('Performing optimisation on domain %s.'%(config.domain))
+      opt_val, opt_pt, history = maximise_function(obj_module.objective, domain=None,
+        max_capital=options.max_capital, config=config, options=options)
+    print('Optimum Value in %d evals: %0.4f'%(len(history.curr_opt_points), opt_val))
+    print('Optimum Point: %s.'%(opt_pt))
   else:
-    print('Performing optimisation on domain %s.'%(config.domain))
-    opt_val, opt_pt, history = maximise_function(objective.obj, domain=None,
-      max_capital=options.max_capital, config=config, options=options)
-  print('Optimum Value in %d evals: %0.4f'%(len(history.curr_opt_points), opt_val))
-  print('Optimum Point: %s.'%(opt_pt))
+    if is_mf:
+      raise ValueError('Multi-objective multi-fidelity optimisation has not been ' +
+                       'implemented yet.')
+    else:
+      print('Performing multi-objective optimisation on domain %s with %d functions.'%(
+            config.domain, len(obj_module.objectives)))
+      pareto_values, pareto_points, history = multiobjective_maximise_functions(
+        obj_module.objectives, domain=None, max_capital=options.max_capital,
+        config=config, options=options)
+    num_pareto_points = len(pareto_points)
+    print('Found %d Pareto Points: %s.'%(num_pareto_points, pareto_points))
+    print('Corresponding Pareto Values: %s.'%(pareto_values))
 
 
 if __name__ == '__main__':

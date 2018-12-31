@@ -40,7 +40,7 @@ def branin(x):
 
 
 # Write a function like this called 'obj'
-def obj(x):
+def objective(x):
   """ Objective. """
   return branin(x)
 
