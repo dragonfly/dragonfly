@@ -312,10 +312,12 @@ class GPBandit(BlackboxOptimiser):
                                       'post_sample_hps_with_probs']:
       reg_data = self._get_gp_reg_data()
       self._child_set_gp_data(reg_data)
-    if self.step_idx == self.last_model_build_at or \
-       self.step_idx == self.last_model_build_at + self.worker_manager.num_workers:
-      # printing multiple times every model build is a way to check that rand_exp_sampling
-      # is picking different hyper-parameters.
+#     if self.step_idx == self.last_model_build_at or \
+#        self.step_idx == self.last_model_build_at + self.worker_manager.num_workers:
+#       # printing multiple times every model build is a way to check that post_sampling
+#       # is picking different hyper-parameters.
+#       self._report_current_gp()
+    if self.step_idx == self.last_model_build_at:
       self._report_current_gp()
 
   def _domain_specific_set_next_gp(self):
@@ -335,7 +337,7 @@ class GPBandit(BlackboxOptimiser):
 
   def _report_current_gp(self):
     """ Reports the current GP. """
-    gp_fit_report_str = '    -- Fitting GP (j=%d): %s'%(self.step_idx, str(self.gp))
+    gp_fit_report_str = '    -- GP at iter %d: %s'%(self.step_idx, str(self.gp))
     self.reporter.writeln(gp_fit_report_str)
 
   def _get_opt_method_report_results_str(self):
@@ -969,9 +971,6 @@ def gpb_from_func_caller(func_caller, worker_manager, max_capital, is_mf, mode=N
       options.use_additive_gp = True
       if domain_add_max_group_size > 0:
         options.add_max_group_size = domain_add_max_group_size
-  elif isinstance(func_caller.domain, domains.CartesianProductDomain):
-    # TODO (KK): Check bug with ml-post_sampling for CP Domains. Line below is a temp fix.
-    options.gpb_hp_tune_criterion = 'ml'
   # create optimiser and return
   optimiser = optimiser_constructor(func_caller, worker_manager, is_mf=is_mf,
                                     options=options, reporter=reporter)

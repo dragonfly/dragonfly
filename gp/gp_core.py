@@ -557,8 +557,7 @@ class GPFitter(object):
 
   def _tuning_objective_post_sampling(self, gp_cts_hps, gp_dscr_hps, \
        other_gp_params=None, param=None, param_num=None, gradient=False, *args, **kwargs):
-    """ This function computes the tuning objective for posterior sampling case
-        (such as the marginal likelihood) which is to be maximised in fit_gp. """
+    """ This function computes the tuning objective for posterior sampling case. """
     built_gp = self.build_gp(gp_cts_hps, gp_dscr_hps, other_gp_params=other_gp_params,
                              *args, **kwargs)
     if gradient:
@@ -635,7 +634,7 @@ class GPFitter(object):
 
     offset = self.options.post_hp_tune_offset
     _model = Model(_pdf, _logp, _grad_logp)
-    self.hps = np.ones([self.num_hps, 1])
+    self.hps = np.ones((self.num_hps,))
     best_cts_hps = np.zeros([num_samples, len(self.cts_hp_bounds)])
     best_dscr_hps = np.zeros([num_samples, len(self.dscr_hp_vals)])
     best_other_gp_params = [None] * num_samples
@@ -674,7 +673,7 @@ class GPFitter(object):
                    for i in range(0, self.add_dim, int(self.hps[-1]))]
       self.other_gp_params = Namespace(add_gp_groupings=groupings)
     else:
-      self.other_gp_params = Namespace(add_gp_groupings=[None])
+      self.other_gp_params = Namespace(add_gp_groupings=None)
 
     # Randomly selcting a parameter and sampling it using tuning objective
     order = list(range(self.num_hps))

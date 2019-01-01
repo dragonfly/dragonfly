@@ -227,7 +227,7 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
   def _report_current_gps(self):
     """ Reports the current GP. """
     for gp_idx, gp in enumerate(self.gps):
-      gp_fit_report_str = '    -- Fitting GP-%d (j=%d): %s'%(
+      gp_fit_report_str = '    -- GP-%d at iter %d: %s'%(
                             gp_idx, self.step_idx, str(gp))
       self.reporter.writeln(gp_fit_report_str)
 
@@ -807,9 +807,6 @@ def multiobjective_gpb_from_multi_func_caller(multi_func_caller, worker_manager,
       options.use_additive_gp = True
       if domain_add_max_group_size > 0:
         options.add_max_group_size = domain_add_max_group_size
-  elif isinstance(multi_func_caller.domain, domains.CartesianProductDomain):
-    # TODO (KK): Check bug with ml-post_sampling for CP Domains. Line below is a temp fix.
-    options.gpb_hp_tune_criterion = 'ml'
   # create optimiser and return
   optimiser = optimiser_constructor(multi_func_caller, worker_manager, is_mf=is_mf,
                                     options=options, reporter=reporter)

@@ -41,7 +41,7 @@ class RandomOptimiser(BlackboxOptimiser):
     if options is None:
       options = load_options(random_optimiser_args, reporter=reporter)
     super(RandomOptimiser, self).__init__(func_caller, worker_manager, model=None,
-                                          options=options, reporter=self.reporter)
+                                          options=options, reporter=reporter)
 
   def _opt_method_set_up(self):
     """ Any set up specific to otptimisation. """
