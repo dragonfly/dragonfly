@@ -53,8 +53,6 @@ probabilistic and could fail at times. If this happens, run the same test severa
 and make sure it is not consistently failing. Running all tests will take a while.
 You can run each unit test individually simpy via `python unittest_xxx.py`.
 
-&nbsp;
-
 ## Getting started
 
 Dragonfly can be
@@ -95,21 +93,17 @@ The branin demo can be run via following commands.
 $ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example.txt
 $ python dragonfly.py --config demos_synthetic/branin/config.pb --options demos_synthetic/options_example.txt
 ```
+
 By default, Dragonfly *maximises* functions. To minimise a function, set the
-`max_or_min` flag to `min` in the options file as shown in
-[`demos_synthetic/options_example_for_minimisation.txt`](demos_synthetic/options_example_for_minimisation.txt)
-For example,
+`max_or_min` flag to `min' in the options file. This can be run via,
 ```bash
 $ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
 ```
-
 
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
 $ python dragonfly.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
 ```
-
-&nbsp;
 
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
 domain which includes a combination of these variables.
@@ -133,8 +127,6 @@ Running this demo the first time will be slow since the dataset needs to be down
 $ python dragonfly.py --config demos_real/face_rec/config.json --options demos_real/face_rec/options.txt
 $ python dragonfly.py --config demos_real/face_rec/config.pb --options demos_real/face_rec/options.txt
 ```
-
-&nbsp;
 
 **In python code**:
 
@@ -163,8 +155,6 @@ $ python demos_synthetic/branin/in_code_demo.py
 $ python demos_real/face_rec/in_code_demo.py
 ```
 
-&nbsp;
-
 **Multiobjective optimisation**
 
 Dragonfly also provides functionality for multi-objective optimisation.
@@ -190,8 +180,6 @@ Here, `funcs` is a list of functions to be maximised,
 [Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
 function values and `pareto_points` are the corresponding points in `domain`.
 
-&nbsp;
-
 ### Contributors
 
 Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
@@ -211,8 +199,6 @@ If you use any part of this code in your work, please cite
 This software is released under the MIT license. For more details, please refer
 [LICENSE.txt](https://github.com/dragonfly/dragonfly/blob/master/LICENSE.txt).
 
-For questions and bug reports please email kandasamy@cs.cmu.edu
-
 "Copyright 2018 Kirthevasan Kandasamy"
 
-
+- For questions and bug reports please email kandasamy@cs.cmu.edu

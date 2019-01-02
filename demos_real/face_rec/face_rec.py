@@ -46,7 +46,8 @@ def face_rec(x):
   # Split into a training set and a validation set using a stratified k fold
   
   # split into a training and validation set
-  X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.25, random_state=42)
+  X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.25,
+                                                        random_state=42)
   
   # #############################################################################
   # Compute a PCA (eigenfaces) on the face dataset (treated as unlabeled
@@ -74,8 +75,6 @@ def face_rec(x):
   
   train_result = (np.trace(cf_train))/float(y_train.size)
   valid_result = (np.trace(cf_valid))/float(y_valid.size)
-  print("Components: %s, C: %s, gamma:%s, Training accuracy: %s, Validation Accuracy: %s" %
-        (n_components, x[1], x[2], train_result, valid_result))
 
   return valid_result
 
