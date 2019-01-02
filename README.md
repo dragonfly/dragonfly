@@ -103,8 +103,6 @@ For example,
 $ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
 ```
 
-&nbsp;
-
 
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
@@ -192,6 +190,8 @@ Here, `funcs` is a list of functions to be maximised,
 [Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
 function values and `pareto_points` are the corresponding points in `domain`.
 
+&nbsp;
+
 ### Contributors
 
 Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
@@ -210,6 +210,7 @@ If you use any part of this code in your work, please cite
 ### License
 This software is released under the MIT license. For more details, please refer
 [LICENSE.txt](https://github.com/dragonfly/dragonfly/blob/master/LICENSE.txt).
+
 For questions and bug reports please email kandasamy@cs.cmu.edu
 
 "Copyright 2018 Kirthevasan Kandasamy"
