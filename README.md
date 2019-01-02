@@ -94,15 +94,20 @@ $ python dragonfly.py --config demos_synthetic/branin/config.json --options demo
 $ python dragonfly.py --config demos_synthetic/branin/config.pb --options demos_synthetic/options_example.txt
 ```
 By default, Dragonfly *maximises* functions. To minimise a function, set the
-`max_or_min` flag to `min' in the options file. This can be run via,
+`max_or_min` flag to `min` in the options file as shown in
+[`demos_synthetic/options_example_for_minimisation.txt`](demos_synthetic/options_example_for_minimisation.txt)
+For example,
 ```bash
 $ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
 ```
+
 
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
 $ python dragonfly.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
 ```
+
+&nbsp;
 
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
 domain which includes a combination of these variables.
