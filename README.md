@@ -16,8 +16,6 @@ evaluations in parallel), multi-fidelity optimisation (using cheap approximation
 to speed up the optimisation process), and multi-objective optimisation (optimising
 multiple functions simultaneously).
 
-By default, Dragonfly *maximises* functions.
-To minimise a function, simply pass the negative of the function.
 Dragonfly is compatible with python2.7 and python3 and has been tested on Linux,
 Mac OS, and Windows platforms.
 
@@ -95,6 +93,12 @@ The branin demo can be run via following commands.
 $ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example.txt
 $ python dragonfly.py --config demos_synthetic/branin/config.pb --options demos_synthetic/options_example.txt
 ```
+By default, Dragonfly *maximises* functions. To minimise a function, set the
+`max_or_min` flag to `min' in the options file. This can be run via,
+```bash
+$ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
+```
+
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
 $ python dragonfly.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
@@ -130,6 +134,7 @@ You can import the main API in python code via,
 from dragonfly.dragonfly import maximise_function
 ...
 max_val, max_pt, history = maximise_function(func, domain, max_capital)
+min_val, min_pt, history = minimise_function(func, domain, max_capital)
 ```
 Here, `func` is the function to be maximised,
 `domain` is the domain over which `func` is to be maximised,
@@ -165,7 +170,8 @@ Similarly, you can import and run this in python code via,
 ```python
 from dragonfly.dragonfly import multiobjective_maximise_functions
 ...
-pareto_values, pareto_points, history = multiobjective_maximise_functions(funcs, domain, max_capital)
+pareto_max_values, pareto_points, history = multiobjective_maximise_functions(funcs, domain, max_capital)
+pareto_min_values, pareto_points, history = multiobjective_minimise_functions(funcs, domain, max_capital)
 ```
 Here, `funcs` is a list of functions to be maximised,
 `domain` is the domain  and `max_capital` is the capital available for optimisation.
