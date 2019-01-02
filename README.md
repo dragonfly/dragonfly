@@ -53,6 +53,8 @@ probabilistic and could fail at times. If this happens, run the same test severa
 and make sure it is not consistently failing. Running all tests will take a while.
 You can run each unit test individually simpy via `python unittest_xxx.py`.
 
+&nbsp;
+
 ## Getting started
 
 Dragonfly can be
@@ -101,6 +103,8 @@ For example,
 $ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
 ```
 
+&nbsp;
+
 
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
@@ -132,6 +136,8 @@ $ python dragonfly.py --config demos_real/face_rec/config.json --options demos_r
 $ python dragonfly.py --config demos_real/face_rec/config.pb --options demos_real/face_rec/options.txt
 ```
 
+&nbsp;
+
 **In python code**:
 
 You can import the main API in python code via,
@@ -158,6 +164,8 @@ To execute this file, simply run
 $ python demos_synthetic/branin/in_code_demo.py
 $ python demos_real/face_rec/in_code_demo.py
 ```
+
+&nbsp;
 
 **Multiobjective optimisation**
 
@@ -202,7 +210,8 @@ If you use any part of this code in your work, please cite
 ### License
 This software is released under the MIT license. For more details, please refer
 [LICENSE.txt](https://github.com/dragonfly/dragonfly/blob/master/LICENSE.txt).
+For questions and bug reports please email kandasamy@cs.cmu.edu
 
 "Copyright 2018 Kirthevasan Kandasamy"
 
-- For questions and bug reports please email kandasamy@cs.cmu.edu
+
