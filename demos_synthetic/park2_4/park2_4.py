@@ -73,5 +73,5 @@ def objective(x):
 
 def main(x):
   """ main function. """
-  return obj(x)
+  return park2_4(x)
 

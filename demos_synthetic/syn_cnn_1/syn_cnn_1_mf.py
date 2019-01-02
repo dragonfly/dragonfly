@@ -28,5 +28,5 @@ def objective(z, x):
 
 def main(z, x):
   """ main function. """
-  return obj(z, x), cost(z)
+  return syn_cnn_1_mf(z, x), cost(z)
 

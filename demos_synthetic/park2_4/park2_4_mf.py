@@ -24,4 +24,5 @@ def cost(z):
 
 def main(z, x):
   """ main function. """
-  return obj(z, x), cost(z)
+  return park2_4_mf(z, x), cost(z)
+

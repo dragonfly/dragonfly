@@ -200,6 +200,14 @@ class ExperimentDesigner(object):
       dif = -1 if total_in_progress == 0 else max_idx - min_idx
       return '[min:%d, max:%d, dif:%d, tot:%d]'%(min_idx, max_idx, dif, total_in_progress)
 
+  def _get_multiple_workers_str(self):
+    """ Get string if there are multiple workers. """
+    if self.worker_manager.num_workers == 1:
+      return ''
+    else:
+      return ', jobs_by_each_worker=%s, in_progress=%s'%(self._get_jobs_for_each_worker(),
+                                                    self._get_curr_job_idxs_in_progress())
+
   def _report_curr_results(self):
     """ Writes current result to reporter. """
     cap_frac = (np.nan if self.available_capital <= 0 else
@@ -208,9 +216,8 @@ class ExperimentDesigner(object):
                            '(%03d/%03d)'%(self.num_succ_queries, self.step_idx),
                            'cap=%0.3f:: '%(cap_frac),
                            self._get_exd_child_report_results_str(),
-                           'w=%s,'%(self._get_jobs_for_each_worker()),
-                           'inP=%s'%(self._get_curr_job_idxs_in_progress()),
                           ])
+    report_str += self._get_multiple_workers_str()
     self.reporter.writeln(report_str)
     self.last_report_at = self.step_idx
 

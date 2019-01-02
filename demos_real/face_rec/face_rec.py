@@ -79,6 +79,13 @@ def face_rec(x):
 
   return valid_result
 
-def main(x):
+
+def objective(x):
+  """ Main objective. """
   os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
   return face_rec(x)
+
+
+def main(x):
+  return objective(x)
+

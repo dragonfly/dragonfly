@@ -21,5 +21,5 @@ def objective(x):
 
 def main(x):
   """ main function. """
-  return obj(x)
+  return syn_cnn_1(x)
 

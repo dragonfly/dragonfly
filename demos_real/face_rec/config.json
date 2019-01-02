@@ -6,24 +6,21 @@
     "name":"N",
     "type":"int",
     "min":1,
-    "max":500,
-    "dim":1
+    "max":500
   },
 
  "C" : {
     "name":"C",
     "type":"float",
-    "min":0,
-    "max":1000,
-    "dim":1
+    "min":1e-5,
+    "max":1000
   },
 
  "gamma" : {
     "name":"gamma",
     "type":"float",
-    "min":0,
-    "max":1,
-    "dim":1
+    "min":1e-5,
+    "max":1
   }
 }
 }

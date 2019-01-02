@@ -34,5 +34,5 @@ def objective(z, x):
 
 def main(z, x):
   """ Main function. """
-  return obj(z, x), cost(z)
+  return hartmann6_4_mf(z, x), cost(z)
 

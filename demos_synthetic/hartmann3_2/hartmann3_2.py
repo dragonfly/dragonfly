@@ -39,5 +39,5 @@ def objective(x):
 
 def main(x):
   """ Main function. """
-  return obj(x)
+  return hartmann3_2(x)
 

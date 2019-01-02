@@ -1,0 +1,12 @@
+# Indicate that this is a multi-objective problem. 1 is True, 0 is False.
+--is_multi_objective 1
+
+# The budget of evaluations
+--budget 120
+
+# How frequently to report progress on optimisation
+--report_results_every 13
+
+# How frequently to build a new (GP) model
+--build_new_model_every 17
+

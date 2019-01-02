@@ -25,5 +25,5 @@ def cost(z):
 
 def main(z, x):
   """ main function. """
-  return obj(z, x), cost(z)
+  return branin_mf(z, x), cost(z)
 

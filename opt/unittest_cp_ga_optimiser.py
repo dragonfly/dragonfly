@@ -26,7 +26,7 @@ class CPGAOPtimiserTestCase(CPOptimiserBaseTestCase, BaseTestClass):
                      mode, *args, **kwargs):
     """ Run the optimiser. """
     return cp_ga_optimiser.cp_ga_optimiser_from_raw_args(prob_funcs[0],
-             domain_config_file, worker_manager, max_capital, mode, *args, **kwargs)
+             domain_config_file, worker_manager, max_capital, mode=mode, *args, **kwargs)
 
 
 if __name__ == '__main__':

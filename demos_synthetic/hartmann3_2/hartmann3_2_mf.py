@@ -38,5 +38,5 @@ def objective(z, x):
 
 def main(z, x):
   """ Main function. """
-  return obj(z, x), cost(z)
+  return hartmann3_2_mf(z, x), cost(z)
 

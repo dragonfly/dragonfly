@@ -26,5 +26,5 @@ def objective(z, x):
 
 def main(z, x):
   """ main function. """
-  return obj(z, x), cost(z)
+  return park2_3_mf(z, x), cost(z)
 

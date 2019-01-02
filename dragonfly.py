@@ -1,11 +1,12 @@
 """
   Main APIs and command line tool for GP Bandit Optimisation.
-  -- kvysyara@andrew.cmu.edu
   -- kandasamy@cs.cmu.edu
+  -- kvysyara@andrew.cmu.edu
 
   Usage:
   python dragonfly.py --config <config file in .json or .pb format>
     --options <options file>
+  See README.MD for examples.
 """
 
 # pylint: disable=relative-import
@@ -36,6 +37,7 @@ from utils.option_handler import get_option_specs, load_options
 dragonfly_args = [ \
   get_option_specs('config', False, None, 'Path to the json or pb config file. '),
   get_option_specs('options', False, None, 'Path to the options file. '),
+  get_option_specs('max_or_min', False, 'max', 'Whether to maximise or minimise. '),
   get_option_specs('max_capital', False, -1.0,
                    'Maximum capital to be used in the experiment. '),
   get_option_specs('is_multi_objective', False, False,
@@ -291,6 +293,41 @@ def maximise_function(func, domain, max_capital, config=None, options=None):
   return opt_val, opt_pt, history
 
 
+def _post_process_history_for_minimisation(history):
+  """ Post processes history for minimisation. """
+  # Negate past queries
+  history.query_vals = [-qv for qv in history.query_vals]
+  history.curr_opt_vals = [-cov for cov in history.curr_opt_vals]
+  history.curr_true_opt_vals = [-cov for cov in history.curr_true_opt_vals]
+  return history
+
+
+def minimise_function(func, *args, **kwargs):
+  """
+    Minimises a function func over domain domain. See maximise_function for a description
+    of the arguments. All arguments are the same except for func, which should now be
+    minimised.
+  """
+  func_to_max = lambda x: -func(x)
+  max_val, opt_pt, history = maximise_function(func_to_max, *args, **kwargs)
+  min_val = - max_val
+  history = _post_process_history_for_minimisation(history)
+  return min_val, opt_pt, history
+
+
+def minimise_multifidelity_function(func, *args, **kwargs):
+  """
+    Minimises a multifidelity function func over domain domain. See
+    maximise_multifidelity_function for a description of the arguments. All arguments are
+    the same except for func, which should now be minimised.
+  """
+  func_to_max = lambda x, z: -func(x, z)
+  max_val, opt_pt, history = maximise_multifidelity_function(func_to_max, *args, **kwargs)
+  min_val = - max_val
+  history = _post_process_history_for_minimisation(history)
+  return min_val, opt_pt, history
+
+
 def multiobjective_maximise_functions(funcs, domain, max_capital,
                                       config=None, options=None):
   """
@@ -342,6 +379,30 @@ def multiobjective_maximise_functions(funcs, domain, max_capital,
   return pareto_values, pareto_points, history
 
 
+def multiobjective_minimise_functions(funcs, *args, **kwargs):
+  """
+    Minimises the functions funcs over domain domain. See
+    multiobjective_maximise_functions for a description of the arguments. All arguments
+    are the same except for funcs, which should now be minimised.
+  """
+  def _get_func_to_max(_func):
+    """ Returns a function to be maximised. """
+    return lambda x: - _func(x)
+  funcs_to_max = [_get_func_to_max(f) for f in funcs]
+  pareto_max_values, pareto_points, history = multiobjective_maximise_functions(
+                                                funcs_to_max, *args, **kwargs)
+  # Post process history
+  def _negate_array(arr):
+    """ Negates an array. """
+    return [-elem for elem in arr]
+  pareto_min_values = _negate_array(pareto_max_values)
+  history.query_vals = [_negate_array(qv) for qv in history.query_vals]
+  history.curr_pareto_vals = [_negate_array(cpv) for cpv in history.curr_pareto_vals]
+  history.curr_true_pareto_vals = [_negate_array(ctpv) for ctpv in
+                                   history.curr_true_pareto_vals]
+  return pareto_min_values, pareto_points, history
+
+
 def main():
   """ Main function. """
   # First load arguments
@@ -375,18 +436,27 @@ def main():
   options.max_capital = budget
 
   # Call optimiser
+  _print_prefix = 'Maximising' if options.max_or_min == 'max' else 'Minimising'
+  call_to_optimise = {
+    'single': {'max': maximise_function, 'min': minimise_function},
+    'single_mf': {'max': maximise_multifidelity_function,
+                  'min': minimise_multifidelity_function},
+    'multi': {'max': multiobjective_maximise_functions,
+              'min': multiobjective_minimise_functions},
+  }
   if not options.is_multi_objective:
     if is_mf:
-      print('Performing optimisation on fidel_space: %s, domain %s.'%(
+      print('%s function on fidel_space: %s, domain %s.'%(_print_prefix,
             config.fidel_space, config.domain))
-      opt_val, opt_pt, history = maximise_multifidelity_function(obj_module.objective,
-        domain=None, fidel_space=None, fidel_to_opt=config.fidel_to_opt,
-        fidel_cost_func=obj_module.cost, max_capital=options.max_capital, config=config,
-        options=options)
-    else:
-      print('Performing optimisation on domain %s.'%(config.domain))
-      opt_val, opt_pt, history = maximise_function(obj_module.objective, domain=None,
+      opt_val, opt_pt, history = call_to_optimise['single_mf'][options.max_or_min](
+        obj_module.objective, domain=None, fidel_space=None,
+        fidel_to_opt=config.fidel_to_opt, fidel_cost_func=obj_module.cost,
         max_capital=options.max_capital, config=config, options=options)
+    else:
+      print('%s function on domain %s.'%(_print_prefix, config.domain))
+      opt_val, opt_pt, history = call_to_optimise['single'][options.max_or_min](
+        obj_module.objective, domain=None, max_capital=options.max_capital, config=config,
+        options=options)
     print('Optimum Value in %d evals: %0.4f'%(len(history.curr_opt_points), opt_val))
     print('Optimum Point: %s.'%(opt_pt))
   else:
@@ -394,11 +464,11 @@ def main():
       raise ValueError('Multi-objective multi-fidelity optimisation has not been ' +
                        'implemented yet.')
     else:
-      print('Performing multi-objective optimisation on domain %s with %d functions.'%(
+      print('%s multiobjective functions on domain %s with %d functions.'%(_print_prefix,
             config.domain, len(obj_module.objectives)))
-      pareto_values, pareto_points, history = multiobjective_maximise_functions(
-        obj_module.objectives, domain=None, max_capital=options.max_capital,
-        config=config, options=options)
+      pareto_values, pareto_points, history = \
+        call_to_optimise['multi'][options.max_or_min](obj_module.objectives,
+        domain=None, max_capital=options.max_capital, config=config, options=options)
     num_pareto_points = len(pareto_points)
     print('Found %d Pareto Points: %s.'%(num_pareto_points, pareto_points))
     print('Corresponding Pareto Values: %s.'%(pareto_values))

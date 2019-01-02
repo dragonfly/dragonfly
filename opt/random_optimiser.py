@@ -213,8 +213,8 @@ class MFCPRandomOptimiser(RandomOptimiser):
 # APIs for random optimisation ===========================================================
 
 # An API for single fidelity optimisation
-def random_optimiser_from_func_caller(func_caller, worker_manager, max_capital, mode,
-                                      options=None, reporter='default'):
+def random_optimiser_from_func_caller(func_caller, worker_manager, max_capital,
+                                      mode='asy', options=None, reporter='default'):
   """ Creates an appropriate RandomOptimiser Object and optimises the function. """
   reporter = get_reporter(reporter)
   if isinstance(func_caller.domain, domains.EuclideanDomain):
@@ -247,8 +247,8 @@ def cp_random_optimiser_from_raw_args(raw_func, domain_config_file, *args, **kwa
 
 
 # An API for multi-fidelity optimisation
-def mf_random_optimiser_from_func_caller(func_caller, worker_manager, max_capital, mode,
-                                         options=None, reporter='default',
+def mf_random_optimiser_from_func_caller(func_caller, worker_manager, max_capital,
+                                         mode='asy', options=None, reporter='default',
                                          *args, **kwargs):
   """ Creates a MF EuclideanRandomOptimiser Object and optimises the function. """
   reporter = get_reporter(reporter)
