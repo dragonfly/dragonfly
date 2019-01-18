@@ -7,9 +7,9 @@
 # pylint: disable=abstract-class-little-used
 
 # Local
-from opt import cp_ga_optimiser
-from opt.unittest_cp_random_optimiser import CPOptimiserBaseTestCase
-from utils.base_test_class import BaseTestClass, execute_tests
+from . import cp_ga_optimiser
+from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
 class CPGAOPtimiserTestCase(CPOptimiserBaseTestCase, BaseTestClass):

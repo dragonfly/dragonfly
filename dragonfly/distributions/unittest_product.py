@@ -10,9 +10,9 @@ from __future__ import absolute_import
 import numpy as np
 
 # Local imports
-from distributions.continuous import Normal, Exponential, ContinuousUniform
-from distributions.product import JointDistribution
-from utils.base_test_class import BaseTestClass, execute_tests
+from .continuous import Normal, Exponential, ContinuousUniform
+from .product import JointDistribution
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 class JointDistributionTestCase(BaseTestClass):
   """ Unit tests for joint distribution class """

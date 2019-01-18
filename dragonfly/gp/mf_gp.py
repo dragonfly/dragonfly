@@ -8,11 +8,11 @@ from __future__ import division
 # pylint: disable=abstract-class-not-used
 
 # Local imports
-import gp.kernel as gp_kernel
-from gp.gp_core import GP, GPFitter
-from utils.option_handler import load_options
-from utils.reporters import get_reporter
-from utils.ancillary_utils import get_list_of_floats_as_str
+import .kernel as gp_kernel
+from .gp_core import GP, GPFitter
+from ..utils.option_handler import load_options
+from ..utils.reporters import get_reporter
+from ..utils.ancillary_utils import get_list_of_floats_as_str
 
 
 def get_ZX_from_ZZ_XX(ZZ, XX):

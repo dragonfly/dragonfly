@@ -9,8 +9,8 @@ from __future__ import absolute_import
 import numpy as np
 
 # Local imports
-from distributions.continuous import Normal, Exponential, ContinuousUniform, Beta
-from utils.base_test_class import BaseTestClass, execute_tests
+from .continuous import Normal, Exponential, ContinuousUniform, Beta
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 class SliceTestCase(BaseTestClass):
   """ Unit tests for slice sampling """

@@ -10,8 +10,8 @@ from __future__ import absolute_import
 import numpy as np
 
 # Local imports
-from distributions.discrete import DiscreteUniform, Bernoulli
-from utils.base_test_class import BaseTestClass, execute_tests
+from .discrete import DiscreteUniform, Bernoulli
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 class MetropolisDiscreteTestCases(BaseTestClass):
   """ Unit tests for metropolis sampling of discrete distributions """

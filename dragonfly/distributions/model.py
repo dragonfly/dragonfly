@@ -10,10 +10,10 @@ from __future__ import absolute_import
 import numpy as np
 
 # Local imports
-from distributions.distribution import Distribution
-from sampling.slice import Slice
-from sampling.nuts import NoUTurnSamplerDA as NUTS, LeapFrog
-from sampling.metropolis import Metropolis, BinaryMetropolis
+from .distribution import Distribution
+from ..sampling.slice import Slice
+from ..sampling.nuts import NoUTurnSamplerDA as NUTS, LeapFrog
+from ..sampling.metropolis import Metropolis, BinaryMetropolis
 
 class Model(Distribution):
   """ Class for abstract distributions """

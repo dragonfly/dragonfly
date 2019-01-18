@@ -13,13 +13,13 @@ from demos_synthetic.multiobjective_hartmann.multiobjective_hartmann \
          import objectives as moo_hartmann
 from demos_synthetic.multiobjective_branin_currinexp.multiobjective_branin_currinexp \
          import objectives as moo_branin
-from exd.cp_domain_utils import get_raw_point_from_processed_point, \
+from ..exd.cp_domain_utils import get_raw_point_from_processed_point, \
                                 load_config_file
-from exd.experiment_caller import get_multifunction_caller_from_config
-from exd.worker_manager import SyntheticWorkerManager
-from opt import random_multiobjective_optimiser
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.reporters import get_reporter
+from ..exd.experiment_caller import get_multifunction_caller_from_config
+from ..exd.worker_manager import SyntheticWorkerManager
+from . import random_multiobjective_optimiser
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.reporters import get_reporter
 
 
 

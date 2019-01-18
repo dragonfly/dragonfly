@@ -5,9 +5,9 @@
 
 
 # Local imports
-from opt import gp_bandit
-from opt.unittest_cp_random_optimiser import CPOptimiserBaseTestCase
-from utils.base_test_class import BaseTestClass, execute_tests
+from . import gp_bandit
+from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
 class CPGPBanditTestCase(CPOptimiserBaseTestCase, BaseTestClass):

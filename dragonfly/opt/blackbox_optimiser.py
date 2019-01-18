@@ -10,8 +10,8 @@ from __future__ import division
 
 import numpy as np
 # Local imports
-from exd.exd_core import ExperimentDesigner, exd_core_args
-from utils.option_handler import load_options
+from ..exd.exd_core import ExperimentDesigner, exd_core_args
+from ..utils.option_handler import load_options
 
 blackbox_opt_args = exd_core_args
 

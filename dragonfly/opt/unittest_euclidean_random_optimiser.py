@@ -8,13 +8,13 @@
 
 import numpy as np
 # Local imports
-import opt.random_optimiser as random_optimiser
-from exd.worker_manager import SyntheticWorkerManager
-from utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str, \
+import .random_optimiser as random_optimiser
+from ..exd.worker_manager import SyntheticWorkerManager
+from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str, \
                                   get_rounded_list
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.euclidean_synthetic_functions import get_syn_func_caller
-import utils.reporters as reporters
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.euclidean_synthetic_functions import get_syn_func_caller
+import ..utils.reporters as reporters
 
 
 # A base class for all Optimisers on Euclidean spaces ----------------------------

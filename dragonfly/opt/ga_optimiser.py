@@ -9,10 +9,10 @@
 from argparse import Namespace
 from numpy.random import choice
 # Local imports
-from opt.blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args
-from utils.general_utils import sample_according_to_exp_probs
-from utils.option_handler import get_option_specs, load_options
-from utils.reporters import get_reporter
+from .blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args
+from ..utils.general_utils import sample_according_to_exp_probs
+from ..utils.option_handler import get_option_specs, load_options
+from ..utils.reporters import get_reporter
 
 ga_specific_opt_args = [
   get_option_specs('num_mutations_per_epoch', False, 5,

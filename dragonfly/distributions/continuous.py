@@ -12,8 +12,8 @@ from __future__ import division
 import numpy as np
 
 # Local imports
-from distributions.distribution import Continuous
-from exd import domains
+from .distribution import Continuous
+from ..exd import domains
 
 # Univariate Normal Distribution
 class Normal(Continuous):

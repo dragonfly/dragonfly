@@ -23,7 +23,7 @@ except ImportError:
   import queue as Qu
 import numpy as np
 
-from utils.general_utils import map_to_bounds
+from .general_utils import map_to_bounds
 
 
 class DOOFunction(object):

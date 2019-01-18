@@ -8,9 +8,9 @@ from __future__ import division
 
 import numpy as np
 # Local imports
-from utils.general_utils import map_to_cube
-# from utils.function_caller import FunctionCaller
-from exd.experiment_caller import EuclideanFunctionCaller
+from .general_utils import map_to_cube
+# from .function_caller import FunctionCaller
+from ..exd.experiment_caller import EuclideanFunctionCaller
 
 
 # Hartmann Functions ---------------------------------------------------------------------

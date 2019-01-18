@@ -13,8 +13,8 @@ from math import sqrt
 
 import numpy as np
 
-from sampling.check_functions import _check_1d_array_object
-from sampling.base import LeapFrog, BaseSimulateHamiltonianDynamics
+from .check_functions import _check_1d_array_object
+from .base import LeapFrog, BaseSimulateHamiltonianDynamics
 
 class HamiltonianMC(object):
   """

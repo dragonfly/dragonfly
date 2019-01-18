@@ -15,9 +15,9 @@ from argparse import Namespace
 import numpy as np
 
 # Local imports
-from exd.exd_utils import EVAL_ERROR_CODE
-from utils.option_handler import get_option_specs
-from utils.reporters import get_reporter
+from .exd_utils import EVAL_ERROR_CODE
+from ..utils.option_handler import get_option_specs
+from ..utils.reporters import get_reporter
 
 exd_core_args = [ \
   get_option_specs('max_num_steps', False, 1e7,

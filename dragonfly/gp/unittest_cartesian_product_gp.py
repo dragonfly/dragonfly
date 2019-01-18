@@ -10,11 +10,11 @@ from argparse import Namespace
 import numpy as np
 from time import time
 # Local
-from exd.cp_domain_utils import load_cp_domain_from_config_file, \
+from ..exd.cp_domain_utils import load_cp_domain_from_config_file, \
                                 get_processed_func_from_raw_func_for_cp_domain, \
                                 get_processed_func_from_raw_func_via_config, \
                                 load_config_file, sample_from_config_space
-from gp import cartesian_product_gp as cpgp
+from . import cartesian_product_gp as cpgp
 from demos_synthetic.borehole_6.borehole_6 import borehole_6
 from demos_synthetic.borehole_6.borehole_6_mf import borehole_6_mf
 from demos_synthetic.hartmann3_2.hartmann3_2 import hartmann3_2
@@ -27,8 +27,8 @@ from demos_synthetic.park1_3.park1_3 import park1_3
 from demos_synthetic.syn_cnn_1.syn_cnn_1 import syn_cnn_1
 from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
 from nn import nn_examples
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.general_utils import map_to_bounds, get_idxs_from_list_of_lists
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.general_utils import map_to_bounds, get_idxs_from_list_of_lists
 
 
 def get_cnns():

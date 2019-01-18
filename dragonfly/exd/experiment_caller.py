@@ -14,12 +14,12 @@ from __future__ import print_function
 from argparse import Namespace
 import numpy as np
 # Local imports
-from exd.cp_domain_utils import load_config_file, sample_from_cp_domain, \
+from .cp_domain_utils import load_config_file, sample_from_cp_domain, \
                                 get_processed_func_from_raw_func_via_config, \
                                 get_processed_func_from_raw_func_for_cp_domain
-from exd.domains import EuclideanDomain
-from exd.exd_utils import EVAL_ERROR_CODE
-from utils.general_utils import map_to_cube, map_to_bounds
+from .domains import EuclideanDomain
+from .exd_utils import EVAL_ERROR_CODE
+from ..utils.general_utils import map_to_cube, map_to_bounds
 
 _FIDEL_TOL = 1e-2
 

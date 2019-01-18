@@ -8,11 +8,11 @@ from __future__ import division
 
 import numpy as np
 # Local
-from gp.euclidean_gp import EuclideanGP, EuclideanGPFitter, euclidean_gp_args
-from gp.unittest_gp_core import compute_average_prediction_error
-from gp.unittest_gp_core import gen_gp_test_data
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.option_handler import load_options
+from .euclidean_gp import EuclideanGP, EuclideanGPFitter, euclidean_gp_args
+from .unittest_gp_core import compute_average_prediction_error
+from .unittest_gp_core import gen_gp_test_data
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.option_handler import load_options
 
 
 # Some wrappers to build a GP ----------------------------------------------------------

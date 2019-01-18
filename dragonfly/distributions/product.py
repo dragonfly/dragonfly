@@ -9,7 +9,7 @@ from __future__ import absolute_import
 import numpy as np
 
 # Local imports
-from distributions.distribution import Distribution
+from .distribution import Distribution
 
 class JointDistribution(Distribution):
   """ Independent Joint Distribution """

@@ -9,9 +9,9 @@
 from argparse import Namespace
 import numpy as np
 # Local imports
-from exd.cp_domain_utils import sample_from_cp_domain
-from utils.general_utils import map_to_bounds, flatten_list_of_lists
-from utils.oper_utils import direct_ft_maximise, latin_hc_sampling, pdoo_maximise, \
+from .cp_domain_utils import sample_from_cp_domain
+from ..utils.general_utils import map_to_bounds, flatten_list_of_lists
+from ..utils.oper_utils import direct_ft_maximise, latin_hc_sampling, pdoo_maximise, \
                              random_maximise
 
 # Define constants

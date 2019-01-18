@@ -14,10 +14,10 @@ from __future__ import division
 
 # import numpy as np
 # Local imports
-from exd.exd_core import ExperimentDesigner, exd_core_args
-from exd.experiment_caller import MultiFunctionCaller, FunctionCaller
-from utils.general_utils import update_pareto_set
-# from utils.option_handler import load_options
+from ..exd.exd_core import ExperimentDesigner, exd_core_args
+from ..exd.experiment_caller import MultiFunctionCaller, FunctionCaller
+from ..utils.general_utils import update_pareto_set
+# from ..utils.option_handler import load_options
 
 
 multiobjective_opt_args = exd_core_args

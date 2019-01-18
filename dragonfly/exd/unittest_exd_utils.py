@@ -8,8 +8,8 @@ from __future__ import division
 # pylint: disable=relative-import
 
 # Local imports
-from exd.exd_utils import random_sampling_cts, random_sampling_kmeans_cts
-from utils.base_test_class import BaseTestClass, execute_tests
+from .exd_utils import random_sampling_cts, random_sampling_kmeans_cts
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
 class EDUtilsTestCase(BaseTestClass):

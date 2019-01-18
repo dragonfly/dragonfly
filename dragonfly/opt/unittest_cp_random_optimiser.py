@@ -34,16 +34,16 @@ from demos_synthetic.syn_cnn_1.syn_cnn_1_mf import cost as cost_syn_cnn_1_mf
 from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
 from demos_synthetic.syn_cnn_2.syn_cnn_2_mf import syn_cnn_2_mf
 from demos_synthetic.syn_cnn_2.syn_cnn_2_mf import cost as cost_syn_cnn_2_mf
-from exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
+from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 get_raw_point_from_processed_point, \
                                 load_cp_domain_from_config_file, \
                                 load_config_file
-from exd.experiment_caller import CPFunctionCaller, get_multifunction_caller_from_config
-from exd.worker_manager import SyntheticWorkerManager
-from opt import random_optimiser
-from utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.reporters import get_reporter
+from ..exd.experiment_caller import CPFunctionCaller, get_multifunction_caller_from_config
+from ..exd.worker_manager import SyntheticWorkerManager
+from . import random_optimiser
+from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.reporters import get_reporter
 
 
 class CPOptimiserBaseTestCase(object):

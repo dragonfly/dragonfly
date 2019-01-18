@@ -14,24 +14,24 @@ import numpy as np
 
 # Local imports
 # from gp.gp_core import GP
-from exd import domains
-from exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
+from ..exd import domains
+from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file, load_config_file
-from exd.exd_core import mf_exd_args
-from exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
-from exd.experiment_caller import CPFunctionCaller, get_multifunction_caller_from_config
-from gp.euclidean_gp import EuclideanGPFitter, euclidean_gp_args, \
+from ..exd.exd_core import mf_exd_args
+from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
+from ..exd.experiment_caller import CPFunctionCaller, get_multifunction_caller_from_config
+from ..gp.euclidean_gp import EuclideanGPFitter, euclidean_gp_args, \
                             EuclideanMFGPFitter, euclidean_mf_gp_args
-from gp.cartesian_product_gp import cartesian_product_gp_args, \
+from ..gp.cartesian_product_gp import cartesian_product_gp_args, \
                                     cartesian_product_mf_gp_args, \
                                     CPGPFitter, CPMFGPFitter
-from opt import gpb_acquisitions
-from opt.blackbox_optimiser import blackbox_opt_args, BlackboxOptimiser, \
+from . import gpb_acquisitions
+from .blackbox_optimiser import blackbox_opt_args, BlackboxOptimiser, \
                                    CalledMFOptimiserWithSFCaller
-from utils.ancillary_utils import get_list_as_str
-from utils.general_utils import block_augment_array, get_idxs_from_list_of_lists
-from utils.option_handler import get_option_specs, load_options
-from utils.reporters import get_reporter
+from ..utils.ancillary_utils import get_list_as_str
+from ..utils.general_utils import block_augment_array, get_idxs_from_list_of_lists
+from ..utils.option_handler import get_option_specs, load_options
+from ..utils.reporters import get_reporter
 
 gp_bandit_args = [ \
   get_option_specs('acq', False, 'default', \

@@ -8,17 +8,17 @@
 from argparse import Namespace
 import numpy as np
 # Local
-from exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
+from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file
-from exd import domains
-from exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
-from exd.experiment_caller import CPMultiFunctionCaller
-from exd.cp_domain_utils import sample_from_cp_domain
-from opt.multiobjective_optimiser import MultiObjectiveOptimiser, \
+from ..exd import domains
+from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
+from ..exd.experiment_caller import CPMultiFunctionCaller
+from ..exd.cp_domain_utils import sample_from_cp_domain
+from .multiobjective_optimiser import MultiObjectiveOptimiser, \
                                          multiobjective_opt_args
-from utils.option_handler import load_options
-from utils.reporters import get_reporter
-from utils.general_utils import map_to_bounds
+from ..utils.option_handler import load_options
+from ..utils.reporters import get_reporter
+from ..utils.general_utils import map_to_bounds
 
 
 random_multiobjective_optimiser_args = multiobjective_opt_args

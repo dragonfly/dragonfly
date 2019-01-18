@@ -18,9 +18,9 @@ from demos_synthetic.park2_4.park2_4_mf import park2_4_mf
 from demos_synthetic.park2_3.park2_3 import park2_3
 from demos_synthetic.park1_3.park1_3 import park1_3
 from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
-from exd import cp_domain_utils
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.general_utils import get_idxs_from_list_of_lists
+from . import cp_domain_utils
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.general_utils import get_idxs_from_list_of_lists
 
 
 class CPDomainUtilsTestCase(BaseTestClass):

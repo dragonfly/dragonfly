@@ -10,15 +10,15 @@ from __future__ import print_function
 from argparse import Namespace
 import numpy as np
 # Local imports
-from exd import domains
-from exd.cp_domain_utils import load_cp_domain_from_config_file
-from gp import gp_core, mf_gp
-from gp.euclidean_gp import get_euclidean_integral_gp_kernel_with_scale, \
+from ..exd import domains
+from ..exd.cp_domain_utils import load_cp_domain_from_config_file
+from . import gp_core, mf_gp
+from .euclidean_gp import get_euclidean_integral_gp_kernel_with_scale, \
                             prep_euclidean_integral_kernel_hyperparams
-from gp.kernel import CartesianProductKernel, HammingKernel
-from utils.general_utils import get_idxs_from_list_of_lists
-from utils.option_handler import get_option_specs, load_options
-from utils.reporters import get_reporter
+from .kernel import CartesianProductKernel, HammingKernel
+from ..utils.general_utils import get_idxs_from_list_of_lists
+from ..utils.option_handler import get_option_specs, load_options
+from ..utils.reporters import get_reporter
 
 # Part 1: Parameters and Arguments
 # ================================

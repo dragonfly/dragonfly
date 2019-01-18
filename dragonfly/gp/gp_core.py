@@ -16,15 +16,15 @@ from itertools import product as itertools_product
 import sys
 import numpy as np
 # Local imports
-from distributions.model import Model
-from distributions import continuous
-from distributions import discrete
-from utils.general_utils import stable_cholesky, draw_gaussian_samples, \
+from ..distributions.model import Model
+from ..distributions import continuous
+from ..distributions import discrete
+from ..utils.general_utils import stable_cholesky, draw_gaussian_samples, \
      project_symmetric_to_psd_cone, solve_lower_triangular, solve_upper_triangular
-from utils.oper_utils import direct_ft_maximise, pdoo_maximise, \
+from ..utils.oper_utils import direct_ft_maximise, pdoo_maximise, \
                              random_maximise, random_sample_cts_dscr
-from utils.option_handler import get_option_specs, load_options
-from utils.reporters import get_reporter
+from ..utils.option_handler import get_option_specs, load_options
+from ..utils.reporters import get_reporter
 
 
 # These are mandatory requirements. Every GP implementation should probably use them.

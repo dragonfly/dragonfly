@@ -9,8 +9,8 @@ from __future__ import absolute_import
 import numpy as np
 
 # Local imports
-from distributions.continuous import Normal, Beta, Exponential
-from utils.base_test_class import BaseTestClass, execute_tests
+from .continuous import Normal, Beta, Exponential
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 class NutsTestCase(BaseTestClass):
   """ Unit tests for distributions in continuous.py """

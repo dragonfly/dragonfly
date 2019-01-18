@@ -23,12 +23,12 @@ except ImportError:
   py_opt_transport = None
 # Local imports
 try:
-  import utils.direct_fortran.direct as direct_ft_wrap
+  import .direct_fortran.direct as direct_ft_wrap
 except ImportError:
   print('Could not import fortran direct library.')
   direct_ft_wrap = None
-from utils.general_utils import map_to_bounds
-from utils.doo import DOOFunction, pdoo_wrap
+from .general_utils import map_to_bounds
+from .doo import DOOFunction, pdoo_wrap
 
 
 # Optimal transport and Earth mover's distance ===========================================

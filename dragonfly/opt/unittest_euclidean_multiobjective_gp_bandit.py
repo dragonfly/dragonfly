@@ -3,10 +3,10 @@
   -- kandasamy@cs.cmu.edu
 """
 
-from opt import multiobjective_gp_bandit
-from opt.unittest_euclidean_random_multiobjective_optimiser import \
+from . import multiobjective_gp_bandit
+from .unittest_euclidean_random_multiobjective_optimiser import \
   EuclideanMultiObjectiveOptimiserBaseTestCase
-from utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
 class EuclideanRandomMultiObjectiveOptimiserTestCase(

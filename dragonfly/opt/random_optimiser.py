@@ -8,18 +8,18 @@
 from argparse import Namespace
 import numpy as np
 # Local imports
-from exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
+from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file
-import exd.domains as domains
-from exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
-from exd.exd_core import mf_exd_args
-from exd.experiment_caller import CPFunctionCaller
-from exd.cp_domain_utils import sample_from_cp_domain
-from opt.blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args, \
+import ..exd.domains as domains
+from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
+from ..exd.exd_core import mf_exd_args
+from ..exd.experiment_caller import CPFunctionCaller
+from ..exd.cp_domain_utils import sample_from_cp_domain
+from .blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args, \
                                    CalledMFOptimiserWithSFCaller
-from utils.option_handler import load_options
-from utils.reporters import get_reporter
-from utils.general_utils import map_to_bounds
+from ..utils.option_handler import load_options
+from ..utils.reporters import get_reporter
+from ..utils.general_utils import map_to_bounds
 
 random_optimiser_args = blackbox_opt_args
 euclidean_random_optimiser_args = random_optimiser_args

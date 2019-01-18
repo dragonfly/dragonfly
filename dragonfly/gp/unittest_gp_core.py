@@ -10,11 +10,11 @@ from __future__ import division
 # pylint: disable=invalid-name
 # pylint: disable=relative-import
 
-from utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.base_test_class import BaseTestClass, execute_tests
 import numpy as np
 # Local
-from gp.gp_core import GP
-from gp.kernel import SEKernel
+from .gp_core import GP
+from .kernel import SEKernel
 
 
 def gen_gp_test_data():

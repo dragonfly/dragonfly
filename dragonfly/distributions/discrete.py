@@ -10,8 +10,8 @@ from __future__ import absolute_import
 import numpy as np
 
 # Local imports
-from distributions.distribution import Discrete
-from exd import domains
+from .distribution import Discrete
+from ..exd import domains
 
 # Bernoulli Distribution
 class Bernoulli(Discrete):

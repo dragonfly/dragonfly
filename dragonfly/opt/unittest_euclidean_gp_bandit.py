@@ -4,12 +4,12 @@
 """
 
 # Local imports
-from gp.euclidean_gp import euclidean_gp_args
-from opt import gp_bandit
-from opt.unittest_euclidean_random_optimiser import EuclideanOptimisersBaseTestCase, \
+from ..gp.euclidean_gp import euclidean_gp_args
+from . import gp_bandit
+from .unittest_euclidean_random_optimiser import EuclideanOptimisersBaseTestCase, \
                                                     MFEuclideanOptimisersBaseTestCase
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.option_handler import load_options
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.option_handler import load_options
 
 
 class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):

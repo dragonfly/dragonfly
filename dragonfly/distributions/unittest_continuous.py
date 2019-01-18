@@ -10,9 +10,9 @@ import numpy as np
 import warnings
 
 # Local imports
-from distributions.continuous import Beta, ContinuousUniform, Exponential, \
+from .continuous import Beta, ContinuousUniform, Exponential, \
                                      Normal, MultivariateGaussian
-from utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 class ContinuousDistributionsTestCase(BaseTestClass):
   """ Unit tests for distributions in continuous.py """

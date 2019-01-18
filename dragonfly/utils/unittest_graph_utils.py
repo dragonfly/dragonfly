@@ -10,8 +10,8 @@ import numpy as np
 from scipy.sparse import dok_matrix
 from time import clock
 # Local
-from utils import graph_utils
-from utils.base_test_class import BaseTestClass, execute_tests
+from . import graph_utils
+from .base_test_class import BaseTestClass, execute_tests
 
 
 ERR_TOL_FRAC = 1e-5

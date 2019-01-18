@@ -8,9 +8,9 @@
 from __future__ import absolute_import
 import numpy as np
 # Local imports
-from exd import domains
-from utils.general_utils import map_to_bounds
-from utils.base_test_class import BaseTestClass, execute_tests
+from . import domains
+from ..utils.general_utils import map_to_bounds
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 class DomainBaseTestCase(object):
   """ Unit tests for Base class. """

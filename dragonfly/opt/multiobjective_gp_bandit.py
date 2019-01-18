@@ -20,20 +20,20 @@ import numpy as np
 
 # Local imports
 # from gp.gp_core import GP
-from exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
+from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file
-from exd import domains
-from exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
-from exd.experiment_caller import CPMultiFunctionCaller
-from gp.euclidean_gp import EuclideanGPFitter
-from gp.cartesian_product_gp import CPGPFitter
-from opt import multiobjective_gpb_acquisitions
-from opt.blackbox_optimiser import CalledMFOptimiserWithSFCaller
-from opt.multiobjective_optimiser import MultiObjectiveOptimiser
-from opt.gp_bandit import GPBandit, get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args
-from utils.ancillary_utils import get_list_as_str
-from utils.option_handler import get_option_specs, load_options
-from utils.reporters import get_reporter
+from ..exd import domains
+from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
+from ..exd.experiment_caller import CPMultiFunctionCaller
+from ..gp.euclidean_gp import EuclideanGPFitter
+from ..gp.cartesian_product_gp import CPGPFitter
+from . import multiobjective_gpb_acquisitions
+from .blackbox_optimiser import CalledMFOptimiserWithSFCaller
+from .multiobjective_optimiser import MultiObjectiveOptimiser
+from .gp_bandit import GPBandit, get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args
+from ..utils.ancillary_utils import get_list_as_str
+from ..utils.option_handler import get_option_specs, load_options
+from ..utils.reporters import get_reporter
 
 
 _NO_MF_FOR_MOGPB_ERR_MSG = 'Multi-fidelity support has not been implemented yet' + \

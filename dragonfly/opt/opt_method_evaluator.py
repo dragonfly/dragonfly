@@ -11,8 +11,8 @@ from datetime import datetime
 import os
 import numpy as np
 # Local imports
-from opt.blackbox_optimiser import OptInitialiser
-from utils.method_evaluator import BaseMethodEvaluator
+from .blackbox_optimiser import OptInitialiser
+from ..utils.method_evaluator import BaseMethodEvaluator
 
 
 class OptMethodEvaluator(BaseMethodEvaluator):

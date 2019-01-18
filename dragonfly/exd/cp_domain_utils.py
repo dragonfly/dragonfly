@@ -9,12 +9,12 @@
 
 from argparse import Namespace
 # Local imports
-from exd import domains
-from parse.config_parser import config_parser
-from utils.general_utils import flatten_list_of_objects_and_iterables, \
+from . import domains
+from ..parse.config_parser import config_parser
+from ..utils.general_utils import flatten_list_of_objects_and_iterables, \
                                 get_original_order_from_reordered_list, \
                                 transpose_list_of_lists
-from utils.oper_utils import random_sample_from_euclidean_domain, \
+from ..utils.oper_utils import random_sample_from_euclidean_domain, \
                              random_sample_from_integral_domain, \
                              random_sample_from_prod_discrete_domain
 

@@ -14,9 +14,9 @@ from __future__ import division
 import numpy as np
 
 # Local imports
-from sampling.base import LeapFrog
-from sampling.hmc import HamiltonianMCDA
-from sampling.check_functions import _check_1d_array_object
+from .base import LeapFrog
+from .hmc import HamiltonianMCDA
+from .check_functions import _check_1d_array_object
 
 class NoUTurnSampler(HamiltonianMCDA):
   """

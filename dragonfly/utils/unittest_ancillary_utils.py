@@ -9,8 +9,8 @@ from __future__ import absolute_import
 # pylint: disable=invalid-name
 # pylint: disable=relative-import
 
-import ancillary_utils
-from utils.base_test_class import BaseTestClass, execute_tests
+import .ancillary_utils
+from .base_test_class import BaseTestClass, execute_tests
 
 
 class AncillaryUtilsTestCase(BaseTestClass):

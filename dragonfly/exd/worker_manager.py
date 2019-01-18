@@ -21,7 +21,7 @@ except ImportError:
   Set = set
 
 # Local
-from exd.exd_utils import EVAL_ERROR_CODE
+from .exd_utils import EVAL_ERROR_CODE
 
 _TIME_TOL = 1e-5
 

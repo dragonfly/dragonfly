@@ -14,13 +14,13 @@ from __future__ import division
 from argparse import Namespace
 import numpy as np
 # Local imports
-from gp import gp_core, mf_gp
-import gp.kernel as gp_kernel
-from utils.ancillary_utils import get_list_of_floats_as_str
-from utils.general_utils import get_sublist_from_indices, map_to_bounds
-from utils.option_handler import get_option_specs, load_options
-from utils.oper_utils import random_sample_from_discrete_domain
-from utils.reporters import get_reporter
+from . import gp_core, mf_gp
+import ..kernel as gp_kernel
+from ..utils.ancillary_utils import get_list_of_floats_as_str
+from ..utils.general_utils import get_sublist_from_indices, map_to_bounds
+from ..utils.option_handler import get_option_specs, load_options
+from ..utils.oper_utils import random_sample_from_discrete_domain
+from ..utils.reporters import get_reporter
 
 _DFLT_KERNEL_TYPE = 'se'
 

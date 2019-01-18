@@ -6,9 +6,9 @@
 # pylint: disable=invalid-name
 
 # Local imports
-from sampling.slice import Slice
-from sampling.metropolis import Metropolis, BinaryMetropolis
-from sampling.nuts import NoUTurnSamplerDA as NUTS, LeapFrog
+from ..sampling.slice import Slice
+from ..sampling.metropolis import Metropolis, BinaryMetropolis
+from ..sampling.nuts import NoUTurnSamplerDA as NUTS, LeapFrog
 
 
 class Distribution(object):

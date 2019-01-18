@@ -3,10 +3,10 @@
   -- kandasamy@cs.cmu.edu
 """
 
-from opt import multiobjective_gp_bandit
-from opt.unittest_cp_random_multiobjective_optimiser import \
+from . import multiobjective_gp_bandit
+from .unittest_cp_random_multiobjective_optimiser import \
      CPMultiObjectiveOptimiserBaseTestCase
-from utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
 class CPMultiObjectiveGPBanditTestCase(

@@ -14,10 +14,10 @@ import time
 from argparse import Namespace
 import numpy as np
 # Local
-from utils.ancillary_utils import is_nondecreasing
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.euclidean_synthetic_functions import get_mf_hartmann_function_data
-from utils import oper_utils
+from .ancillary_utils import is_nondecreasing
+from .base_test_class import BaseTestClass, execute_tests
+from .euclidean_synthetic_functions import get_mf_hartmann_function_data
+from . import oper_utils
 
 # TODO: Write unit tests for Optimal Transport
 

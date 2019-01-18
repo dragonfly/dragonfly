@@ -11,9 +11,9 @@ from __future__ import division
 import numpy as np
 
 # Local imports
-from distributions.continuous import Beta
-from distributions.model import Model
-from utils.base_test_class import BaseTestClass, execute_tests
+from .continuous import Beta
+from .model import Model
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 class PosteriorMixedTestCase(BaseTestClass):
   """ Unit test for posterior sampling with Bernoulli likelihood and Beta prior"""

@@ -11,8 +11,8 @@ from argparse import Namespace
 from copy import copy
 import numpy as np
 # Local
-from opt.gpb_acquisitions import maximise_acquisition
-from opt.gpb_acquisitions import get_gp_sampler_for_parallel_strategy
+from .gpb_acquisitions import maximise_acquisition
+from .gpb_acquisitions import get_gp_sampler_for_parallel_strategy
 
 
 # Multi-Objective Thompson Sampling ========================================

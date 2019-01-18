@@ -11,8 +11,8 @@ from __future__ import division
 
 import numpy as np
 # Local imports
-from utils.ancillary_utils import get_list_of_floats_as_str
-from utils.general_utils import dist_squared, get_idxs_from_list_of_lists, \
+from ..utils.ancillary_utils import get_list_of_floats_as_str
+from ..utils.general_utils import dist_squared, get_idxs_from_list_of_lists, \
                                 pairwise_hamming_kernel
 
 
