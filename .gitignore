@@ -1,0 +1,3 @@
+*.pyc
+env/*
+dragonfly.egg-info/*
