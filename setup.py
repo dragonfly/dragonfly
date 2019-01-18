@@ -17,7 +17,7 @@ setup(
     url='https://github.com/dragonfly/dragonfly/',
     license='MIT',
     packages=['dragonfly'],
-    scripts=['bin/dragonfly.py'],
+    scripts=['bin/dragonfly-script.py'],
     install_requires=[
         'future',
     ],
