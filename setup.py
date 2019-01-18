@@ -1,13 +1,15 @@
 #!/usr/bin/env python
-
-# http://stackoverflow.com/questions/9810603/adding-install-requires-to-setup-py-when-making-a-python-package
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+import os
+from numpy.distutils.core import setup, Extension
 
 with open('README.md', 'r') as f:
     LONG_DESCRIPTION = f.read()
+
+
+direct_files = ['direct.pyf', 'DIRect.f', 'DIRserial.f', 'DIRsubrout.f']
+direct_paths = [os.path.join('dragonfly', 'utils', 'direct_fortran', x) for x in direct_files]
+ext1 = Extension(name='dragonfly.utils.direct_fortran.direct',
+                 sources=direct_paths)
 
 setup(
     name='dragonfly',
@@ -23,6 +25,7 @@ setup(
                     "Intended Audience :: Developers",
                     "Intended Audience :: Science/Research",
                     "License :: OSI Approved :: MIT License",
-    ]
+    ],
+    ext_modules=[ext1],
 )
 
