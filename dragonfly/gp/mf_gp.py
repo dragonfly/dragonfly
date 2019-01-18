@@ -8,7 +8,7 @@ from __future__ import division
 # pylint: disable=abstract-class-not-used
 
 # Local imports
-import .kernel as gp_kernel
+from . import kernel as gp_kernel
 from .gp_core import GP, GPFitter
 from ..utils.option_handler import load_options
 from ..utils.reporters import get_reporter

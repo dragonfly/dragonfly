@@ -23,7 +23,7 @@ except ImportError:
   py_opt_transport = None
 # Local imports
 try:
-  import .direct_fortran.direct as direct_ft_wrap
+  from .direct_fortran import direct as direct_ft_wrap
 except ImportError:
   print('Could not import fortran direct library.')
   direct_ft_wrap = None

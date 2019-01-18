@@ -15,7 +15,7 @@ from argparse import Namespace
 import numpy as np
 # Local imports
 from . import gp_core, mf_gp
-import ..kernel as gp_kernel
+from . import kernel as gp_kernel
 from ..utils.ancillary_utils import get_list_of_floats_as_str
 from ..utils.general_utils import get_sublist_from_indices, map_to_bounds
 from ..utils.option_handler import get_option_specs, load_options
