@@ -18,21 +18,21 @@ from __future__ import print_function
 import os
 import imp
 # Local
-from exd.cp_domain_utils import get_raw_from_processed_via_config, load_config_file, \
+from dragonfly.exd.cp_domain_utils import get_raw_from_processed_via_config, load_config_file, \
                                 get_processed_func_from_raw_func_for_cp_domain_fidelity, \
                                 get_processed_func_from_raw_func_for_cp_domain
-from exd.domains import EuclideanDomain
-from exd.exd_utils import get_unique_list_of_option_args
-from exd.experiment_caller import EuclideanFunctionCaller, CPFunctionCaller, \
+from dragonfly.exd.domains import EuclideanDomain
+from dragonfly.exd.exd_utils import get_unique_list_of_option_args
+from dragonfly.exd.experiment_caller import EuclideanFunctionCaller, CPFunctionCaller, \
                                   EuclideanMultiFunctionCaller, CPMultiFunctionCaller
-from exd.worker_manager import SyntheticWorkerManager
-from opt.gp_bandit import get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args, \
+from dragonfly.exd.worker_manager import SyntheticWorkerManager
+from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args, \
                           get_all_mf_euc_gp_bandit_args, get_all_mf_cp_gp_bandit_args, \
                           gpb_from_func_caller
-from opt.multiobjective_gp_bandit import multiobjective_gpb_from_multi_func_caller, \
+from dragonfly.opt.multiobjective_gp_bandit import multiobjective_gpb_from_multi_func_caller, \
                                          get_all_euc_moo_gp_bandit_args, \
                                          get_all_cp_moo_gp_bandit_args
-from utils.option_handler import get_option_specs, load_options
+from dragonfly.utils.option_handler import get_option_specs, load_options
 
 dragonfly_args = [ \
   get_option_specs('config', False, None, 'Path to the json or pb config file. '),
