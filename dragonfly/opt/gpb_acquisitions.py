@@ -12,7 +12,7 @@ import numpy as np
 from scipy.stats import norm as normal_distro
 # Local
 from ..utils.general_utils import solve_lower_triangular
-from .gp_core import get_post_covar_from_raw_covar
+from ..gp.gp_core import get_post_covar_from_raw_covar
 from ..exd.domains import EuclideanDomain
 from ..exd.exd_utils import maximise_with_method
 
