@@ -282,9 +282,9 @@ def maximise_with_method_on_cp_domain(method, obj, domain, max_evals,
     else:
       to_follow_up_with_euc_opt = False
     # Run a GA optimiser ---------------------------------------
-    from exd.worker_manager import SyntheticWorkerManager
-    from exd.experiment_caller import CPFunctionCaller
-    from opt.cp_ga_optimiser import cp_ga_optimiser_from_proc_args
+    from .worker_manager import SyntheticWorkerManager
+    from .experiment_caller import CPFunctionCaller
+    from ..opt.cp_ga_optimiser import cp_ga_optimiser_from_proc_args
     obj_in_func_caller = CPFunctionCaller(obj, domain, domain_orderings=None)
     worker_manager = SyntheticWorkerManager(1, time_distro='const')
     ga_max_val, ga_max_pt, ga_history = cp_ga_optimiser_from_proc_args(obj_in_func_caller,

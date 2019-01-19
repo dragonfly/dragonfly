@@ -12,13 +12,13 @@ from argparse import Namespace
 from copy import deepcopy
 import numpy as np
 # Local
-from gp import kernel
-from gp.unittest_euclidean_gp import fit_se_gp_with_dataset, fit_matern_gp_with_dataset, \
+from . import kernel
+from .unittest_euclidean_gp import fit_se_gp_with_dataset, fit_matern_gp_with_dataset, \
                                      fit_poly_gp_with_dataset
-from gp import euclidean_gp
-from utils.base_test_class import BaseTestClass, execute_tests
-from utils.general_utils import compute_average_sq_prediction_error
-from utils.option_handler import load_options
+from . import euclidean_gp
+from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.general_utils import compute_average_sq_prediction_error
+from ..utils.option_handler import load_options
 
 
 # Some wrappers for functions in gp.unittest_gp_instances --------------------------------

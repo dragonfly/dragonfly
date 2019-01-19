@@ -19,7 +19,7 @@ from argparse import Namespace
 import numpy as np
 
 # Local imports
-# from gp.gp_core import GP
+# from ..gp.gp_core import GP
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file
 from ..exd import domains

@@ -14,9 +14,9 @@ from __future__ import division
 import numpy as np
 
 # Local imports
-from gp.kernel import Kernel, SEKernel, MaternKernel, PolyKernel, CoordinateProductKernel
-from utils.ancillary_utils import dicts_are_equal
-from utils.base_test_class import BaseTestClass, execute_tests
+from .kernel import Kernel, SEKernel, MaternKernel, PolyKernel, CoordinateProductKernel
+from ..utils.ancillary_utils import dicts_are_equal
+from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
 class KernelBasicTestCase(BaseTestClass):

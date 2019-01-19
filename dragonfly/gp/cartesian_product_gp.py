@@ -404,7 +404,7 @@ class CPMFGPFitter(mf_gp.MFGPFitter):
     # Read from config
     if config is not None:
       if isinstance(config, str):
-        from exd.exd_utils import load_config_file
+        from ..exd.exd_utils import load_config_file
         config = load_config_file(config)
       self.config = config
       self.fidel_space = config.fidel_space
