@@ -3,3 +3,5 @@ env/*
 build/*
 dragonfly.egg-info/*
 *.so
+log_dir_file
+results_direct_file
