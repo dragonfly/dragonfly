@@ -8,7 +8,7 @@
 
 import numpy as np
 # Local imports
-import .random_optimiser as random_optimiser
+from . import random_optimiser as random_optimiser
 from ..exd.worker_manager import SyntheticWorkerManager
 from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str, \
                                   get_rounded_list
