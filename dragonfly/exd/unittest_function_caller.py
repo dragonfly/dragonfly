@@ -10,7 +10,7 @@
 import numpy as np
 # Local imports
 from . import cp_domain_utils, experiment_caller
-import ..utils.euclidean_synthetic_functions as esf
+from ..utils import euclidean_synthetic_functions as esf
 from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.ancillary_utils import get_list_of_floats_as_str
 # Synthetic functons for CP Domain
