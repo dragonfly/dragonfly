@@ -23,6 +23,9 @@ setup(
     scripts=['bin/dragonfly-script.py'],
     install_requires=[
         'future',
+        'numpy',
+        'scipy',
+        'six',
     ],
     classifiers=[
                     "Intended Audience :: Developers",
