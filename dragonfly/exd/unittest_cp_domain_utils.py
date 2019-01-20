@@ -29,33 +29,33 @@ class CPDomainUtilsTestCase(BaseTestClass):
   def setUp(self):
     """ Set up. """
     self.domain_config_files = [
-      '../demos_synthetic/example_configs/eg01.json',
-      '../demos_synthetic/example_configs/eg02.json',
-      '../demos_synthetic/example_configs/eg03.json',
-      '../demos_synthetic/example_configs/eg01.pb',
-      '../demos_synthetic/example_configs/eg02.pb',
-      '../demos_synthetic/example_configs/eg04.pb',
-      '../demos_synthetic/hartmann3_2/config.json',
-      '../demos_synthetic/hartmann6_4/config.json',
-      '../demos_synthetic/borehole_6/config.json',
-      '../demos_synthetic/park2_4/config.json',
-      '../demos_synthetic/park2_3/config.json',
-      '../demos_synthetic/park1_3/config.json',
-      '../demos_synthetic/syn_cnn_1/config.json',
+      'demos_synthetic/example_configs/eg01.json',
+      'demos_synthetic/example_configs/eg02.json',
+      'demos_synthetic/example_configs/eg03.json',
+      'demos_synthetic/example_configs/eg01.pb',
+      'demos_synthetic/example_configs/eg02.pb',
+      'demos_synthetic/example_configs/eg04.pb',
+      'demos_synthetic/hartmann3_2/config.json',
+      'demos_synthetic/hartmann6_4/config.json',
+      'demos_synthetic/borehole_6/config.json',
+      'demos_synthetic/park2_4/config.json',
+      'demos_synthetic/park2_3/config.json',
+      'demos_synthetic/park1_3/config.json',
+      'demos_synthetic/syn_cnn_1/config.json',
       ]
     self.synthetic_functions = [
-      ('../demos_synthetic/hartmann3_2/config.json', hartmann3_2),
-      ('../demos_synthetic/hartmann6_4/config.json', hartmann6_4),
-      ('../demos_synthetic/borehole_6/config.json', borehole_6),
-      ('../demos_synthetic/park2_4/config.json', park2_4),
-      ('../demos_synthetic/park2_3/config.json', park2_3),
-      ('../demos_synthetic/park1_3/config.json', park1_3),
-      ('../demos_synthetic/syn_cnn_2/config.json', syn_cnn_2),
+      ('demos_synthetic/hartmann3_2/config.json', hartmann3_2),
+      ('demos_synthetic/hartmann6_4/config.json', hartmann6_4),
+      ('demos_synthetic/borehole_6/config.json', borehole_6),
+      ('demos_synthetic/park2_4/config.json', park2_4),
+      ('demos_synthetic/park2_3/config.json', park2_3),
+      ('demos_synthetic/park1_3/config.json', park1_3),
+      ('demos_synthetic/syn_cnn_2/config.json', syn_cnn_2),
       ]
     self.domain_fidel_synthetic_functions = [
-      ('../demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf),
-      ('../demos_synthetic/borehole_6/config_mf.json', borehole_6_mf),
-      ('../demos_synthetic/park2_4/config_mf.json', park2_4_mf),
+      ('demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf),
+      ('demos_synthetic/borehole_6/config_mf.json', borehole_6_mf),
+      ('demos_synthetic/park2_4/config_mf.json', park2_4_mf),
       ]
 
   def test_load_domain(self):

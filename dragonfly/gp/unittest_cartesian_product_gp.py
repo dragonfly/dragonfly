@@ -87,7 +87,7 @@ def gen_cpgp_test_data():
   n_train = 200
   n_test = 300
   # Dataset 1
-  domain_file_name = '../demos_synthetic/example_configs/eg01.json'
+  domain_file_name = 'demos_synthetic/example_configs/eg01.json'
   func = lambda(x): x[0][0]**2 + 2*x[1][0] * x[0][0] + 3*x[1][0] + 2.1
   bounds = np.array([[-5, 10], [0, 15]])
   X_train = map_to_bounds(np.random.random((n_train, 2)), bounds)
@@ -96,7 +96,7 @@ def gen_cpgp_test_data():
   X_test = [[x] for x in X_test]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 2
-  domain_file_name = '../demos_synthetic/hartmann3_2/config.json'
+  domain_file_name = 'demos_synthetic/hartmann3_2/config.json'
   func = hartmann3_2
   bounds = np.array([[0, 1]] * 3)
   X_train = map_to_bounds(np.random.random((n_train, 3)), bounds)
@@ -105,7 +105,7 @@ def gen_cpgp_test_data():
   X_test = [[x] for x in X_test]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 3
-  domain_file_name = '../demos_synthetic/hartmann6_4/config.json'
+  domain_file_name = 'demos_synthetic/hartmann6_4/config.json'
   func = hartmann6_4
   bounds = np.array([[0, 10], [0, 10], [0, 1], [224, 324], [0, 92], [0, 92]])
   X_train = map_to_bounds(np.random.random((n_train, len(bounds))), bounds)
@@ -114,7 +114,7 @@ def gen_cpgp_test_data():
   X_test = [[[x[0], x[1]], [x[2]], [int(x[3]), int(x[4]), int(x[5])]] for x in X_test]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 4
-  domain_file_name = '../demos_synthetic/borehole_6/config.json'
+  domain_file_name = 'demos_synthetic/borehole_6/config.json'
   func = borehole_6
   bounds = np.array([[0.05, 0.15], [100, 50000], [0, 1], [0, 1], [63.1, 116],
                      [63070, 115600], [0, 240], [0, 240]])
@@ -126,7 +126,7 @@ def gen_cpgp_test_data():
              for x in X_test]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 5
-  domain_file_name = '../demos_synthetic/park2_4/config.json'
+  domain_file_name = 'demos_synthetic/park2_4/config.json'
   func = park2_4
   bounds = np.array([[0, 1], [0, 1], [103, 194], [10, 11]])
   X_tr_num = map_to_bounds(np.random.random((n_train, len(bounds))), bounds)
@@ -139,7 +139,7 @@ def gen_cpgp_test_data():
              for (x, xd) in zip(X_te_num, X_te_disc)]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 6
-  domain_file_name = '../demos_synthetic/park2_3/config.json'
+  domain_file_name = 'demos_synthetic/park2_3/config.json'
   func = park2_3
   bounds = np.array([[0, 1], [10, 14], [10, 14], [0, 1]])
   X_tr_num = map_to_bounds(np.random.random((n_train, len(bounds))), bounds)
@@ -152,7 +152,7 @@ def gen_cpgp_test_data():
   X_test = [[[x[0], x[3], x[2], x[1]], xd] for (x, xd) in zip(X_te_num, X_te_disc)]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 7
-  domain_file_name = '../demos_synthetic/park1_3/config.json'
+  domain_file_name = 'demos_synthetic/park1_3/config.json'
   func = park1_3
   bounds = np.array([[10, 16], [0, 1], [0, 1]])
   x2_elems = [4, 10, 23, 45, 78, 87.1, 91.8, 99, 75.7, 28.1, 3.141593]
@@ -166,7 +166,7 @@ def gen_cpgp_test_data():
   X_test = [modify_func(x1, x2) for (x1, x2) in zip(X_test_1, X_test_2)]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 8
-  domain_file_name = '../demos_synthetic/syn_cnn_1/config.json'
+  domain_file_name = 'demos_synthetic/syn_cnn_1/config.json'
   func = syn_cnn_1
   all_cnns = get_cnns()
   num_train = int(len(all_cnns) * 5 / 8)
@@ -176,7 +176,7 @@ def gen_cpgp_test_data():
   # Dataset 9
   num_train = max(len(all_cnns), n_train)
   num_test = max(len(all_cnns), n_test)
-  domain_file_name = '../demos_synthetic/syn_cnn_2/config.json'
+  domain_file_name = 'demos_synthetic/syn_cnn_2/config.json'
   func = syn_cnn_2
   x1_bounds = np.array([[0, 1], [0, 1], [10, 14]])
   x4_elems = [4, 10, 23, 45, 78, 87.1, 91.8, 99, 75.7, 28.1, 3.141593]
@@ -232,9 +232,9 @@ def gen_cpmfgp_test_data_from_config_file(config_file_name, raw_func,
 def gen_cpmfgp_test_data(num_tr_data, num_te_data):
   """ Generates data on all functions. """
   test_problems = [
-    ('../demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf),
-    ('../demos_synthetic/borehole_6/config_mf.json', borehole_6_mf),
-    ('../demos_synthetic/park2_4/config_mf.json', park2_4_mf),
+    ('demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf),
+    ('demos_synthetic/borehole_6/config_mf.json', borehole_6_mf),
+    ('demos_synthetic/park2_4/config_mf.json', park2_4_mf),
     ]
   ret = [gen_cpmfgp_test_data_from_config_file(cfn, rf, num_tr_data, num_te_data)
          for cfn, rf in test_problems]

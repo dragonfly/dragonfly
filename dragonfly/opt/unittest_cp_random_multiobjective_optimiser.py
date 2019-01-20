@@ -35,9 +35,9 @@ class CPMultiObjectiveOptimiserBaseTestCase(object):
     self.worker_manager_1 = SyntheticWorkerManager(1, time_distro='const')
     self.worker_manager_3 = SyntheticWorkerManager(3, time_distro='halfnormal')
     self.opt_problems = [
-      ('../demos_synthetic/multiobjective_branin_currinexp/config.json', (moo_branin,)),
-      ('../demos_synthetic/multiobjective_hartmann/config.json', (moo_hartmann,)),
-      ('../demos_synthetic/multiobjective_park/config.json', (moo_park,)),
+      ('demos_synthetic/multiobjective_branin_currinexp/config.json', (moo_branin,)),
+      ('demos_synthetic/multiobjective_hartmann/config.json', (moo_hartmann,)),
+      ('demos_synthetic/multiobjective_park/config.json', (moo_park,)),
       ]
 
   def _child_set_up(self):

@@ -186,21 +186,21 @@ class CPFunctionCaller(BaseTestClass):
   def setUp(self):
     """ set up. """
     self.test_function_data = [
-      ('../demos_synthetic/hartmann3_2/config.json', hartmann3_2, 'no_noise', None, None),
-      ('../demos_synthetic/hartmann6_4/config.json', hartmann6_4, 'gauss', 0.2, None),
-      ('../demos_synthetic/borehole_6/config.json', borehole_6, 'no_noise', None, None),
-      ('../demos_synthetic/park2_4/config.json', park2_4, 'gauss', 2.1, None),
-      ('../demos_synthetic/park2_3/config.json', park2_3, 'no_noise', None, None),
-      ('../demos_synthetic/park1_3/config.json', park1_3, 'no_noise', None, None),
-      ('../demos_synthetic/syn_cnn_1/config.json', syn_cnn_1, 'gauss', 0.5, None),
-      ('../demos_synthetic/syn_cnn_2/config.json', syn_cnn_2, 'no_noise', None, None),
+      ('demos_synthetic/hartmann3_2/config.json', hartmann3_2, 'no_noise', None, None),
+      ('demos_synthetic/hartmann6_4/config.json', hartmann6_4, 'gauss', 0.2, None),
+      ('demos_synthetic/borehole_6/config.json', borehole_6, 'no_noise', None, None),
+      ('demos_synthetic/park2_4/config.json', park2_4, 'gauss', 2.1, None),
+      ('demos_synthetic/park2_3/config.json', park2_3, 'no_noise', None, None),
+      ('demos_synthetic/park1_3/config.json', park1_3, 'no_noise', None, None),
+      ('demos_synthetic/syn_cnn_1/config.json', syn_cnn_1, 'gauss', 0.5, None),
+      ('demos_synthetic/syn_cnn_2/config.json', syn_cnn_2, 'no_noise', None, None),
       ]
     self.mf_test_function_data = [
-      ('../demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf,
+      ('demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf,
        'no_noise', None, cost_hartmann6_4),
-      ('../demos_synthetic/borehole_6/config_mf.json', borehole_6_mf,
+      ('demos_synthetic/borehole_6/config_mf.json', borehole_6_mf,
        'gauss', 1.0, cost_borehole_6),
-      ('../demos_synthetic/park2_4/config_mf.json', park2_4_mf,
+      ('demos_synthetic/park2_4/config_mf.json', park2_4_mf,
        'gauss', 0.1, cost_park2_4),
       ]
     self.num_test_points = 100

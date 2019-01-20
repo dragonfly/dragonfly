@@ -57,15 +57,15 @@ class CPOptimiserBaseTestCase(object):
     self.worker_manager_1 = SyntheticWorkerManager(1, time_distro='const')
     self.worker_manager_3 = SyntheticWorkerManager(3, time_distro='halfnormal')
     self.opt_problems = [
-      ('../demos_synthetic/branin/config.json', (branin,)),
-      ('../demos_synthetic/hartmann3_2/config.json', (hartmann3_2,)),
-      ('../demos_synthetic/hartmann6_4/config.json', (hartmann6_4,)),
-      ('../demos_synthetic/borehole_6/config.json', (borehole_6,)),
-      ('../demos_synthetic/park2_4/config.json', (park2_4,)),
-      ('../demos_synthetic/park2_3/config.json', (park2_3,)),
-      ('../demos_synthetic/park1_3/config.json', (park1_3,)),
-      ('../demos_synthetic/syn_cnn_1/config.json', (syn_cnn_1,)),
-      ('../demos_synthetic/syn_cnn_2/config.json', (syn_cnn_2,)),
+      ('demos_synthetic/branin/config.json', (branin,)),
+      ('demos_synthetic/hartmann3_2/config.json', (hartmann3_2,)),
+      ('demos_synthetic/hartmann6_4/config.json', (hartmann6_4,)),
+      ('demos_synthetic/borehole_6/config.json', (borehole_6,)),
+      ('demos_synthetic/park2_4/config.json', (park2_4,)),
+      ('demos_synthetic/park2_3/config.json', (park2_3,)),
+      ('demos_synthetic/park1_3/config.json', (park1_3,)),
+      ('demos_synthetic/syn_cnn_1/config.json', (syn_cnn_1,)),
+      ('demos_synthetic/syn_cnn_2/config.json', (syn_cnn_2,)),
       ]
 
   def _child_set_up(self):
@@ -172,23 +172,23 @@ class MFCPOptimiserBaseTestCase(CPOptimiserBaseTestCase):
     self.worker_manager_1 = SyntheticWorkerManager(1, time_distro='const')
     self.worker_manager_3 = SyntheticWorkerManager(3, time_distro='halfnormal')
     self.opt_problems = [
-      ('../demos_synthetic/branin/config_mf.json',
+      ('demos_synthetic/branin/config_mf.json',
         (branin_mf, cost_branin_mf)),
-      ('../demos_synthetic/hartmann3_2/config_mf.json',
+      ('demos_synthetic/hartmann3_2/config_mf.json',
         (hartmann3_2_mf, cost_hartmann3_2_mf)),
-      ('../demos_synthetic/hartmann6_4/config_mf.json',
+      ('demos_synthetic/hartmann6_4/config_mf.json',
         (hartmann6_4_mf, cost_hartmann6_4_mf)),
-      ('../demos_synthetic/borehole_6/config_mf.json',
+      ('demos_synthetic/borehole_6/config_mf.json',
         (borehole_6_mf, cost_borehole_6_mf)),
-      ('../demos_synthetic/park1_3/config_mf.json',
+      ('demos_synthetic/park1_3/config_mf.json',
         (park1_3_mf, cost_park1_3_mf)),
-      ('../demos_synthetic/park2_3/config_mf.json',
+      ('demos_synthetic/park2_3/config_mf.json',
         (park2_3_mf, cost_park2_3_mf)),
-      ('../demos_synthetic/park2_4/config_mf.json',
+      ('demos_synthetic/park2_4/config_mf.json',
         (park2_4_mf, cost_park2_4_mf)),
-      ('../demos_synthetic/syn_cnn_1/config_mf.json',
+      ('demos_synthetic/syn_cnn_1/config_mf.json',
         (syn_cnn_1_mf, cost_syn_cnn_1_mf)),
-      ('../demos_synthetic/syn_cnn_2/config_mf.json',
+      ('demos_synthetic/syn_cnn_2/config_mf.json',
         (syn_cnn_2_mf, cost_syn_cnn_2_mf)),
       ]
 
