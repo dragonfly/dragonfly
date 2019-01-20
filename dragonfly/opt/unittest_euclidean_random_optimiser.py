@@ -14,7 +14,7 @@ from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str,
                                   get_rounded_list
 from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.euclidean_synthetic_functions import get_syn_func_caller
-import ..utils.reporters as reporters
+from ..utils import reporters
 
 
 # A base class for all Optimisers on Euclidean spaces ----------------------------

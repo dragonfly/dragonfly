@@ -11,7 +11,7 @@ from __future__ import division
 # pylint: disable=relative-import
 
 import numpy as np
-import .general_utils
+from . import general_utils
 from .base_test_class import BaseTestClass, execute_tests
 
 

@@ -12,7 +12,7 @@ from ..exd.experiment_caller import EuclideanMultiFunctionCaller
 from ..exd.worker_manager import SyntheticWorkerManager
 from . import random_multiobjective_optimiser
 from ..utils.base_test_class import BaseTestClass, execute_tests
-import ..utils.reporters as reporters
+from ..utils import reporters
 
 
 class EuclideanMultiObjectiveOptimiserBaseTestCase(object):

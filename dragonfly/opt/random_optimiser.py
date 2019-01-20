@@ -10,7 +10,7 @@ import numpy as np
 # Local imports
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file
-import ..exd.domains as domains
+from ..exd import domains
 from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
 from ..exd.exd_core import mf_exd_args
 from ..exd.experiment_caller import CPFunctionCaller

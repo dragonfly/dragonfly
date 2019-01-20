@@ -2,14 +2,12 @@
   Test cases for functions in ancillary_utils.py
   -- kandasamy@cs.cmu.edu
 """
-from __future__ import absolute_import
-
 # pylint: disable=import-error
 # pylint: disable=no-member
 # pylint: disable=invalid-name
 # pylint: disable=relative-import
 
-import .ancillary_utils
+from . import ancillary_utils
 from .base_test_class import BaseTestClass, execute_tests
 
 
