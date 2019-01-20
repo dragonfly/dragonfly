@@ -24,23 +24,11 @@ For questions and bug reports please email kandasamy@cs.cmu.edu
 
 ## Installation
 
-* Download the package.
-```bash
-$ git clone https://github.com/dragonfly/dragonfly.git
-```
+For to install dragonfly properly, it requires that numpy is already installed in the current environment. Once that has been done, the library can be installed with pip.
 
-* In Linux and MacOS, source the set up file in the parent directory, i.e dragonfly.
 ```bash
-$ source set_up
+$ pip install https://github.com/dragonfly/dragonfly.git
 ```
-In Windows systems, add the parent directory to the `PYTHONPATH` system variable.
-[This link](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10)
-describes a few ways to do this.
-
-* Build the direct fortran library. For this `cd` into `utils/direct_fortran` and run
-  `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is
-  done, you can run `simple_direct_test.py` to make sure that it was installed correctly.
-  If unable to build, Dragonfly can still be run but might be slightly slower.
 
 **Requirements:**
 Dragonfly requires standard python packages such as `numpy`, `scipy`, and `future` (for
@@ -51,7 +39,7 @@ python2/3 compatibility). They can be pip installed via
 To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
 probabilistic and could fail at times. If this happens, run the same test several times
 and make sure it is not consistently failing. Running all tests will take a while.
-You can run each unit test individually simpy via `python unittest_xxx.py`.
+You can run each unit test individually simpy via `python -m unittest path.to.test.unittest_xxx`.
 
 &nbsp;
 
@@ -59,9 +47,8 @@ You can run each unit test individually simpy via `python unittest_xxx.py`.
 
 Dragonfly can be
 used directly in the command line by calling
-[`dragonfly.py`](dragonfly.py)
-or be imported in python code via the `maximise_function` function in
-[`dragonfly.py`](dragonfly.py).
+[`dragonfly-script.py`](bin/dragonfly-script.py)
+or be imported in python code via the `maximise_function` function in the main library.
 To help get started, we have provided some demos in the `demos_synthetic` directory.
 
 **Via command line**:
@@ -92,21 +79,21 @@ If using protocol buffers, you might need to install this package via
 
 The branin demo can be run via following commands.
 ```bash
-$ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example.txt
-$ python dragonfly.py --config demos_synthetic/branin/config.pb --options demos_synthetic/options_example.txt
+$ dragonfly-script.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example.txt
+$ dragonfly-script.py --config demos_synthetic/branin/config.pb --options demos_synthetic/options_example.txt
 ```
 By default, Dragonfly *maximises* functions. To minimise a function, set the
 `max_or_min` flag to `min` in the options file as shown in
 [`demos_synthetic/options_example_for_minimisation.txt`](demos_synthetic/options_example_for_minimisation.txt)
 For example,
 ```bash
-$ python dragonfly.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
+$ dragonfly-script.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
 ```
 
 
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
-$ python dragonfly.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
+$ dragonfly-script.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
 ```
 
 &nbsp;
@@ -118,7 +105,7 @@ See other demos on synthetic functions in the
 For example, to run the multi-fidelity [`park2_3`](demos_synthetic/park2_3/park2_3_mf.py)
 demo, simpy run
 ```bash
-$ python dragonfly.py --config demos_synthetic/park2_3/config_mf.json --options demos_synthetic/options_example.txt
+$ dragonfly-script.py --config demos_synthetic/park2_3/config_mf.json --options demos_synthetic/options_example.txt
 ```
 
 
@@ -130,8 +117,8 @@ You will need to install
 Running this demo the first time will be slow since the dataset needs to be downloaded.
 
 ```bash
-$ python dragonfly.py --config demos_real/face_rec/config.json --options demos_real/face_rec/options.txt
-$ python dragonfly.py --config demos_real/face_rec/config.pb --options demos_real/face_rec/options.txt
+$ dragonfly-script.py --config demos_real/face_rec/config.json --options demos_real/face_rec/options.txt
+$ dragonfly-script.py --config demos_real/face_rec/config.pb --options demos_real/face_rec/options.txt
 ```
 
 &nbsp;
@@ -140,13 +127,17 @@ $ python dragonfly.py --config demos_real/face_rec/config.pb --options demos_rea
 
 You can import the main API in python code via,
 ```python
-from dragonfly.dragonfly import maximise_function
-...
-max_val, max_pt, history = maximise_function(func, domain, max_capital)
+from dragonfly import minimise_function, maximise_function
+func = lambda x: lambda x: x ** 4 - x**2 + 0.1 * x
+domain = [[-10, 10]]
+max_capital = 100
 min_val, min_pt, history = minimise_function(func, domain, max_capital)
+...
+print(min_val, min_pt)
+min_val, min_pt, history = maximise_function(lambda x: -func(x), domain, max_capital)
 ```
 Here, `func` is the function to be maximised,
-`domain` is the domain over which `func` is to be maximised,
+`domain` is the domain over which `func` is to be optimised,
 and `max_capital` is the capital available for optimisation.
 In simple sequential settings, `max_capital` is simply the maximum number of evaluations
 to `func`, but it can also be used to specify an available time budget and other forms
@@ -174,12 +165,12 @@ For example, to run the
 [`hartmann`](demos_synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
 demo, simpy run
 ```bash
-$ python dragonfly.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt
+$ dragonfly-script.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt
 ```
 
 Similarly, you can import and run this in python code via,
 ```python
-from dragonfly.dragonfly import multiobjective_maximise_functions
+from dragonfly import multiobjective_maximise_functions
 ...
 pareto_max_values, pareto_points, history = multiobjective_maximise_functions(funcs, domain, max_capital)
 pareto_min_values, pareto_points, history = multiobjective_minimise_functions(funcs, domain, max_capital)
