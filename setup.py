@@ -16,7 +16,10 @@ setup(
     long_description=LONG_DESCRIPTION,
     url='https://github.com/dragonfly/dragonfly/',
     license='MIT',
-    packages=['dragonfly'],
+    packages=['dragonfly', 'dragonfly.distributions', 'dragonfly.exd',
+              'dragonfly.gp', 'dragonfly.opt', 'dragonfly.parse',
+              'dragonfly.sampling', 'dragonfly.utils', 'dragonfly.utils.direct_fortran',
+             ],
     scripts=['bin/dragonfly-script.py'],
     install_requires=[
         'future',
