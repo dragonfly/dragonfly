@@ -4,7 +4,6 @@
 ---
 
 Dragonfly is an open source python library for scalable Bayesian optimisation.
-The library is in alpha version.
 
 Bayesian optimisation is used for optimising black-box functions whose evaluations are
 usually expensive. Beyond vanilla optimisation techniques, Dragonfly provides an array of tools to
@@ -16,28 +15,67 @@ evaluations in parallel), multi-fidelity optimisation (using cheap approximation
 to speed up the optimisation process), and multi-objective optimisation (optimising
 multiple functions simultaneously).
 
-Dragonfly is compatible with python2.7 and python3 and has been tested on Linux,
+Dragonfly is compatible with python2 and python3 and has been tested on Linux,
 Mac OS, and Windows platforms.
+For questions and bug reports please email kandasamy@cs.cmu.edu.
 
-For questions and bug reports please email kandasamy@cs.cmu.edu
 
+&nbsp;
 
 ## Installation
 
-For to install dragonfly properly, it requires that numpy is already installed in the current environment. Once that has been done, the library can be installed with pip.
+**Installation via pip (recommended):**
+Installing dragonfly properly requires that numpy is already installed in the current
+environment. Once that has been done, the library can be installed with pip.
 
 ```bash
+$ pip install numpy
 $ pip install https://github.com/dragonfly/dragonfly.git
 ```
 
+**Installation via source:**
+To install via source, clone the repository and proceed as follows.
+```bash
+$ git clone https://github.com/dragonfly/dragonfly.git
+$ cd dragonfly
+$ pip install -r requirements.txt
+$ python setup.py install
+```
+
+
+**Installing in a Python Virtual Environment:**
+Dragonfly can be pip installed in a python virtualenv.
+```bash
+$ virtualenv env
+$ source env/bin/activate
+(env)$ pip install numpy
+(env)$ pip install https://github.com/dragonfly/dragonfly.git 
+```
+You can similarly install via source by creating/sourcing the virtualenv and following the
+steps above.
+
+
 **Requirements:**
-Dragonfly requires standard python packages such as `numpy`, `scipy`, and `future` (for
-python2/3 compatibility). They can be pip installed via
+Dragonfly requires standard python packages such as `numpy`, `scipy`, `future`, and
+`six` (for python2/3 compatibility). They should be automatically installed if you follow
+the above installation procedure(s). You can also manually install them by
 `$ pip install <package-name>`.
 
+
 **Testing the Installation**:
-To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
-probabilistic and could fail at times. If this happens, run the same test several times
+You can import Dragonfly in python to test if it was installed properly.
+If you have installed via source, make sure that you move to a different directory 
+(e.g. `cd ..`)  to avoid naming conflicts.
+```bash
+$ python
+>>> from dragonfly import minimise_function
+>>> min_val, min_pt, history = minimise_function(lambda x: x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 10);  
+...
+>>> min_val, min_pt
+(-0.32122746026750953, array([-0.7129672]))
+```
+To run all unit tests, run ```bash run_all_tests.sh```. Some of the tests are
+stochastic and could fail occasionally. If this happens, run the same test a few times
 and make sure it is not consistently failing. Running all tests will take a while.
 You can run each unit test individually simpy via `python -m unittest path.to.test.unittest_xxx`.
 
@@ -50,6 +88,7 @@ used directly in the command line by calling
 [`dragonfly-script.py`](bin/dragonfly-script.py)
 or be imported in python code via the `maximise_function` function in the main library.
 To help get started, we have provided some demos in the `demos_synthetic` directory.
+If you have pip installed, you will need to clone the repository to access the demos.
 
 **Via command line**:
 
@@ -65,7 +104,7 @@ The functions to be maximised in these problems are defined in
 [`demos_synthetic/branin/branin.py`](demos_synthetic/branin/branin.py) and
 [`demos_real/face_rec/face_rec.py`](demos_real/face_rec/face_rec.py) respectively.
 The name of this file and the domain should be specified in
-[JSON](https://en.wikipedia.org/wiki/JSON) or
+[JSON](https://en.wikipedia.org/wiki/JSON) (recommended) or
 [protocol buffer](https://en.wikipedia.org/wiki/Protocol_Buffers) format.
 See
 [`demos_synthetic/branin/config.json`](demos_synthetic/branin/config.json) and
@@ -192,7 +231,16 @@ Karun Raju Vysyaraju: [github](https://github.com/karunraju),
 Willie Neiswanger: [github](https://github.com/willieneis),
 [webpage](http://www.cs.cmu.edu/~wdn/)  
 Biswajit Paria: [github](https://github.com/biswajitsc),
-[webpage](https://biswajitsc.github.io/)
+[webpage](https://biswajitsc.github.io/)  
+Chris Collins: [github](https://github.com/crcollins/),
+[webpage](https://www.crcollins.com/)
+
+
+### Acknowledgements
+Research and development of the methods in this package were funded by
+DOE grant DESC0011114, NSF grant IIS1563887, the DARPA D3M program, and AFRL.
+Chris Collins helped make this package pip installable.
+
 
 ### Citation
 If you use any part of this code in your work, please cite
@@ -202,7 +250,7 @@ If you use any part of this code in your work, please cite
 This software is released under the MIT license. For more details, please refer
 [LICENSE.txt](https://github.com/dragonfly/dragonfly/blob/master/LICENSE.txt).
 
-For questions and bug reports please email kandasamy@cs.cmu.edu
+For questions, please email kandasamy@cs.cmu.edu
 
 "Copyright 2018 Kirthevasan Kandasamy"
 
