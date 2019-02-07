@@ -30,7 +30,7 @@ environment. Once that has been done, the library can be installed with pip.
 
 ```bash
 $ pip install numpy
-$ pip install https://github.com/dragonfly/dragonfly.git
+$ pip install git+https://github.com/dragonfly/dragonfly.git
 ```
 
 **Installation via source:**
@@ -49,7 +49,7 @@ Dragonfly can be pip installed in a python virtualenv.
 $ virtualenv env
 $ source env/bin/activate
 (env)$ pip install numpy
-(env)$ pip install https://github.com/dragonfly/dragonfly.git 
+(env)$ pip install git+https://github.com/dragonfly/dragonfly.git
 ```
 You can similarly install via source by creating/sourcing the virtualenv and following the
 steps above.
