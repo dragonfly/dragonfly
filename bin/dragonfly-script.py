@@ -4,7 +4,7 @@
   -- kvysyara@andrew.cmu.edu
 
   Usage:
-  python dragonfly.py --config <config file in .json or .pb format>
+  python dragonfly-script.py --config <config file in .json or .pb format>
     --options <options file>
   See README.MD for examples.
 """
