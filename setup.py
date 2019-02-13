@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import os
+from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
+
 from numpy.distutils.core import setup, Extension
 from numpy.distutils.command.build_ext import build_ext as old_build_ext
-from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
 from numpy.distutils.fcompiler import CompilerNotFound
 
 
