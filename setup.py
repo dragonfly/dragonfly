@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
+from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError, DistutilsError
 
 from numpy.distutils.core import setup, Extension
 from numpy.distutils.command.build_ext import build_ext as old_build_ext
@@ -15,7 +15,7 @@ def construct_build_ext(build_ext):
     # This class allows extension building to fail.
     # https://stackoverflow.com/questions/41778153/
     ext_errors = (CCompilerError, DistutilsExecError,
-                  DistutilsPlatformError, IOError)
+                  DistutilsPlatformError, DistutilsError, IOError)
     class WrappedBuildExt(build_ext):
         def run(self):
             try:
