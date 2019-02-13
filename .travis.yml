@@ -1,0 +1,35 @@
+language: python
+os:
+  - linux
+  - osx
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+env:
+  - INCLUDE_FORTRAN=false
+  - INCLUDE_FORTRAN=true
+
+matrix:
+  exclude:
+    - env: INCLUDE_FORTRAN=true
+    - os: osx
+
+notifications:
+  email: false
+
+cache: pip
+
+before_install:
+  - sudo apt-get -qq update
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$INCLUDE_FORTRAN" == true ]]; then
+    sudo apt-get install -y -qq python-dev gfortran liblapack-dev libatlas-dev libblas-dev build-essential
+    fi
+
+install:
+  - pip install -U pip
+  - pip install numpy
+  - pip install .
+
+script: 
+  - bash run_all_tests.sh sanity
