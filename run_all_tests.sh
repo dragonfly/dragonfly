@@ -14,7 +14,9 @@ then
         sanity) echo "$res" | grep "No module named dragonfly" ;;
         direct) echo "$res" | grep "Could not import fortran direct" ;;
         optimal) echo "$res" | grep "Could not import Python optimal transport" ;;
-        *) echo "The accepted inputs are 'sanity', 'direct', and 'optimal'." ;;
+        -direct) echo "$res" | grep -v "Could not import fortran direct" && echo "Has direct" ;;
+        -optimal) echo "$res" | grep -v "Could not import Python optimal transport" && echo "Has optimal" ;;
+        *) echo "The accepted inputs are 'sanity', 'direct', '-direct', 'optimal' and '-optimal'." ;;
         esac
         code=$(( $code & $?))
     done
