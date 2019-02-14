@@ -5,6 +5,7 @@ then
     # Try importing dragonfly and save stdout and stderr
     res=$(python -c "import dragonfly" 2>&1)
 
+    echo $res
     # Default value to reduce over
     code=1
     # Scan over all arguments

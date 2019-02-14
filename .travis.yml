@@ -15,7 +15,7 @@ notifications:
 cache: pip
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" && ! "$DIRECT_STATE" == "direct" ]]; then
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$DIRECT_STATE" == "direct" ]]; then
     sudo apt-get install -y -qq python-dev gfortran build-essential;
     fi
 
