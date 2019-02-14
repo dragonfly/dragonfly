@@ -30,19 +30,19 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$DIRECT_STATE" == "direct" ]]; then
     sudo apt-get install -y -qq python-dev gfortran build-essential ;
     fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    brew update
-    brew install openssl readline
-    brew outdated pyenv || brew upgrade pyenv
-    brew install pyenv-virtualenv
-    pyenv install $PYTHON
-    export PYENV_VERSION=$PYTHON
-    export PATH="/Users/travis/.pyenv/shims:${PATH}"
-    pyenv-virtualenv venv
-    source venv/bin/activate
-    python --version
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    brew update ;
+    brew install openssl readline ;
+    brew outdated pyenv || brew upgrade pyenv ;
+    brew install pyenv-virtualenv ;
+    pyenv install $PYTHON ;
+    export PYENV_VERSION=$PYTHON ;
+    export PATH="/Users/travis/.pyenv/shims:${PATH}" ;
+    pyenv-virtualenv venv ;
+    source venv/bin/activate ;
+    python --version ;
     if [[ "$DIRECT_STATE == "direct" ]]; then
-    brew install gfortran
+    brew install gfortran ;
     fi
 
 install:
