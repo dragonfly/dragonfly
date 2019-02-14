@@ -1,19 +1,13 @@
 language: python
 os:
   - linux
-  - osx
 python:
   - "2.7"
   - "3.5"
   - "3.6"
 env:
-  - INCLUDE_FORTRAN=false
-  - INCLUDE_FORTRAN=true
-
-matrix:
-  exclude:
-    - env: INCLUDE_FORTRAN=true
-      os: osx
+  - INCLUDE_FORTRAN= INCLUDE_OPT=
+  - INCLUDE_FORTRAN=fortran INCLUDE_OPT=
 
 notifications:
   email: false
@@ -21,11 +15,8 @@ notifications:
 cache: pip
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$INCLUDE_FORTRAN" == true ]]; then
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && ! -z "$INCLUDE_FORTRAN" ]]; then
     sudo apt-get install -y -qq python-dev gfortran build-essential;
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$INCLUDE_FORTRAN" == true ]]; then
-    brew install gfortran;
     fi
 
 install:
@@ -34,4 +25,4 @@ install:
   - pip install .
 
 script: 
-  - bash run_all_tests.sh sanity
+  - bash run_all_tests.sh sanity $INCLUDE_FORTRAN $INCLUDE_OPT
