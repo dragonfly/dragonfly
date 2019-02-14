@@ -3,23 +3,34 @@ os:
   - linux
 python:
   - "2.7"
-    #  - "3.5"
-    #  - "3.6"
+  - "3.5"
+  - "3.6"
 env:
-    #  - DIRECT_STATE=-direct OPT_STATE=-optimal
+  - DIRECT_STATE=-direct OPT_STATE=-optimal
   - DIRECT_STATE=direct OPT_STATE=-optimal
 
+
+# We have to be explicit with the OSX versions because Python is not supported by default
 matrix:
   include:
     - os: osx
       language: generic
       env: PYTHON=2.7.12 DIRECT_STATE=direct OPT_STATE=-optimal
-#    - os: osx
-#      language: generic
-#      env: PYTHON=3.5.6
-#    - os: osx
-#      language: generic
-#      env: PYTHON=3.6.8
+    - os: osx
+      language: generic
+      env: PYTHON=2.7.12 DIRECT_STATE=-direct OPT_STATE=-optimal
+    - os: osx
+      language: generic
+      env: PYTHON=3.5.6 DIRECT_STATE=direct OPT_STATE=-optimal
+    - os: osx
+      language: generic
+      env: PYTHON=3.5.6 DIRECT_STATE=-direct OPT_STATE=-optimal
+    - os: osx
+      language: generic
+      env: PYTHON=3.6.8 DIRECT_STATE=direct OPT_STATE=-optimal
+    - os: osx
+      language: generic
+      env: PYTHON=3.6.8 DIRECT_STATE=-direct OPT_STATE=-optimal
 
 notifications:
   email: false
