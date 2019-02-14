@@ -3,10 +3,10 @@ os:
   - linux
 python:
   - "2.7"
-  - "3.5"
-  - "3.6"
+    #  - "3.5"
+    #  - "3.6"
 env:
-  - DIRECT_STATE=-direct OPT_STATE=-optimal
+    #  - DIRECT_STATE=-direct OPT_STATE=-optimal
   - DIRECT_STATE=direct OPT_STATE=-optimal
 
 matrix:
@@ -42,7 +42,7 @@ before_install:
     source venv/bin/activate ;
     python --version ;
     fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$DIRECT_STATE == "direct" ]]; then
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$DIRECT_STATE" == "direct" ]]; then
     brew install gfortran ;
     fi
 
