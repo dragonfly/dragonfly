@@ -28,7 +28,7 @@ before_cache:
   - brew cleanup
 
 cache:
-  - pip
+  pip: true
   directories:
     - $HOME/Library/Caches/Homebrew
 
