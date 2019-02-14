@@ -41,9 +41,9 @@ before_install:
     pyenv-virtualenv venv ;
     source venv/bin/activate ;
     python --version ;
-    if [[ "$DIRECT_STATE == "direct" ]]; then
-    brew install gfortran ;
     fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$DIRECT_STATE == "direct" ]]; then
+    brew install gfortran ;
     fi
 
 install:
