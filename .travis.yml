@@ -24,7 +24,13 @@ matrix:
 notifications:
   email: false
 
-cache: pip
+before_cache:
+  - brew cleanup
+
+cache:
+  - pip
+  directories:
+    - $HOME/Library/Caches/Homebrew
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$DIRECT_STATE" == "direct" ]]; then
