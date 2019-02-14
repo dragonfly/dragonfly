@@ -5,7 +5,9 @@ then
     # Try importing dragonfly and save stdout and stderr
     res=$(python -c "import dragonfly" 2>&1 | paste -sd " " - )
 
+    echo "======================"
     echo $res
+    echo "======================"
     echo
     # Default value to reduce over
     code=1
@@ -24,11 +26,7 @@ then
     done
 
     # Return nonzero exit code if any value was found
-    if [[ $code == 0 ]];
-    then
-        exit 1;
-    fi
-    exit 0;
+    exit $(($code == 0 ));
 fi
 
 for f in $(find . -name "unittest*" | grep -v ".pyc" | sed -e 's_\./__;s_/_._g;s/\.py//');
