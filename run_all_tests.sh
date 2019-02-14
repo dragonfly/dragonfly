@@ -3,9 +3,10 @@
 if [[ "$1" == "sanity" ]];
 then
     # Try importing dragonfly and save stdout and stderr
-    res=$(python -c "import dragonfly" 2>&1)
+    res=$(python -c "import dragonfly" 2>&1 | paste -sd " " - )
 
     echo $res
+    echo
     # Default value to reduce over
     code=1
     # Scan over all arguments

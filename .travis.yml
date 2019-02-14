@@ -16,13 +16,13 @@ cache: pip
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$DIRECT_STATE" == "direct" ]]; then
-    sudo apt-get install -y -qq python-dev gfortran build-essential;
+    sudo apt-get install -y -qq python-dev gfortran liblapack-dev libatlas-dev libblas-dev build-essential ;
     fi
 
 install:
   - pip install -U pip
   - pip install numpy
-  - pip install .
+  - pip install . -v
 
 script: 
   - bash run_all_tests.sh sanity $DIRECT_STATE $OPT_STATE
