@@ -6,8 +6,8 @@ python:
   - "3.5"
   - "3.6"
 env:
-  - INCLUDE_FORTRAN= INCLUDE_OPT=
-  - INCLUDE_FORTRAN=fortran INCLUDE_OPT=
+  - DIRECT_STATE=-direct OPT_STATE=-optimal
+  - DIRECT_STATE=direct OPT_STATE=-optimal
 
 notifications:
   email: false
@@ -15,7 +15,7 @@ notifications:
 cache: pip
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" && ! -z "$INCLUDE_FORTRAN" ]]; then
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && ! "$DIRECT_STATE" == "direct" ]]; then
     sudo apt-get install -y -qq python-dev gfortran build-essential;
     fi
 
@@ -25,4 +25,4 @@ install:
   - pip install .
 
 script: 
-  - bash run_all_tests.sh sanity $INCLUDE_FORTRAN $INCLUDE_OPT
+  - bash run_all_tests.sh sanity $DIRECT_STATE $OPT_STATE
