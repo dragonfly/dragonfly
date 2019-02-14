@@ -44,6 +44,7 @@ before_install:
     if [[ "$DIRECT_STATE == "direct" ]]; then
     brew install gfortran ;
     fi
+    fi
 
 install:
   - pip install -U pip
