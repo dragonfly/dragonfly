@@ -20,13 +20,13 @@ MESSAGE = 'Could not import %s. May not be required for your application. (%s)'
 try:
   import ot as py_opt_transport # Python Optimal Transport
 except ImportError as e:
-  print(MESSAGE % ('Python optimal transport library', e))
+  warn(MESSAGE % ('Python optimal transport library', e))
   py_opt_transport = None
 # Local imports
 try:
   from .direct_fortran import direct as direct_ft_wrap
 except ImportError as e:
-  print(MESSAGE % ('fortran direct library', e))
+  warn(MESSAGE % ('fortran direct library', e))
   direct_ft_wrap = None
 from .general_utils import map_to_bounds
 from .doo import DOOFunction, pdoo_wrap
