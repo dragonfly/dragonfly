@@ -1,5 +1,5 @@
 site_name: Dragonfly
-repo_url: https://github.com/dragonfly/dragonfly/tree/docs
+repo_url: https://github.com/dragonfly/dragonfly
 docs_dir: docs
 theme: readthedocs
 
