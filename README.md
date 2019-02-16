@@ -119,7 +119,7 @@ $ python
 To run all unit tests, run ```bash run_all_tests.sh```. Some of the tests are
 stochastic and could fail occasionally. If this happens, run the same test a few times
 and make sure it is not consistently failing. Running all tests will take a while.
-You can run each unit test individually simpy via `python -m unittest path.to.test.unittest_xxx`.
+You can run each unit test individually simply via `python -m unittest path.to.test.unittest_xxx`.
 
 &nbsp;
 
@@ -184,7 +184,7 @@ domain which includes a combination of these variables.
 See other demos on synthetic functions in the
 [`demos_synthetic`](demos_synthetic) directory.
 For example, to run the multi-fidelity [`park2_3`](demos_synthetic/park2_3/park2_3_mf.py)
-demo, simpy run
+demo, simply run
 ```bash
 $ dragonfly-script.py --config demos_synthetic/park2_3/config_mf.json --options demos_synthetic/options_example.txt
 ```
@@ -209,7 +209,7 @@ $ dragonfly-script.py --config demos_real/face_rec/config.pb --options demos_rea
 You can import the main API in python code via,
 ```python
 from dragonfly import minimise_function, maximise_function
-func = lambda x: lambda x: x ** 4 - x**2 + 0.1 * x
+func = lambda x: x ** 4 - x**2 + 0.1 * x
 domain = [[-10, 10]]
 max_capital = 100
 min_val, min_pt, history = minimise_function(func, domain, max_capital)
@@ -244,7 +244,7 @@ Some synthetic demos are available in the `multiobjective_xxx` directories in
 [`demos_synthetic`](demos_synthetic).
 For example, to run the
 [`hartmann`](demos_synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
-demo, simpy run
+demo, simply run
 ```bash
 $ dragonfly-script.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt
 ```
@@ -294,6 +294,6 @@ This software is released under the MIT license. For more details, please refer
 
 For questions, please email kandasamy@cs.cmu.edu
 
-"Copyright 2018 Kirthevasan Kandasamy"
+"Copyright 2018-2019 Kirthevasan Kandasamy"
 
 
