@@ -14,18 +14,19 @@ from datetime import datetime
 from warnings import warn
 import os
 import numpy as np
+
+MESSAGE = 'Could not import %s. May not be required for your application. (%s)'
 # Optimal Transport
 try:
   import ot as py_opt_transport # Python Optimal Transport
-except ImportError:
-  print('Could not import Python optimal transport library. May not be required for' +
-        ' your application.')
+except ImportError as e:
+  warn(MESSAGE % ('Python optimal transport library', e))
   py_opt_transport = None
 # Local imports
 try:
   from .direct_fortran import direct as direct_ft_wrap
-except ImportError:
-  print('Could not import fortran direct library.')
+except ImportError as e:
+  warn(MESSAGE % ('fortran direct library', e))
   direct_ft_wrap = None
 from .general_utils import map_to_bounds
 from .doo import DOOFunction, pdoo_wrap
