@@ -16,7 +16,7 @@ to speed up the optimisation process), and multi-objective optimisation (optimis
 multiple functions simultaneously).
 
 Dragonfly is compatible with python2 and python3 and has been tested on Linux,
-Mac OS, and Windows platforms.
+macOS, and Windows platforms.
 For questions and bug reports please email kandasamy@cs.cmu.edu.
 
 
@@ -40,19 +40,18 @@ In most Linux environments, this can be done via
 if you are using Python2, or
 `sudo apt-get install python3-venv`
 if you are using Python3. 
-
 You could also follow the instructions
-[`here`](https://pip.pypa.io/en/stable/installing/),
-[`here`](https://programwithus.com/learn-to-code/Pip-and-virtualenv-on-Mac/),
-[`here`](https://hackercodex.com/guide/python-development-environment-on-mac-osx/),
+[here](https://pip.pypa.io/en/stable/installing/),
+[here](https://programwithus.com/learn-to-code/Pip-and-virtualenv-on-Mac/),
+[here](https://hackercodex.com/guide/python-development-environment-on-mac-osx/),
 or
-[`here`](https://pymote.readthedocs.io/en/latest/install/windows_virtualenv.html)
-for Linux, OSX and Windows environments.
+[here](https://pymote.readthedocs.io/en/latest/install/windows_virtualenv.html)
+for Linux, macOS and Windows environments.
 
 
 The next step is recommended but not required to get started with Dragonfly.
-Dragonfly uses some Fortran dependencies which requires a NumPy compatible Fortran
-compiler (such as gnu95, pg, pathf95) and the `python-dev` package.
+Dragonfly uses some Fortran dependencies which require a NumPy compatible Fortran
+compiler (e.g. gnu95, pg, pathf95) and the `python-dev` package.
 In most Linux environments, they can be installed via
 `sudo apt-get install python-dev gfortran`
 if you are using Python2, or
@@ -100,7 +99,7 @@ $ source env/bin/activate
 
 **Requirements:**
 Dragonfly requires standard python packages such as `numpy`, `scipy`, `future`, and
-`six` (for python2/3 compatibility). They should be automatically installed if you follow
+`six` (for Python2/3 compatibility). They should be automatically installed if you follow
 the above installation procedure(s). You can also manually install them by
 `$ pip install <package-name>`.
 
