@@ -24,13 +24,54 @@ For questions and bug reports please email kandasamy@cs.cmu.edu.
 
 ## Installation
 
+**Set up:**
+We recommend installation via `pip`.
+In most Linux environments, it can be installed via one of the commands below,
+depending on the version.
+```bash
+$ sudo apt-get install python-pip
+$ sudo apt-get install python3-pip
+```
+Alternatively, if you prefer to work in a Python virtual environment, `pip` is
+automatically available.
+If so, you need to install the appropriate version in your system.
+In most Linux environments, this can be done via
+`sudo apt-get install virtualenv`
+if you are using Python2, or
+`sudo apt-get install python3-venv`
+if you are using Python3. 
+
+You could also follow the instructions
+[`here`](https://pip.pypa.io/en/stable/installing/),
+[`here`](https://programwithus.com/learn-to-code/Pip-and-virtualenv-on-Mac/),
+[`here`](https://hackercodex.com/guide/python-development-environment-on-mac-osx/),
+or
+[`here`](https://pymote.readthedocs.io/en/latest/install/windows_virtualenv.html)
+for Linux, OSX and Windows environments.
+
+
+The next step is recommended but not required to get started with Dragonfly.
+Dragonfly uses some Fortran dependencies which requires a NumPy compatible Fortran
+compiler (such as gnu95, pg, pathf95) and the `python-dev` package.
+In most Linux environments, they can be installed via
+`sudo apt-get install python-dev gfortran`
+if you are using Python2, or
+`sudo apt-get install python3-dev gfortran`
+if you are using Python3. 
+These packages may already be pre-installed in your system.
+If you are unable to install these packages, then you can still use Dragonfly, but
+it might be slightly slower.  
+
+
+&nbsp;
+
 **Installation via pip (recommended):**
 Installing dragonfly properly requires that numpy is already installed in the current
 environment. Once that has been done, the library can be installed with pip.
 
 ```bash
 $ pip install numpy
-$ pip install git+https://github.com/dragonfly/dragonfly.git
+$ pip install git+https://github.com/dragonfly/dragonfly.git -v
 ```
 
 **Installation via source:**
@@ -45,14 +86,16 @@ $ python setup.py install
 
 **Installing in a Python Virtual Environment:**
 Dragonfly can be pip installed in a python virtualenv.
+In Python2, you can follow the steps below.
+In Python3, replace  `$ virtualenv env` with `$ python3 -m venv env`.
+You can similarly install via source by creating/sourcing the virtualenv and following the
+steps above.
 ```bash
 $ virtualenv env
 $ source env/bin/activate
 (env)$ pip install numpy
 (env)$ pip install git+https://github.com/dragonfly/dragonfly.git
 ```
-You can similarly install via source by creating/sourcing the virtualenv and following the
-steps above.
 
 
 **Requirements:**
