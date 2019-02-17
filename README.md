@@ -116,9 +116,10 @@ $ python
 >>> min_val, min_pt
 (-0.32122746026750953, array([-0.7129672]))
 ```
-Due to stochasticity in the algorithms, the values above may be different.
-If you try running it for longer `min_val, min_pt, history = minimise_function(lambda x:
-x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 100)`, you should get more consistent values for
+Due to stochasticity in the algorithms, the above values for `min_val`, `min_pt` may be
+different. If you run it for longer (e.g. `min_val, min_pt, history =
+minimise_function(lambda x:
+x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 100)`), you should get more consistent values for
 the minimum. 
 
 To run all unit tests, run ```bash run_all_tests.sh```. Some of the tests are
