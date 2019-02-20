@@ -63,7 +63,6 @@ These packages may already be pre-installed in your system.
 If you are unable to install these packages, then you can still use Dragonfly, but
 it might be slightly slower.  
 
-&nbsp;
 You can now install Dragonfly via one of the four steps below.
 
 &nbsp;
@@ -105,7 +104,9 @@ If you prefer to not install Dragonfly in your environment, you can use it by fo
 the steps below.
 ```bash
 $ git clone https://github.com/dragonfly/dragonfly.git
-$ cd dragonfly/dragonfly/utils/direct_fortran
+$ cd dragonfly
+$ pip install -r requirements.txt
+$ cd dragonfly/utils/direct_fortran
 $ bash make_direct.sh
 ```
 This should create a file `direct.so` in the 
@@ -114,7 +115,7 @@ If not,
 you can still use Dragonfly, but it might be slightly slower.
 Alternatively, please refer the steps above to install a Fortran compiler.
 Once you have done this, you need to execute the following commands from the
-[`dragonfly/dragonfly`](dragonfly/dragonfly) directory *every time* before using
+[`dragonfly/dragonfly`](dragonfly) directory *every time* before using
 Dragonfly.
 ```bash
 $ HOME_PATH=$(pwd)
@@ -129,6 +130,9 @@ Dragonfly requires standard python packages such as `numpy`, `scipy`, `future`, 
 `six` (for Python2/3 compatibility). They should be automatically installed if you follow
 the above installation procedure(s). You can also manually install them by
 `$ pip install <package-name>`.
+
+
+&nbsp;
 
 
 **Testing the Installation**:
