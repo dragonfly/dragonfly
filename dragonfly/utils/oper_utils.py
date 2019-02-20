@@ -25,7 +25,7 @@ try:
 except ImportError as e:
   fortran_err_msg = ('Could not import Fortran direct library. Dragonfly can still be ' +
                      'used, but might be slightly slower. To get rid of this warning, ' +
-                     'install a numpy compatibal Fortran compiler (e.g. gfortran) and ' +
+                     'install a numpy compatible Fortran compiler (e.g. gfortran) and ' +
                      'the python-dev package and reinstall Dragonfly.')
   warn('%s\n%s'%(e, fortran_err_msg))
   direct_ft_wrap = None
