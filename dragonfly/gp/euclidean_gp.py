@@ -1,7 +1,6 @@
 """
   Implements GPs for Euclidean spaces.
   -- kandasamy@cs.cmu.edu
-  -- shulij@andrew.cmu.edu
   -- kvysyara@andrew.cmu.edu
 """
 
@@ -724,7 +723,10 @@ def optimise_cts_hps_for_given_dscr_hps_in_add_model(given_dscr_hps, \
   """ Optimises the continuous hyper-parameters for an additive model. """
   group_size = given_dscr_hps[-1] # The first is the max group size
   if num_groups_per_group_size < 0:
-    num_groups_per_group_size = max(5, min(2 * dim, 25))
+    if group_size == 1:
+      num_groups_per_group_size = 1
+    else:
+      num_groups_per_group_size = max(5, min(2 * dim, 25))
   grp_best_hps = None
   grp_best_val = -np.inf
   grp_best_other_params = None

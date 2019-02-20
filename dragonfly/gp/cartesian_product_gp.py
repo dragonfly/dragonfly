@@ -532,6 +532,17 @@ def _set_up_hyperparams_for_domain(fitter, X_data, gp_domain, dom_prefix,
           fitter.cts_hp_bounds, fitter.param_order)
       elif kernel_type == 'poly':
         raise NotImplementedError('Not implemented polynomial kernels yet.')
+      elif kernel_type == 'expdecay':
+        # Offset
+        scale_range = fitter.Y_var / np.sqrt(fitter.num_tr_data)
+        fitter.cts_hp_bounds.append(
+          [np.log(0.1 * scale_range), np.log(10 * scale_range)])
+        fitter.param_order.append(['%s-expdecay_log_offset'%(dom_identifier), 'cts'])
+        # Power
+        fitter.cts_hp_bounds.extend([[np.log(1e-1), np.log(50)]] * dom.get_dim())
+        identifiers = [['%s-expdecay_log_power-%d'%(dom_identifier, i), 'cts']
+                       for i in range(dom.get_dim())]
+        fitter.param_order.extend(identifiers)
       elif kernel_type == 'esp':
         fitter.cts_hp_bounds, fitter.param_order = _set_up_dim_bandwidths(
           dom_identifier, curr_dom_Xs, use_same_bw, dom.get_dim(),
@@ -671,7 +682,7 @@ def _set_up_nn_domain_otmann(dom_idx, dom, dom_identifier, curr_dom_Xs, options,
     kernel_params_for_each_domain[dom_idx].list_of_dists is None:
     # Then compute the distances
     if dist_computers[dom_idx] is None:
-      from nn.otmann import get_otmann_distance_computer_from_args
+      from ..nn.otmann import get_otmann_distance_computer_from_args
       curr_dist_computer = get_otmann_distance_computer_from_args(
         dom.nn_type, options.otmann_non_assignment_penalty,
         kernel_params_for_each_domain[dom_idx].otmann_mislabel_coeffs,
@@ -972,14 +983,13 @@ def get_neural_network_kernel(kernel_type, kernel_hyperparams, gp_cts_hps,
       kernel_hyperparams['otmann_distance_computer'] is not None:
       tp_comp = kernel_hyperparams['otmann_distance_computer']
     else:
-      print('Creating OTMANN Distance computer on each iteration!')
-      from nn.otmann import get_otmann_distance_computer_from_args
+      from ..nn.otmann import get_otmann_distance_computer_from_args
       tp_comp = get_otmann_distance_computer_from_args(kernel_hyperparams['nn_type'],
                                  kernel_hyperparams['otmann_non_assignment_penalty'],
                                  mislabel_coeffs, struct_coeffs,
                                  kernel_hyperparams['otmann_dist_type'])
     # Now create the kernel
-    from nn.otmann import DistProdNNKernel, DistSumNNKernel
+    from ..nn.otmann import DistProdNNKernel, DistSumNNKernel
     if kernel_hyperparams['otmann_kernel_type'] in ['lpemd_prod', 'lp', 'sum']:
       kern = DistProdNNKernel(tp_comp, betas, 1.0, powers)
     elif kernel_hyperparams['otmann_kernel_type'] in ['lpemd_sum']:

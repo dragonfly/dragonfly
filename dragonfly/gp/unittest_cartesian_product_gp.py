@@ -8,6 +8,7 @@
 
 from argparse import Namespace
 import numpy as np
+import os
 from time import time
 # Local
 from ..exd.cp_domain_utils import load_cp_domain_from_config_file, \
@@ -15,18 +16,12 @@ from ..exd.cp_domain_utils import load_cp_domain_from_config_file, \
                                 get_processed_func_from_raw_func_via_config, \
                                 load_config_file, sample_from_config_space
 from . import cartesian_product_gp as cpgp
-from demos_synthetic.borehole_6.borehole_6 import borehole_6
-from demos_synthetic.borehole_6.borehole_6_mf import borehole_6_mf
-from demos_synthetic.hartmann3_2.hartmann3_2 import hartmann3_2
-from demos_synthetic.hartmann6_4.hartmann6_4 import hartmann6_4
-from demos_synthetic.hartmann6_4.hartmann6_4_mf import hartmann6_4_mf
-from demos_synthetic.park2_4.park2_4 import park2_4
-from demos_synthetic.park2_4.park2_4_mf import park2_4_mf
-from demos_synthetic.park2_3.park2_3 import park2_3
-from demos_synthetic.park1_3.park1_3 import park1_3
-from demos_synthetic.syn_cnn_1.syn_cnn_1 import syn_cnn_1
-from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
-from nn import nn_examples
+from ..test_data.park1_3.park1_3 import park1_3
+from ..test_data.park1_3.park1_3_mf import park1_3_mf
+from ..test_data.park2_4.park2_4 import park2_4
+from ..test_data.park2_4.park2_4_mf import park2_4_mf
+# from ..test_data.syn_cnn_2.syn_cnn_2 import syn_cnn_2
+# from nn import nn_examples
 from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.general_utils import map_to_bounds, get_idxs_from_list_of_lists
 
@@ -70,6 +65,8 @@ def get_initial_mlp_pool(class_or_reg):
 
 def gen_cpgp_test_data():
   """ Generates CPGP test data. """
+  file_dir = os.path.dirname(os.path.realpath(__file__))
+  test_data_dir = os.path.dirname(file_dir)
   # pylint: disable=too-many-statements
   # pylint: disable=too-many-locals
   # TODO: test against a naive GP in each of these cases
@@ -87,7 +84,7 @@ def gen_cpgp_test_data():
   n_train = 200
   n_test = 300
   # Dataset 1
-  domain_file_name = 'demos_synthetic/example_configs/eg01.json'
+  domain_file_name = test_data_dir + '/' + 'test_data/example_configs/eg01.json'
   func = lambda(x): x[0][0]**2 + 2*x[1][0] * x[0][0] + 3*x[1][0] + 2.1
   bounds = np.array([[-5, 10], [0, 15]])
   X_train = map_to_bounds(np.random.random((n_train, 2)), bounds)
@@ -96,37 +93,7 @@ def gen_cpgp_test_data():
   X_test = [[x] for x in X_test]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 2
-  domain_file_name = 'demos_synthetic/hartmann3_2/config.json'
-  func = hartmann3_2
-  bounds = np.array([[0, 1]] * 3)
-  X_train = map_to_bounds(np.random.random((n_train, 3)), bounds)
-  X_test = map_to_bounds(np.random.random((n_test, 3)), bounds)
-  X_train = [[x] for x in X_train]
-  X_test = [[x] for x in X_test]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-  # Dataset 3
-  domain_file_name = 'demos_synthetic/hartmann6_4/config.json'
-  func = hartmann6_4
-  bounds = np.array([[0, 10], [0, 10], [0, 1], [224, 324], [0, 92], [0, 92]])
-  X_train = map_to_bounds(np.random.random((n_train, len(bounds))), bounds)
-  X_test = map_to_bounds(np.random.random((n_test, len(bounds))), bounds)
-  X_train = [[[x[0], x[1]], [x[2]], [int(x[3]), int(x[4]), int(x[5])]] for x in X_train]
-  X_test = [[[x[0], x[1]], [x[2]], [int(x[3]), int(x[4]), int(x[5])]] for x in X_test]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-  # Dataset 4
-  domain_file_name = 'demos_synthetic/borehole_6/config.json'
-  func = borehole_6
-  bounds = np.array([[0.05, 0.15], [100, 50000], [0, 1], [0, 1], [63.1, 116],
-                     [63070, 115600], [0, 240], [0, 240]])
-  X_train = map_to_bounds(np.random.random((n_train, len(bounds))), bounds)
-  X_test = map_to_bounds(np.random.random((n_test, len(bounds))), bounds)
-  X_train = [[[x[0]], [x[1]], [x[2], x[3], x[4]], [int(x[5]), int(x[6]), int(x[7])]]
-             for x in X_train]
-  X_test = [[[x[0]], [x[1]], [x[2], x[3], x[4]], [int(x[5]), int(x[6]), int(x[7])]]
-             for x in X_test]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-  # Dataset 5
-  domain_file_name = 'demos_synthetic/park2_4/config.json'
+  domain_file_name = test_data_dir + '/' + 'test_data/park2_4/config.json'
   func = park2_4
   bounds = np.array([[0, 1], [0, 1], [103, 194], [10, 11]])
   X_tr_num = map_to_bounds(np.random.random((n_train, len(bounds))), bounds)
@@ -138,21 +105,8 @@ def gen_cpgp_test_data():
   X_test = [[[x[0], x[1], x[3]], [int(x[2])], [xd]]
              for (x, xd) in zip(X_te_num, X_te_disc)]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-  # Dataset 6
-  domain_file_name = 'demos_synthetic/park2_3/config.json'
-  func = park2_3
-  bounds = np.array([[0, 1], [10, 14], [10, 14], [0, 1]])
-  X_tr_num = map_to_bounds(np.random.random((n_train, len(bounds))), bounds)
-  X_te_num = map_to_bounds(np.random.random((n_test, len(bounds))), bounds)
-  X_tr_disc = [[elem1, elem2] for (elem1, elem2) in zip(
-    np.random.choice(['foo', 'bar'], n_train), np.random.choice(['foo', 'bar'], n_train))]
-  X_te_disc = [[elem1, elem2] for (elem1, elem2) in zip(
-    np.random.choice(['foo', 'bar'], n_test), np.random.choice(['foo', 'bar'], n_test))]
-  X_train = [[[x[0], x[3], x[2], x[1]], xd] for (x, xd) in zip(X_tr_num, X_tr_disc)]
-  X_test = [[[x[0], x[3], x[2], x[1]], xd] for (x, xd) in zip(X_te_num, X_te_disc)]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-  # Dataset 7
-  domain_file_name = 'demos_synthetic/park1_3/config.json'
+  # Dataset 3
+  domain_file_name = test_data_dir + '/' + 'test_data/park1_3/config.json'
   func = park1_3
   bounds = np.array([[10, 16], [0, 1], [0, 1]])
   x2_elems = [4, 10, 23, 45, 78, 87.1, 91.8, 99, 75.7, 28.1, 3.141593]
@@ -165,40 +119,32 @@ def gen_cpgp_test_data():
   X_test_2 = np.random.choice(x2_elems, n_test)
   X_test = [modify_func(x1, x2) for (x1, x2) in zip(X_test_1, X_test_2)]
   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-  # Dataset 8
-  domain_file_name = 'demos_synthetic/syn_cnn_1/config.json'
-  func = syn_cnn_1
-  all_cnns = get_cnns()
-  num_train = int(len(all_cnns) * 5 / 8)
-  X_train = [[x] for x in all_cnns[:num_train]]
-  X_test = [[x] for x in all_cnns[num_train:]]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-  # Dataset 9
-  num_train = max(len(all_cnns), n_train)
-  num_test = max(len(all_cnns), n_test)
-  domain_file_name = 'demos_synthetic/syn_cnn_2/config.json'
-  func = syn_cnn_2
-  x1_bounds = np.array([[0, 1], [0, 1], [10, 14]])
-  x4_elems = [4, 10, 23, 45, 78, 87.1, 91.8, 99, 75.7, 28.1, 3.141593]
-    # Create training set
-  X_tr_0 = np.random.choice(all_cnns, num_train)
-  X_tr_1 = map_to_bounds(np.random.random((num_train, len(x1_bounds))), x1_bounds)
-  X_tr_2 = [[elem1, elem2] for (elem1, elem2) in zip(
-             np.random.choice(['foo', 'bar'], num_train),
-             np.random.choice(['foo', 'bar'], num_train))]
-  X_tr_3 = np.random.choice(x4_elems, num_train)
-  X_train = [[x0, x1, x2, [x3]] for (x0, x1, x2, x3) in \
-             zip(X_tr_0, X_tr_1, X_tr_2, X_tr_3)]
-    # Create test set
-  X_te_0 = np.random.choice(all_cnns, num_test)
-  X_te_1 = map_to_bounds(np.random.random((num_test, len(x1_bounds))), x1_bounds)
-  X_te_2 = [[elem1, elem2] for (elem1, elem2) in zip(
-             np.random.choice(['foo', 'bar'], num_test),
-             np.random.choice(['foo', 'bar'], num_test))]
-  X_te_3 = np.random.choice(x4_elems, num_test)
-  X_test = [[x0, x1, x2, [x3]] for (x0, x1, x2, x3) in \
-             zip(X_te_0, X_te_1, X_te_2, X_te_3)]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
+#   # Dataset 4
+#   num_train = max(len(all_cnns), n_train)
+#   num_test = max(len(all_cnns), n_test)
+#   domain_file_name = test_data_dir + '/' + 'test_data/syn_cnn_2/config.json'
+#   func = syn_cnn_2
+#   x1_bounds = np.array([[0, 1], [0, 1], [10, 14]])
+#   x4_elems = [4, 10, 23, 45, 78, 87.1, 91.8, 99, 75.7, 28.1, 3.141593]
+#     # Create training set
+#   X_tr_0 = np.random.choice(all_cnns, num_train)
+#   X_tr_1 = map_to_bounds(np.random.random((num_train, len(x1_bounds))), x1_bounds)
+#   X_tr_2 = [[elem1, elem2] for (elem1, elem2) in zip(
+#              np.random.choice(['foo', 'bar'], num_train),
+#              np.random.choice(['foo', 'bar'], num_train))]
+#   X_tr_3 = np.random.choice(x4_elems, num_train)
+#   X_train = [[x0, x1, x2, [x3]] for (x0, x1, x2, x3) in \
+#              zip(X_tr_0, X_tr_1, X_tr_2, X_tr_3)]
+#     # Create test set
+#   X_te_0 = np.random.choice(all_cnns, num_test)
+#   X_te_1 = map_to_bounds(np.random.random((num_test, len(x1_bounds))), x1_bounds)
+#   X_te_2 = [[elem1, elem2] for (elem1, elem2) in zip(
+#              np.random.choice(['foo', 'bar'], num_test),
+#              np.random.choice(['foo', 'bar'], num_test))]
+#   X_te_3 = np.random.choice(x4_elems, num_test)
+#   X_test = [[x0, x1, x2, [x3]] for (x0, x1, x2, x3) in \
+#              zip(X_te_0, X_te_1, X_te_2, X_te_3)]
+#   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
   # Return
   return ret
 
@@ -231,10 +177,11 @@ def gen_cpmfgp_test_data_from_config_file(config_file_name, raw_func,
 
 def gen_cpmfgp_test_data(num_tr_data, num_te_data):
   """ Generates data on all functions. """
+  file_dir = os.path.dirname(os.path.realpath(__file__))
+  test_data_dir = os.path.dirname(file_dir)
   test_problems = [
-    ('demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf),
-    ('demos_synthetic/borehole_6/config_mf.json', borehole_6_mf),
-    ('demos_synthetic/park2_4/config_mf.json', park2_4_mf),
+    (test_data_dir + '/test_data/park1_3/config_mf.json', park1_3_mf),
+    (test_data_dir + '/test_data/park2_4/config_mf.json', park2_4_mf),
     ]
   ret = [gen_cpmfgp_test_data_from_config_file(cfn, rf, num_tr_data, num_te_data)
          for cfn, rf in test_problems]
@@ -250,8 +197,6 @@ def fit_cpgp_with_dataset(dataset, FitterClass):
 
 def fit_cpmfgp_with_dataset(dataset, *args, **kwargs):
   """ Fits and returns a CPMFGP. """
-#   mfgp_fitter = cpgp.CPMFGPFitter(dataset.ZZ_train, dataset.XX_train, dataset.YY_train,
-#                                   dataset.config, *args, **kwargs)
   config = dataset.config
   mfgp_fitter = cpgp.CPMFGPFitter(dataset.ZZ_train, dataset.XX_train, dataset.YY_train,
     fidel_space=config.fidel_space, domain=config.domain,

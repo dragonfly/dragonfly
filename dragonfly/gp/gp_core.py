@@ -592,7 +592,7 @@ class GPFitter(object):
       if self.parameter == 'additive_grp':
         if x < 0:
           return -np.inf
-        permut = list(np.random.RandomState(seed=x).permutation(self.add_dim))
+        permut = list(np.random.RandomState(seed=x[0]).permutation(self.add_dim))
         groupings = [permut[i:i+self.group_size]
                      for i in range(0, self.add_dim, self.group_size)]
         self.other_gp_params = Namespace(add_gp_groupings=groupings)
