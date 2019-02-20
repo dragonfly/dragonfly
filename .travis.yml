@@ -77,4 +77,5 @@ install:
   - pip install -e . -v
 
 script: 
-  - bash run_all_tests.sh sanity $DIRECT_STATE $OPT_STATE
+  - bash run_all_tests.sh sanity $DIRECT_STATE
+
