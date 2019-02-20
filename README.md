@@ -41,10 +41,11 @@ In most Linux environments, this can be done via
 if you are using Python2, or
 `sudo apt-get install python3-venv`
 if you are using Python3. 
-You could also follow the instructions
+You can also follow the instructions
 [here](https://pip.pypa.io/en/stable/installing/),
-[here](https://programwithus.com/learn-to-code/Pip-and-virtualenv-on-Mac/),
-[here](https://hackercodex.com/guide/python-development-environment-on-mac-osx/),
+[here](https://packaging.python.org/guides/installing-using-pip-and-virtualenv/#installing-virtualenv),
+[here](https://sourabhbajaj.com/mac-setup/Python/pip.html),
+[here](https://sourabhbajaj.com/mac-setup/Python/virtualenv.html),
 or
 [here](https://pymote.readthedocs.io/en/latest/install/windows_virtualenv.html)
 for Linux, macOS and Windows environments.
