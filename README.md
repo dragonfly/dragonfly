@@ -26,7 +26,7 @@ For questions and bug reports please email kandasamy@cs.cmu.edu.
 
 **Set up:**
 We recommend installation via `pip`.
-In most Linux environments, it can be installed via one of the commands below,
+In most Linux environments, it can be installed via the commands below,
 depending on the version.
 ```bash
 $ sudo apt-get install python-pip    # for Python2
