@@ -13,6 +13,7 @@ from argparse import Namespace
 from multiprocessing import Process
 import numpy as np
 import os
+import pickle
 import shutil
 import time
 try:
@@ -233,7 +234,7 @@ class RealWorkerManager(WorkerManager):
     # Create the last receive times
     self.last_receive_times = {wid:0.0 for wid in self.worker_ids}
     # Create file names
-    self._result_file_name = 'result.txt'
+    self._result_file_name = 'result.p'
     self._num_file_read_attempts = 10
 #     self._file_read_poll_time = 0.5 # wait for 0.5 seconds
 
@@ -260,6 +261,7 @@ class RealWorkerManager(WorkerManager):
     self._delete_and_create_dirs(list(self.result_dir_names.values()))
     self._delete_dirs(list(self.working_dir_names.values()))
     self.free_workers = Set(self.worker_ids)
+    self.func_callers_for_each_worker = {wid:None for wid in self.worker_ids}
     self.qinfos_in_progress = {wid:None for wid in self.worker_ids}
     self.worker_processes = {wid:None for wid in self.worker_ids}
 
@@ -267,21 +269,37 @@ class RealWorkerManager(WorkerManager):
     """ Computes the result file name for the worker. """
     return os.path.join(self.result_dir_names[worker_id], self._result_file_name)
 
+#   def _read_result_from_file(self, result_file_name):
+#     """ Reads the result from the file name. """
+#     #pylint: disable=bare-except
+#     num_attempts = 0
+#     while num_attempts < self._num_file_read_attempts:
+#       try:
+#         file_reader = open(result_file_name, 'r')
+#         read_in = file_reader.read().strip()
+#         try:
+#           # try converting to float. If not successful, it is likely an error string.
+#           read_in = float(read_in)
+#         except:
+#           pass
+#         file_reader.close()
+#         result = read_in
+#         break
+#       except:
+#         print('Encountered error when reading %s. Trying again.'%(result_file_name))
+#         time.sleep(self.poll_time)
+#         file_reader.close()
+#         result = EVAL_ERROR_CODE
+#     return result
+
   def _read_result_from_file(self, result_file_name):
     """ Reads the result from the file name. """
     #pylint: disable=bare-except
     num_attempts = 0
     while num_attempts < self._num_file_read_attempts:
       try:
-        file_reader = open(result_file_name, 'r')
-        read_in = file_reader.read().strip()
-        try:
-          # try converting to float. If not successful, it is likely an error string.
-          read_in = float(read_in)
-        except:
-          pass
-        file_reader.close()
-        result = read_in
+        file_reader = open(result_file_name, 'rb')
+        result = pickle.load(file_reader)
         break
       except:
         print('Encountered error when reading %s. Trying again.'%(result_file_name))
@@ -292,16 +310,25 @@ class RealWorkerManager(WorkerManager):
 
   def _read_result_from_worker_and_update(self, worker_id):
     """ Reads the result from the worker. """
+    # pylint: disable=maybe-no-member
     # Read the file
     result_file_name = self._get_result_file_name_for_worker(worker_id)
-    val = self._read_result_from_file(result_file_name)
+    result_qinfo = self._read_result_from_file(result_file_name)
+    saved_qinfo = self.qinfos_in_progress[worker_id]
     # Now update the relevant qinfo and put it to latest_results
-    qinfo = self.qinfos_in_progress[worker_id]
-    qinfo.val = val
+    if isinstance(result_qinfo, Namespace):
+      assert self.func_callers_for_each_worker[worker_id].domain.members_are_equal(
+               result_qinfo.point, saved_qinfo.point)
+      qinfo = result_qinfo
+    elif result_qinfo == EVAL_ERROR_CODE:
+      qinfo = saved_qinfo
+      qinfo.val = EVAL_ERROR_CODE
+    else:
+      raise ValueError('Could not read qinfo object: %s.'%(str(qinfo)))
     qinfo.receive_time = self.experiment_designer.get_curr_spent_capital()
     qinfo.eval_time = qinfo.receive_time - qinfo.send_time
     if not hasattr(qinfo, 'true_val'):
-      qinfo.true_val = val
+      qinfo.true_val = qinfo.val
     self.latest_results.append(qinfo)
     # Update receive time
     self.last_receive_times[worker_id] = qinfo.receive_time
@@ -313,6 +340,7 @@ class RealWorkerManager(WorkerManager):
     self.worker_processes[worker_id].terminate()
     self.worker_processes[worker_id] = None
     self.qinfos_in_progress[worker_id] = None
+    self.func_callers_for_each_worker[worker_id] = None
     self.free_workers.add(worker_id)
 
   def _worker_is_free(self, worker_id):
@@ -368,6 +396,7 @@ class RealWorkerManager(WorkerManager):
     time.sleep(self.sleep_time_after_new_process)
     # Add the qinfo to the in progress bar and remove from free_workers
     self.qinfos_in_progress[worker_id] = qinfo
+    self.func_callers_for_each_worker[worker_id] = func_caller
     self.free_workers.discard(worker_id)
 
   def dispatch_single_experiment(self, func_caller, qinfo, **kwargs):

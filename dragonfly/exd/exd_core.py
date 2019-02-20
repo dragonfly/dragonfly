@@ -13,7 +13,6 @@ from __future__ import division
 import time
 from argparse import Namespace
 import numpy as np
-
 # Local imports
 from .exd_utils import EVAL_ERROR_CODE
 from ..utils.option_handler import get_option_specs
@@ -246,9 +245,9 @@ class ExperimentDesigner(object):
           raise NotImplementedError(('Not implemented init_capital for capital_type ' +
                                      '%s yet.')%(self.capital_type))
       elif self.options.init_capital is not None:
-        self.init_capital = self.options.init_capital
+        self.init_capital = float(self.options.init_capital)
       elif self.options.init_capital_frac is not None:
-        self.init_capital = self.options.init_capital_frac*self.available_capital
+        self.init_capital = float(self.options.init_capital_frac) * self.available_capital
       else:
         self.init_capital = None
       # Set the function to return the initial qinfos

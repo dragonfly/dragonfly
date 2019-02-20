@@ -72,6 +72,7 @@ class EuclideanDomain(Domain):
 
   def __init__(self, bounds):
     """ Constructor. """
+    _check_if_valid_euc_int_bounds(bounds)
     self.bounds = np.array(bounds)
     self.diameter = np.linalg.norm(self.bounds[:, 1] - self.bounds[:, 0])
     self.dim = len(bounds)
@@ -109,6 +110,7 @@ class IntegralDomain(Domain):
 
   def __init__(self, bounds):
     """ Constructor. """
+    _check_if_valid_euc_int_bounds(bounds)
     self.bounds = np.array(bounds, dtype=np.int)
     self.diameter = np.linalg.norm(self.bounds[:, 1] - self.bounds[:, 0])
     self.dim = len(bounds)
@@ -292,7 +294,7 @@ class ProdDiscreteNumericDomain(ProdDiscreteDomain):
 class CartesianProductDomain(Domain):
   """ The cartesian product of several domains. """
 
-  def __init__(self, list_of_domains):
+  def __init__(self, list_of_domains, domain_info=None):
     """ Constructor.
         list_of_domains is a list of domain objects.
         An element in this domain is represented by a list whose ith element
@@ -304,10 +306,64 @@ class CartesianProductDomain(Domain):
       self.dim = sum([dom.get_dim() for dom in self.list_of_domains])
     except TypeError:
       self.dim = None
+    # Domain info
+    self.domain_info = domain_info
+    self._has_constraints = False
+    if self.domain_info is not None:
+      from .cp_domain_utils import get_raw_point_from_processed_point
+      self.raw_name_ordering = self.domain_info.config_orderings.raw_name_ordering
+      self.get_raw_point = lambda x: get_raw_point_from_processed_point(x,
+                             self, self.domain_info.config_orderings.index_ordering,
+                             self.domain_info.config_orderings.dim_ordering)
+      if hasattr(self.domain_info, 'config_file'):
+        import os
+        self.config_file = self.domain_info.config_file
+        self.config_file_dir = os.path.dirname(os.path.abspath(os.path.realpath(
+                                               self.domain_info.config_file)))
+      if hasattr(self.domain_info, 'constraints'):
+        self._has_constraints = True
+        self._constraint_eval_set_up()
+
+  def _constraint_eval_set_up(self):
+    """ Set up for evaluating constraints. """
+    from imp import load_source
+    import os
+    from ..utils.general_utils import evaluate_strings_with_given_variables
+    self.str_constraint_evaluator = evaluate_strings_with_given_variables
+    self.domain_constraints = self.domain_info.constraints
+    self.num_domain_constraints = len(self.domain_constraints)
+#     self.source_loader = imp.load_source
+    # Separate the constraints into different types
+    self.eval_as_pyfile_idxs = [idx for idx in range(self.num_domain_constraints) if
+                                isinstance(self.domain_constraints[idx][1], str) and
+                                self.domain_constraints[idx][1].endswith('.py')]
+    self.eval_as_str_idxs = [idx for idx in range(self.num_domain_constraints) if
+                             isinstance(self.domain_constraints[idx][1], str) and
+                             idx not in self.eval_as_pyfile_idxs]
+    self.eval_as_pyfunc_idxs = [idx for idx in range(self.num_domain_constraints) if
+                                hasattr(self.domain_constraints[idx][1], '__call__')]
+    # Save constraints here
+    self.pyfunc_constraints = [self.domain_constraints[idx][1] for idx
+                              in self.eval_as_pyfunc_idxs]
+    self.str_constraints = [self.domain_constraints[idx][1] for idx in
+                            self.eval_as_str_idxs]
+    # pyfunc constraints
+    pyfile_modules = [self.domain_constraints[idx][1] for idx
+                      in self.eval_as_pyfile_idxs]
+    self.pyfile_constraints = []
+    for pfm_file_name in pyfile_modules:
+      pfm = pfm_file_name.split('.')[0]
+      constraint_source_module = load_source(pfm,
+                                   os.path.join(self.config_file_dir, pfm_file_name))
+      self.pyfile_constraints.append(constraint_source_module.constraint)
 
   def get_type(self):
     """ Returns the type of the domain. """
     return 'cartesian_product'
+
+  def has_constraints(self):
+    """ Returns True if the domain has constraints. """
+    return self._has_constraints
 
   def get_dim(self):
     """ Returns the dimension. """
@@ -320,7 +376,41 @@ class CartesianProductDomain(Domain):
     for dom_pt, dom in zip(point, self.list_of_domains):
       if not dom.is_a_member(dom_pt): # check if each element is in the respective domain.
         return False
+    # Now check if the constraints are satisfied
+    if not self.constraints_are_satisfied(point):
+      return False
     return True
+
+  def _evaluate_all_constraints(self, raw_point, name_to_pt_dict):
+    """ Evaluates all constraints. """
+    # Evaluate all constraints
+    ret_str_all = self.str_constraint_evaluator(self.str_constraints, name_to_pt_dict)
+    ret_pyfile_all = [elem(raw_point) for elem in self.pyfile_constraints]
+    ret_pyfunc_all = [elem(raw_point) for elem in self.pyfunc_constraints]
+    # Merge results
+    ret_all = [None] * self.num_domain_constraints
+    for str_idx, orig_idx in enumerate(self.eval_as_str_idxs):
+      ret_all[orig_idx] = ret_str_all[str_idx]
+    for pyfile_idx, orig_idx in enumerate(self.eval_as_pyfile_idxs):
+      ret_all[orig_idx] = ret_pyfile_all[pyfile_idx]
+    for pyfunc_idx, orig_idx in enumerate(self.eval_as_pyfunc_idxs):
+      ret_all[orig_idx] = ret_pyfunc_all[pyfunc_idx]
+    return ret_all
+
+  def constraints_are_satisfied(self, point):
+    """ Checks if the constraints are satisfied. """
+    if hasattr(self, 'domain_constraints') and self.domain_constraints is not None:
+      raw_point = self.get_raw_point(point)
+      name_to_pt_dict = {k:v for (k, v) in zip(self.raw_name_ordering, raw_point)}
+      ret_all = self._evaluate_all_constraints(raw_point, name_to_pt_dict)
+      for idx, elem in enumerate(ret_all):
+        if not isinstance(elem, (bool, np.bool, np.bool_)):
+          raise ValueError(
+            'Constraint %d:%s (%s) returned %s. It should return type bool.'%(idx,
+            self.domain_constraints[idx][0], self.domain_constraints[idx][1], str(elem)))
+      return all(ret_all)
+    else:
+      return True
 
   def members_are_equal(self, point_1, point_2):
     """ Compares two members and returns True if they are the same. """
@@ -337,8 +427,16 @@ class CartesianProductDomain(Domain):
   def __str__(self):
     """ Returns a string representation of the domain. """
     list_of_domains_str = ', '.join([str(dom) for dom in self.list_of_domains])
-    return 'CartProd(N=%d,d=%d)::[%s]'%(self.num_domains, self.dim,
+    ret1 = 'CartProd(N=%d,d=%d)::[%s]'%(self.num_domains, self.dim,
                                         list_of_domains_str)
+    if self.has_constraints():
+      constraints_as_list_of_strs = ['%s: %s'%(elem[0], elem[1]) for elem in
+                                     self.domain_constraints]
+      constraints_as_str = ', '.join(constraints_as_list_of_strs)
+      ret2 = ',  Constraints:: %s'%(constraints_as_str)
+    else:
+      ret2 = ''
+    return ret1 + ret2
 
 
 # Utilities we will need for the above ------------------------------------------
@@ -352,6 +450,13 @@ def is_within_bounds(bounds, point):
   above_lb = np.all((point - bounds[:, 0] >= 0))
   below_ub = np.all((bounds[:, 1] - point >= 0))
   return above_lb * below_ub
+
+def _check_if_valid_euc_int_bounds(bounds):
+  """ Checks if the bounds are valid. """
+  for bd in bounds:
+    if bd[0] > bd[1]:
+      raise ValueError('Given bound %s is not in [lower_bound, upper_bound] format.'%(
+                        bd))
 
 def _get_bounds_as_str(bounds):
   """ returns a string representation of bounds. """

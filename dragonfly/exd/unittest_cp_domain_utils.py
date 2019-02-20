@@ -6,19 +6,15 @@
 # pylint: disable=invalid-name
 # pylint: disable=no-member
 
+import os
 import numpy as np
 # Local imports
-from demos_synthetic.borehole_6.borehole_6 import borehole_6
-from demos_synthetic.borehole_6.borehole_6_mf import borehole_6_mf
-from demos_synthetic.hartmann3_2.hartmann3_2 import hartmann3_2
-from demos_synthetic.hartmann6_4.hartmann6_4 import hartmann6_4
-from demos_synthetic.hartmann6_4.hartmann6_4_mf import hartmann6_4_mf
-from demos_synthetic.park2_4.park2_4 import park2_4
-from demos_synthetic.park2_4.park2_4_mf import park2_4_mf
-from demos_synthetic.park2_3.park2_3 import park2_3
-from demos_synthetic.park1_3.park1_3 import park1_3
-from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
 from . import cp_domain_utils
+from ..test_data.park1_3.park1_3 import park1_3
+from ..test_data.park1_3.park1_3_mf import park1_3_mf
+from ..test_data.park2_4.park2_4 import park2_4
+from ..test_data.park2_4.park2_4_mf import park2_4_mf
+# from ..test_data.syn_cnn_2.syn_cnn_2 import syn_cnn_2
 from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.general_utils import get_idxs_from_list_of_lists
 
@@ -28,34 +24,27 @@ class CPDomainUtilsTestCase(BaseTestClass):
 
   def setUp(self):
     """ Set up. """
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    test_data_dir = os.path.dirname(file_dir)
     self.domain_config_files = [
-      'demos_synthetic/example_configs/eg01.json',
-      'demos_synthetic/example_configs/eg02.json',
-      'demos_synthetic/example_configs/eg03.json',
-      'demos_synthetic/example_configs/eg01.pb',
-      'demos_synthetic/example_configs/eg02.pb',
-      'demos_synthetic/example_configs/eg04.pb',
-      'demos_synthetic/hartmann3_2/config.json',
-      'demos_synthetic/hartmann6_4/config.json',
-      'demos_synthetic/borehole_6/config.json',
-      'demos_synthetic/park2_4/config.json',
-      'demos_synthetic/park2_3/config.json',
-      'demos_synthetic/park1_3/config.json',
-      'demos_synthetic/syn_cnn_1/config.json',
+      test_data_dir + '/test_data/example_configs/eg01.json',
+      test_data_dir + '/test_data/example_configs/eg02.json',
+      test_data_dir + '/test_data/example_configs/eg03.json',
+      test_data_dir + '/test_data/example_configs/eg01.pb',
+      test_data_dir + '/test_data/example_configs/eg02.pb',
+      test_data_dir + '/test_data/example_configs/eg04.pb',
+      test_data_dir + '/test_data/park2_4/config.json',
+      test_data_dir + '/test_data/park1_3/config.json',
+#       test_data_dir + '/test_data/syn_cnn_2/config.json',
       ]
     self.synthetic_functions = [
-      ('demos_synthetic/hartmann3_2/config.json', hartmann3_2),
-      ('demos_synthetic/hartmann6_4/config.json', hartmann6_4),
-      ('demos_synthetic/borehole_6/config.json', borehole_6),
-      ('demos_synthetic/park2_4/config.json', park2_4),
-      ('demos_synthetic/park2_3/config.json', park2_3),
-      ('demos_synthetic/park1_3/config.json', park1_3),
-      ('demos_synthetic/syn_cnn_2/config.json', syn_cnn_2),
+      (test_data_dir + '/test_data/park2_4/config.json', park2_4),
+      (test_data_dir + '/test_data/park1_3/config.json', park1_3),
+#       ('test_data/syn_cnn_2/config.json', syn_cnn_2),
       ]
     self.domain_fidel_synthetic_functions = [
-      ('demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf),
-      ('demos_synthetic/borehole_6/config_mf.json', borehole_6_mf),
-      ('demos_synthetic/park2_4/config_mf.json', park2_4_mf),
+      (test_data_dir + '/test_data/park2_4/config_mf.json', park2_4_mf),
+      (test_data_dir + '/test_data/park1_3/config_mf.json', park1_3_mf),
       ]
 
   def test_load_domain(self):

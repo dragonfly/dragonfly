@@ -1,0 +1,45 @@
+{
+"name": "cnn_syn_1",
+
+"domain":{
+
+  "x1" : {
+    "name":"x0",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":2
+  },
+
+  "foo_or_bar" : {
+    "name":"foo_or_bar",
+    "type":"discrete",
+    "items":"foo-bar",
+    "dim":2
+  },
+
+  "cnn0":{
+    "name":"cnn0",
+    "type":"cnn",
+    "max_num_layers":109,
+    "min_num_layers":7,
+    "max_num_edges":246,
+    "min_mass":5.2
+  },
+
+  "x2" : {
+    "name":"x2",
+    "type":"float",
+    "min":10.0,
+    "max":14.0,
+    "dim":""
+  },
+
+  "x3" : {
+    "name":"x3",
+    "type":"discrete_numeric",
+    "items":"4-10-23-45-78-87.1-91.8-99-75.7-28.1-3.141593"
+  }
+
+ }
+}

@@ -7,6 +7,7 @@
 # pylint: disable=invalid-name
 # pylint: disable=no-member
 
+import os
 import numpy as np
 # Local imports
 from . import cp_domain_utils, experiment_caller
@@ -14,20 +15,13 @@ from ..utils import euclidean_synthetic_functions as esf
 from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.ancillary_utils import get_list_of_floats_as_str
 # Synthetic functons for CP Domain
-from demos_synthetic.borehole_6.borehole_6 import borehole_6
-from demos_synthetic.borehole_6.borehole_6_mf import borehole_6_mf
-from demos_synthetic.borehole_6.borehole_6_mf import cost as cost_borehole_6
-from demos_synthetic.hartmann3_2.hartmann3_2 import hartmann3_2
-from demos_synthetic.hartmann6_4.hartmann6_4 import hartmann6_4
-from demos_synthetic.hartmann6_4.hartmann6_4_mf import hartmann6_4_mf
-from demos_synthetic.hartmann6_4.hartmann6_4_mf import cost as cost_hartmann6_4
-from demos_synthetic.park2_4.park2_4 import park2_4
-from demos_synthetic.park2_4.park2_4_mf import park2_4_mf
-from demos_synthetic.park2_4.park2_4_mf import cost as cost_park2_4
-from demos_synthetic.park2_3.park2_3 import park2_3
-from demos_synthetic.park1_3.park1_3 import park1_3
-from demos_synthetic.syn_cnn_1.syn_cnn_1 import syn_cnn_1
-from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
+from ..test_data.park2_4.park2_4 import park2_4
+from ..test_data.park2_4.park2_4_mf import park2_4_mf
+from ..test_data.park2_4.park2_4_mf import cost as cost_park2_4
+from ..test_data.park1_3.park1_3 import park1_3
+from ..test_data.park1_3.park1_3_mf import park1_3_mf
+from ..test_data.park1_3.park1_3_mf import cost as cost_park1_3
+# from ..test_data.syn_cnn_2.syn_cnn_2 import syn_cnn_2
 
 
 _TOL = 1e-5
@@ -185,23 +179,19 @@ class CPFunctionCaller(BaseTestClass):
 
   def setUp(self):
     """ set up. """
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    test_data_dir = os.path.dirname(file_dir)
     self.test_function_data = [
-      ('demos_synthetic/hartmann3_2/config.json', hartmann3_2, 'no_noise', None, None),
-      ('demos_synthetic/hartmann6_4/config.json', hartmann6_4, 'gauss', 0.2, None),
-      ('demos_synthetic/borehole_6/config.json', borehole_6, 'no_noise', None, None),
-      ('demos_synthetic/park2_4/config.json', park2_4, 'gauss', 2.1, None),
-      ('demos_synthetic/park2_3/config.json', park2_3, 'no_noise', None, None),
-      ('demos_synthetic/park1_3/config.json', park1_3, 'no_noise', None, None),
-      ('demos_synthetic/syn_cnn_1/config.json', syn_cnn_1, 'gauss', 0.5, None),
-      ('demos_synthetic/syn_cnn_2/config.json', syn_cnn_2, 'no_noise', None, None),
+      (test_data_dir + '/test_data/park2_4/config.json', park2_4, 'gauss', 2.1, None),
+      (test_data_dir + '/test_data/park1_3/config.json', park1_3, 'no_noise', None, None),
+#       (test_data_dir + '/test_data/syn_cnn_2/config.json', syn_cnn_2, 'no_noise',
+#                                                                       None, None),
       ]
     self.mf_test_function_data = [
-      ('demos_synthetic/hartmann6_4/config_mf.json', hartmann6_4_mf,
-       'no_noise', None, cost_hartmann6_4),
-      ('demos_synthetic/borehole_6/config_mf.json', borehole_6_mf,
-       'gauss', 1.0, cost_borehole_6),
-      ('demos_synthetic/park2_4/config_mf.json', park2_4_mf,
+      (test_data_dir + '/test_data/park2_4/config_mf.json', park2_4_mf,
        'gauss', 0.1, cost_park2_4),
+      (test_data_dir + '/test_data/park1_3/config_mf.json', park1_3_mf,
+       'gauss', 0.2, cost_park1_3),
       ]
     self.num_test_points = 100
 

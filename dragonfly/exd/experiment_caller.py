@@ -13,6 +13,7 @@ from __future__ import print_function
 
 from argparse import Namespace
 import numpy as np
+import pickle
 # Local imports
 from .cp_domain_utils import load_config_file, sample_from_cp_domain, \
                                 get_processed_func_from_raw_func_via_config, \
@@ -107,6 +108,11 @@ class ExperimentCaller(object):
     """ Gets the noisy evaluation. """
     raise NotImplementedError('Implement in a child class.')
 
+  @classmethod
+  def _pickle_dump_to_result_file(cls, qinfo, file_handle):
+    """ Writes to the pickle file. """
+    pickle.dump(qinfo, file_handle)
+
   def _eval_single_common_wrap_up(self, true_val, qinfo, noisy, caller_eval_cost):
     """ Wraps up the evaluation by adding noise and adding info to qinfo.
         Common to both single and mutli-fidelity eval experiments.
@@ -122,6 +128,16 @@ class ExperimentCaller(object):
     qinfo.true_val = true_val
     qinfo.val = val
     qinfo.caller_eval_cost = caller_eval_cost
+    # Writing to a file
+    if hasattr(qinfo, 'result_file') and qinfo.result_file is not None:
+      if isinstance(qinfo.result_file, str):
+        file_handle = open(qinfo.result_file, 'wb')
+        self._pickle_dump_to_result_file(qinfo, file_handle)
+        file_handle.close()
+      elif isinstance(qinfo.result_file, file):
+        self._pickle_dump_to_result_file(qinfo, qinfo.result_file)
+      else:
+        raise ValueError('qinfo.result_file should a string or file object.')
     return val, qinfo
 
   def _get_true_val_from_experiment_at_point(self, point):
@@ -145,9 +161,11 @@ class ExperimentCaller(object):
     if self.is_mf(): # if multi-fidelity call the experiment at fidel_to_opt
       return self.eval_at_fidel_single(self.fidel_to_opt, point, qinfo, noisy)
     else:
+      if qinfo is None:
+        qinfo = Namespace()
       true_val = self._get_true_val_from_experiment_at_point(point)
-      val, qinfo = self._eval_single_common_wrap_up(true_val, qinfo, noisy, None)
       qinfo.point = point
+      val, qinfo = self._eval_single_common_wrap_up(true_val, qinfo, noisy, None)
       return val, qinfo
 
   def eval_multiple(self, points, qinfos=None, noisy=True):
@@ -171,13 +189,15 @@ class ExperimentCaller(object):
     """
     if not self.is_mf():
       raise CalledMultiFidelOnSingleFidelCaller(self)
+    if qinfo is None:
+      qinfo = Namespace()
     true_val = self._get_true_val_from_experiment_at_fidel_point(fidel, point)
     cost_at_fidel = self.fidel_cost_func(fidel)
-    val, qinfo = self._eval_single_common_wrap_up(true_val, qinfo, noisy,
-                                                  cost_at_fidel)
     qinfo.fidel = fidel
     qinfo.point = point
     qinfo.cost_at_fidel = cost_at_fidel
+    val, qinfo = self._eval_single_common_wrap_up(true_val, qinfo, noisy,
+                                                  cost_at_fidel)
     return val, qinfo
 
   def eval_at_fidel_multiple(self, fidels, points, qinfos=None, noisy=True):
@@ -442,12 +462,6 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
     raw_fidel_coords = self.get_raw_fidel_coords(fidel)
     assert self.raw_fidel_space.is_a_member(raw_fidel_coords)
     raw_dom_coords = self.get_raw_domain_coords(point)
-    try:
-      assert self.raw_domain.is_a_member(raw_dom_coords)
-    except AssertionError:
-      print('raw_dom_coords: %s not in raw_domain.'%(raw_dom_coords))
-      import pdb
-      pdb.set_trace()
     assert self.raw_domain.is_a_member(raw_dom_coords)
     if self.vectorised:
       raw_dom_coords = raw_dom_coords.reshape((-1, 1))

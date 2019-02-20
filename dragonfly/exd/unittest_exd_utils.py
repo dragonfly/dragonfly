@@ -36,12 +36,6 @@ class EDUtilsTestCase(BaseTestClass):
     for data in self.lhs_data:
       self._check_sample_sizes(data, random_sampling_kmeans_cts(data[0], data[1]))
 
-  def test_random_sampling_discrete(self):
-    """ Tests random sampling from discrete domains. """
-    self.report('Test random sampling on a discrete domain.')
-    # TODO: implement this!
-    raise NotImplementedError('Implement this!')
-
 
 if __name__ == '__main__':
   execute_tests()

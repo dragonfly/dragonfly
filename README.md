@@ -111,6 +111,7 @@ If you have installed via source, make sure that you move to a different directo
 ```bash
 $ python
 >>> from dragonfly import minimise_function
+>>> # The first argument below is the function, the second is the domain, and the third is the budget.
 >>> min_val, min_pt, history = minimise_function(lambda x: x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 10);  
 ...
 >>> min_val, min_pt
@@ -219,9 +220,9 @@ func = lambda x: x ** 4 - x**2 + 0.1 * x
 domain = [[-10, 10]]
 max_capital = 100
 min_val, min_pt, history = minimise_function(func, domain, max_capital)
-...
 print(min_val, min_pt)
-min_val, min_pt, history = maximise_function(lambda x: -func(x), domain, max_capital)
+max_val, max_pt, history = maximise_function(lambda x: -func(x), domain, max_capital)
+print(max_val, max_pt)
 ```
 Here, `func` is the function to be maximised,
 `domain` is the domain over which `func` is to be optimised,

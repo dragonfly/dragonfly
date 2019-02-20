@@ -7,6 +7,8 @@
 
 # pylint: disable=invalid-name
 
+from __future__ import print_function
+
 from argparse import Namespace
 # Local imports
 from . import domains
@@ -43,14 +45,23 @@ def load_config_file(config_file, *args, **kwargs):
   """ Loads the configuration file. """
   parsed_result = config_parser(config_file)
   domain_params = parsed_result['domain']
-  domain, domain_orderings = load_domain_from_params(domain_params, *args, **kwargs)
+  domain_constraints = None if not ('domain_constraints' in parsed_result.keys()) \
+                       else parsed_result['domain_constraints']
+  domain_info = Namespace(config_file=config_file)
+  domain, domain_orderings = load_domain_from_params(domain_params,
+    domain_constraints=domain_constraints, domain_info=domain_info, *args, **kwargs)
   config = Namespace(name=parsed_result['exp_info']['name'],
                      domain=domain, domain_orderings=domain_orderings)
   # Check the fidelity space
   if 'fidel_space' in parsed_result.keys():
     fidel_space_params = parsed_result['fidel_space']
+    fidel_space_constraints = None if not ('fidel_space_constraints' in
+                                           parsed_result.keys()) \
+                              else parsed_result['fidel_space_constraints']
+    fidel_space_info = Namespace(config_file=config_file)
     fidel_space, fidel_space_orderings = load_domain_from_params(
-                                           fidel_space_params, *args, **kwargs)
+      fidel_space_params, domain_constraints=fidel_space_constraints,
+      domain_info=fidel_space_info, *args, **kwargs)
     if len(fidel_space.list_of_domains) > 0:
       config.fidel_space = fidel_space
       config.fidel_space_orderings = fidel_space_orderings
@@ -63,17 +74,21 @@ def load_cp_domain_from_config_file(config_file, *args, **kwargs):
   """ Loads and creates a cartesian product domain object from a config_file. """
   parsed_result = config_parser(config_file)
   domain_params = parsed_result['domain']
-  return load_domain_from_params(domain_params, *args, **kwargs)
+  domain_constraints = None if not ('domain_constraints' in parsed_result.keys()) \
+                       else parsed_result['domain_constraints']
+  domain_info = Namespace(config_file=config_file)
+  return load_domain_from_params(domain_params, domain_constraints=domain_constraints,
+                                 domain_info=domain_info, *args, **kwargs)
 
 
 def load_domain_from_params(domain_params,
       general_euclidean_kernel='', general_integral_kernel='',
-      general_discrete_kernel='', general_discrete_numeric_kernel=''):
+      general_discrete_kernel='', general_discrete_numeric_kernel='',
+      domain_constraints=None, domain_info=None):
   """ Loads and creates a cartesian product object from a config_file. """
   # pylint: disable=too-many-branches
   # pylint: disable=too-many-statements
   # pylint: disable=too-many-locals
-  # pylint: disable=unused-argument
   list_of_domains = []
   general_euclidean_bounds = []
   general_euclidean_idxs = []
@@ -83,16 +98,22 @@ def load_domain_from_params(domain_params,
   general_discrete_idxs = []
   general_discrete_numeric_items_list = []
   general_discrete_numeric_idxs = []
+  raw_name_ordering = []
   # We will need the following variables for the function caller and the kernel
   index_ordering = [] # keeps track of which index goes where in the domain
   # iterate over the loop
   for idx, param in enumerate(domain_params):
+    raw_name_ordering.append(param['name'])
     if param['type'] in ['float', 'int']:
       bound_dim = 1 if param['dim'] == '' else param['dim']
       curr_bounds = [[param['min'], param['max']]] * bound_dim
-    elif param['type'] in ['discrete', 'discrete_numeric']:
+    elif param['type'] in ['discrete', 'discrete_numeric', 'boolean']:
       items_dim = 1 if param['dim'] == '' else param['dim']
-      curr_items = [param['items']] * items_dim
+      if param['type'] == 'boolean':
+        param_items = [0, 1]
+      else:
+        param_items = param['items']
+      curr_items = [param_items[:] for _ in range(items_dim)]
     # Now append to relevant part
     if param['type'] == 'float':
       if param['kernel'] == '':
@@ -108,7 +129,7 @@ def load_domain_from_params(domain_params,
       else:
         list_of_domains.append(domains.IntegralDomain(curr_bounds))
         index_ordering.append(idx)
-    elif param['type'] == 'discrete':
+    elif param['type'] in ['boolean', 'discrete']:
       if param['kernel'] == '':
         general_discrete_items_list.extend(curr_items)
         general_discrete_idxs.append(idx)
@@ -123,7 +144,7 @@ def load_domain_from_params(domain_params,
         list_of_domains.append(domains.ProdDiscreteNumericDomain(curr_items))
         index_ordering.append(idx)
     elif param['type'].startswith(('nn', 'cnn', 'mlp')):
-      from nn.nn_domains import get_nn_domain_from_constraints
+      from ..nn.nn_domains import get_nn_domain_from_constraints
       list_of_domains.append(get_nn_domain_from_constraints(param['type'], param))
       index_ordering.append(idx)
     else:
@@ -169,13 +190,20 @@ def load_domain_from_params(domain_params,
     dim_ordering.append(general_discrete_numeric_dims)
     index_ordering.append(general_discrete_numeric_idxs)
     kernel_ordering.append(general_discrete_numeric_kernel)
-  # Create a cartesian product domain
-  cp_domain = domains.CartesianProductDomain(list_of_domains)
   # Arrange all orderings into a namespace
   orderings = Namespace(index_ordering=index_ordering,
                         kernel_ordering=kernel_ordering,
                         dim_ordering=dim_ordering,
-                        name_ordering=name_ordering)
+                        name_ordering=name_ordering,
+                        raw_name_ordering=raw_name_ordering)
+  # Create a namespace with additional information
+  if domain_info is None:
+    domain_info = Namespace()
+  domain_info.config_orderings = orderings
+  if domain_constraints is not None:
+    domain_info.constraints = domain_constraints
+  # Create a cartesian product domain
+  cp_domain = domains.CartesianProductDomain(list_of_domains, domain_info)
   return cp_domain, orderings
 
 
@@ -284,8 +312,54 @@ def get_processed_from_raw_via_config(raw_point, config):
 def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
                           euclidean_sample_type='rand',
                           integral_sample_type='rand',
-                          nn_sample_type='rand'):
+                          nn_sample_type='rand',
+                          max_num_retries_for_constraint_satisfaction=10,
+                          verbose_constraint_satisfaction=True):
   """ Samples from the CP domain. """
+  ret = []
+  if cp_domain.has_constraints():
+    num_samples_to_draw = max(10, 2 * num_samples)
+  else:
+    num_samples_to_draw = num_samples
+  for _ in range(max_num_retries_for_constraint_satisfaction):
+    curr_ret = sample_from_cp_domain_without_constraints(cp_domain, num_samples_to_draw,
+                 domain_samplers, euclidean_sample_type, integral_sample_type,
+                 nn_sample_type)
+    # Check constraints
+    if cp_domain.has_constraints():
+      constraint_satisfying_ret = [elem for elem in curr_ret if
+                                   cp_domain.constraints_are_satisfied(elem)]
+      curr_ret = constraint_satisfying_ret
+    ret.extend(curr_ret)
+    # Check length of ret
+    if len(ret) >= num_samples:
+      ret = ret[:num_samples]
+      break
+  # Check if the number of samples is too small and print a warning accordingly.
+  if len(ret) < num_samples and verbose_constraint_satisfaction:
+    if len(ret) == 0:
+      Warning(('sample_from_cp_domain obtained 0 samples (%d requested) despite %d ' +
+       'tries. This is most likely because your constraints specify a set of measure 0.' +
+       'Consider parametrising your domain differently.')%(
+       num_samples, max_num_retries_for_constraint_satisfaction))
+    elif len(ret)/float(num_samples) < 0.25:
+      Warning(('sample_from_cp_domain obtained %d samples (%d requested) despite %d ' +
+       'tries. This is because your constraints specify a very small subset of the '
+       'original domain. Consider parametrising your domain differently.')%(
+       len(ret), num_samples, max_num_retries_for_constraint_satisfaction))
+    else:
+      Warning(('sample_from_cp_domain was only able to obtain %d samples (%d requested)' +
+       ' despite %d tries. Try increasing max_num_retries_for_constraint_satisfaction.')%(
+       len(ret), num_samples, max_num_retries_for_constraint_satisfaction))
+  return ret
+
+
+def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
+                                              domain_samplers=None,
+                                              euclidean_sample_type='rand',
+                                              integral_sample_type='rand',
+                                              nn_sample_type='rand'):
+  """ Samples from the CP domain without the constraints. """
   if domain_samplers is None:
     domain_samplers = [None] * cp_domain.num_domains
   individual_domain_samples = []
@@ -303,10 +377,15 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
         curr_domain_samples = random_sample_from_prod_discrete_domain(
                                 dom.list_of_list_of_items, num_samples)
       elif dom.get_type() == 'neural_network':
-        from nn.nn_opt_utils import random_sample_from_nn_domain
+        from ..nn.nn_opt_utils import random_sample_from_nn_domain
         curr_domain_samples = random_sample_from_nn_domain(dom.nn_type, num_samples,
                                                            nn_sample_type,
                                                            dom.constraint_checker)
+      elif dom.get_type() == 'cartesian_product':
+        curr_domain_samples = sample_from_cp_domain(dom, num_samples,
+                                euclidean_sample_type=euclidean_sample_type,
+                                integral_sample_type=integral_sample_type,
+                                nn_sample_type=nn_sample_type)
       else:
         raise ValueError('Unknown domain type %s. Provide sampler.'%(dom.get_type()))
       individual_domain_samples.append(curr_domain_samples)

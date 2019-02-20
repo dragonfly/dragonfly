@@ -12,7 +12,7 @@ import numpy as np
 from .cp_domain_utils import sample_from_cp_domain
 from ..utils.general_utils import map_to_bounds, flatten_list_of_lists
 from ..utils.oper_utils import direct_ft_maximise, latin_hc_sampling, pdoo_maximise, \
-                             random_maximise
+                               random_maximise
 
 # Define constants
 EVAL_ERROR_CODE = 'eval_error_250320181729'
@@ -218,7 +218,7 @@ def maximise_with_method_on_product_euclidean_spaces(method, obj, list_of_euc_do
   def _regroup_flattended_point(pt, _dom_dims, _cum_dims):
     """ Regroups a flattened point into a list of lists. """
     ret = [pt[cd:cd+d] for (cd, d) in zip(_cum_dims, _dom_dims)]
-    assert len(ret) == len(_dom_dims) # TODO: remove this, debugging only for now.
+    assert len(ret) == len(_dom_dims) # TODO: remove this (debugging only).
     return ret
   dom_dims = [dom.dim for dom in list_of_euc_domains]
   cum_dims = list(np.cumsum(dom_dims))

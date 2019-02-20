@@ -1,0 +1,55 @@
+{
+"name": "branin",
+
+"domain" : {
+  "x1" : {
+    "name":"x1",
+    "type":"float",
+    "min":-5,
+    "max":10,
+    "dim":1
+  },
+
+  "x2" : {
+    "name":"x2",
+    "type":"float",
+    "min":0,
+    "max":15,
+    "dim":1
+  },
+
+  "x3" : {
+    "name":"x3",
+    "type":"integral",
+    "min":0,
+    "max":100,
+    "dim":1
+  },
+
+  "x4" : {
+    "name":"x4",
+    "type":"float",
+    "min":0,
+    "max":15,
+    "dim":2
+  },
+
+  "x5" : {
+    "name":"x5",
+    "type":"interal",
+    "min":0,
+    "max":100,
+    "dim":1,
+    "kernel":"se"
+  },
+
+  "x6" : {
+    "name":"x6",
+    "type":"float",
+    "min":20,
+    "max":100,
+    "dim":3,
+    "kernel":"matern"
+  }
+}
+}

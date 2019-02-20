@@ -1,0 +1,45 @@
+{
+"name": "park1_3_mf",
+
+"domain" : {
+
+  "x0" : {
+    "name":"x0",
+    "type":"discrete_numeric",
+    "items":"0:0.05:1",
+    "dim":2
+  },
+
+  "x1" : {
+    "name":"x1",
+    "type":"discrete_numeric",
+    "items":"4-10-23-45-78-87.1-91.8-99-75.7-28.1-3.141593"
+  },
+
+  "x2" : {
+    "name":"x2",
+    "type":"float",
+    "min":10.0,
+    "max":16.0
+  }
+ },
+
+"fidel_space": {
+  "z1":{
+    "name":"z1",
+    "type":"discrete",
+    "items":"a-ab-abc-abcd-abcde-abcdef-abcdefg-abcdefg-abcdefgh-abcdefghi",
+    "dim":2
+  },
+
+  "z2":{
+    "name":"z2",
+    "type":"float",
+    "min":21.3,
+    "max":243.9
+  }
+ },
+
+"fidel_to_opt":[["abcdefghi", "abcdefghi"], 200.1]
+}
+
