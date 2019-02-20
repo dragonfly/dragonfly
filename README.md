@@ -29,8 +29,9 @@ We recommend installation via `pip`.
 In most Linux environments, it can be installed via one of the commands below,
 depending on the version.
 ```bash
-$ sudo apt-get install python-pip
-$ sudo apt-get install python3-pip
+$ sudo apt-get install python-pip    # for Python2
+$ sudo apt-get install python3-pip   # for Python3
+$ pip install --upgrade pip
 ```
 Alternatively, if you prefer to work in a Python virtual environment, `pip` is
 automatically available.
