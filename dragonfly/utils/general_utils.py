@@ -225,6 +225,28 @@ def draw_gaussian_samples(num_samples, mu, K):
   return V
 
 
+# Executing a Pythong string -------------------------------------------------------
+def evaluate_strings_with_given_variables(_strs_to_execute, _variable_dict=None):
+  """ Executes a list of python strings and returns the results as a list.
+      variable_dict is a dictionary mapping strings to values which may be used in
+      str_to_execute.
+  """
+  if _variable_dict is None:
+    _variable_dict = {}
+  if not isinstance(_strs_to_execute, list):
+    _got_list_of_constraints = False
+    _strs_to_execute = [_strs_to_execute]
+  else:
+    _got_list_of_constraints = True
+  # Now set local variables
+  for _key, _value in _variable_dict.items():
+    locals()[_key] = _value
+  _ret = [eval(_elem) for _elem in _strs_to_execute]
+  if _got_list_of_constraints:
+    return _ret
+  else:
+    return _ret[0]
+
 # Matrix/Array/List utilities ------------------------------------------------------
 def get_nonzero_indices_in_vector(vec):
   """ Returns the nonzero indices in the vector vec. """

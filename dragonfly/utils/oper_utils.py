@@ -14,19 +14,20 @@ from datetime import datetime
 from warnings import warn
 import os
 import numpy as np
-
-MESSAGE = 'Could not import %s. May not be required for your application. (%s)'
 # Optimal Transport
 try:
   import ot as py_opt_transport # Python Optimal Transport
-except ImportError as e:
-  warn(MESSAGE % ('Python optimal transport library', e))
+except ImportError:
   py_opt_transport = None
 # Local imports
 try:
   from .direct_fortran import direct as direct_ft_wrap
 except ImportError as e:
-  warn(MESSAGE % ('fortran direct library', e))
+  fortran_err_msg = ('Could not import Fortran direct library. Dragonfly can still be ' +
+                     'used, but might be slightly slower. To get rid of this warning, ' +
+                     'install a numpy compatibal Fortran compiler (e.g. gfortran) and ' +
+                     'the python-dev package and reinstall Dragonfly.')
+  warn('%s\n%s'%(e, fortran_err_msg))
   direct_ft_wrap = None
 from .general_utils import map_to_bounds
 from .doo import DOOFunction, pdoo_wrap
@@ -38,6 +39,9 @@ def opt_transport(supply, demand, costs):
       if emd_only is False, it only returns the emd value. Else it returns the transport
       matrix and the minimum value of the objective.
   """
+  if py_opt_transport is None:
+    raise Exception('Could not import Python optimal transport library. ' +
+                    'You can install this via "pip install cython POT".')
   supply = supply.astype(np.float64)
   demand = demand.astype(np.float64)
   tot_supply = supply.sum()

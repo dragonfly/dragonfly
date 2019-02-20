@@ -157,7 +157,7 @@ class OptimisersTestCase(BaseTestClass):
     for prob in self.problems:
       min_val_soln, _, history = oper_utils.direct_ft_maximise(prob.obj, prob.bounds, \
                                                       self.max_evals, return_history=True)
-      if history is None:
+      if history is not None:
         assert is_nondecreasing(history.curr_opt_vals)
         assert np.abs(min_val_soln - history.curr_opt_vals[-1]) < 1e-4
 
