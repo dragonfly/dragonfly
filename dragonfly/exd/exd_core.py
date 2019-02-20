@@ -233,17 +233,11 @@ class ExperimentDesigner(object):
         self.options.prev_evaluations is not None):
       self._exd_child_handle_prev_evals()
     else:
-      # Get the initial points
+      # Set the initial capital
       if self.options.init_capital == 'default':
-        if self.options.capital_type == 'return_value' or \
-           self.options.capital_type == 'realtime':
-          self.init_capital = np.clip(5 * self.domain.get_dim(),
-                                      max(5.0, 0.025 * self.available_capital),
-                                      max(5.0, 0.075 * self.available_capital))
-          num_initial_queries_w_init_capital = 2 * int(self.init_capital)
-        else:
-          raise NotImplementedError(('Not implemented init_capital for capital_type ' +
-                                     '%s yet.')%(self.capital_type))
+        self.init_capital = np.clip(5 * self.domain.get_dim(),
+                                    max(5.0, 0.025 * self.available_capital),
+                                    max(5.0, 0.075 * self.available_capital))
       elif self.options.init_capital is not None:
         self.init_capital = float(self.options.init_capital)
       elif self.options.init_capital_frac is not None:
@@ -261,8 +255,10 @@ class ExperimentDesigner(object):
         initial_qinfos_w_init_capital = []
         while True:
           if len(initial_qinfos_w_init_capital) == 0:
-#             self.reporter.writeln('Fetching %d initial points via %s.'%(
-#                 num_initial_queries_w_init_capital, self.options.init_method))
+            if self.options.capital_type == 'return_value':
+              num_initial_queries_w_init_capital = int(self.init_capital)
+            else:
+              num_initial_queries_w_init_capital = int(2 * self.init_capital)
             initial_qinfos_w_init_capital = \
               get_initial_qinfos(num_initial_queries_w_init_capital)
           qinfo = initial_qinfos_w_init_capital.pop(0)

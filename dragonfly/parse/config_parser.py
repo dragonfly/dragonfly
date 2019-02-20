@@ -40,8 +40,37 @@ def _load_fidel_to_opt_parameters(param):
   return ret
 
 
+def _load_domain_constraints(domain_constraints):
+  """ Loads the domain constraints. """
+  processed_constraints = []
+  # The constraints will be represented as a list of 3-tuples. The first of each tuple
+  # will be the name of the constraint, the second will be the constraint, and the third
+  # to store any ancillary information. The third item will be a dictionary containing
+  # any other information specified in the configuration file.
+  for _, constraint_data in domain_constraints.items():
+    curr_constraint_ancillary_info = {}
+    for key, val in constraint_data.items():
+      key = unicode_to_str(key)
+      val = unicode_to_str(val)
+      if key == 'name':
+        curr_constraint_name = val
+      elif key == 'constraint':
+        curr_constraint = val
+      else:
+        curr_constraint_ancillary_info[key] = val
+    curr_constraint_tuple = (curr_constraint_name, curr_constraint,
+                             curr_constraint_ancillary_info)
+    processed_constraints.append(curr_constraint_tuple)
+    del curr_constraint_name
+    del curr_constraint
+    del curr_constraint_ancillary_info
+  return processed_constraints
+
+
+
 def load_parameters(config):
   """ Parses all the parameters from json config file. """
+  # pylint: disable=too-many-branches
   exp_info = {}
   exp_info['name'] = unicode_to_str(config.get('name'))
   if exp_info['name'] is None:
@@ -59,6 +88,10 @@ def load_parameters(config):
       parameters.append(param)
   else:
     raise ValueError('Wrong parameter type.')
+  # domain_constraints -------------------------------------------
+  domain_constraints = config.get('domain_constraints', None)
+  if domain_constraints is not None:
+    domain_constraints = _load_domain_constraints(domain_constraints)
   # Fidelity space -----------------------------------------------
   fidel_parameters = []
   _parameters = config.get('fidel_space', {})
@@ -72,13 +105,18 @@ def load_parameters(config):
       fidel_parameters.append(param)
   else:
     raise ValueError('Wrong parameter type.')
+  # fidel_space_constraints ---------------------------------------
+  fidel_space_constraints = config.get('fidel_space_constraints', None)
+  if fidel_space_constraints is not None:
+    fidel_space_constraints = _load_domain_constraints(fidel_space_constraints)
   # fidel_to_opt --------------------------------------------------
   fidel_to_opt = config.get('fidel_to_opt', None)
   if fidel_to_opt is not None:
     fidel_to_opt = _load_fidel_to_opt_parameters(fidel_to_opt)
   # Return
-  return {"exp_info":exp_info, "domain":parameters, "fidel_space":fidel_parameters,
-          "fidel_to_opt":fidel_to_opt}
+  return {'exp_info':exp_info, 'domain':parameters, 'fidel_space':fidel_parameters,
+          'fidel_to_opt':fidel_to_opt, 'domain_constraints':domain_constraints,
+          'fidel_space_constraints':fidel_space_constraints}
 
 
 def load_parameter(parameter, key=None):
@@ -106,7 +144,7 @@ def load_parameter(parameter, key=None):
   param['kernel'] = unicode_to_str(_kernel)
   param['type'] = unicode_to_str(_type).lower()
   # First for regular domains
-  if param['type'] in ['float', 'int', 'discrete', 'discrete_numeric']:
+  if param['type'] in ['float', 'int', 'discrete', 'discrete_numeric', 'boolean']:
     if not isinstance(_dim, Number):
       _dim = unicode_to_str(_dim)
     if _dim != "":
@@ -173,7 +211,7 @@ def read_pb(config_file):
   except ImportError:
     raise ImportError('Protocol Buffer library is not installed')
   # Read PB file
-  from . import config_pb2
+  from parse import config_pb2
   config_pb = config_pb2.Experiment()
   _file = open(config_file, "rb")
   text_format.Merge(_file.read(), config_pb)
