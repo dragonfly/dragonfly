@@ -63,10 +63,12 @@ These packages may already be pre-installed in your system.
 If you are unable to install these packages, then you can still use Dragonfly, but
 it might be slightly slower.  
 
+&nbsp;
+You can now install Dragonfly via one of the four steps below.
 
 &nbsp;
 
-**Installation via pip (recommended):**
+**1. Installation via pip (recommended):**
 Installing dragonfly properly requires that numpy is already installed in the current
 environment. Once that has been done, the library can be installed with pip.
 
@@ -75,7 +77,7 @@ $ pip install numpy
 $ pip install git+https://github.com/dragonfly/dragonfly.git -v
 ```
 
-**Installation via source:**
+**2. Installation via source:**
 To install via source, clone the repository and proceed as follows.
 ```bash
 $ git clone https://github.com/dragonfly/dragonfly.git
@@ -85,18 +87,41 @@ $ python setup.py install
 ```
 
 
-**Installing in a Python Virtual Environment:**
-Dragonfly can be pip installed in a python virtualenv.
-In Python2, you can follow the steps below.
-In Python3, replace  `$ virtualenv env` with `$ python3 -m venv env`.
+**3. Installing in a Python Virtual Environment:**
+Dragonfly can be pip installed in a python virtualenv, by following the steps below.
 You can similarly install via source by creating/sourcing the virtualenv and following the
 steps above.
 ```bash
-$ virtualenv env
+$ virtualenv env        # For Python2
+$ python3 -m venv env   # For Python3
 $ source env/bin/activate
 (env)$ pip install numpy
 (env)$ pip install git+https://github.com/dragonfly/dragonfly.git
 ```
+
+
+**4. Using Dragonfly without Installation:**
+If you prefer to not install Dragonfly in your environment, you can use it by following
+the steps below.
+```bash
+$ git clone https://github.com/dragonfly/dragonfly.git
+$ cd dragonfly/dragonfly/utils/direct_fortran
+$ bash make_direct.sh
+```
+This should create a file `direct.so` in the 
+[`direct_fortran`](dragonfly/utils/direct_fortran) directory.
+If not,
+you can still use Dragonfly, but it might be slightly slower.
+Alternatively, please refer the steps above to install a Fortran compiler.
+Once you have done this, you need to execute the following commands from the
+[`dragonfly/dragonfly`](dragonfly/dragonfly) directory *every time* before using
+Dragonfly.
+```bash
+$ HOME_PATH=$(pwd)
+$ PATH=$PATH:$HOME_PATH
+$ export PYTHONPATH=$HOME_PATH
+```
+
 
 
 **Requirements:**
