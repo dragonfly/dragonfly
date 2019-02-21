@@ -138,7 +138,7 @@ the above installation procedure(s). You can also manually install them by
 **Testing the Installation**:
 You can import Dragonfly in python to test if it was installed properly.
 If you have installed via source, make sure that you move to a different directory 
-(e.g. `cd ..`)  to avoid naming conflicts.
+ to avoid naming conflicts.
 ```bash
 $ python
 >>> from dragonfly import minimise_function
@@ -169,20 +169,13 @@ used directly in the command line by calling
 or be imported in python code via the `maximise_function` function in the main library.
 To help get started, we have provided some examples in the
 [`examples`](examples) directory.
-If you have pip installed, you will need to clone the repository to access the demos.
+*If you have pip installed, you will need to clone the repository to access the demos.*
 
 **Via command line**:
 
 To use Dragonfly via the command line, we need to specify the optimisation problem (i.e.
 the function to be maximised and the domain) and the optimisation parameters.
-We have demonstrated these via some examples below.
-[`branin`](https://www.sfu.ca/~ssurjano/branin.html) benchmark for global
-optimisation and a maximum likelihood
-estimation problem in computational Astropysics.
-The functions to be maximised in these problems are defined in
-[`examples/synthetic/branin/branin.py`](examples/synthetic/branin/branin.py) and
-[`examples/supernova/snls.py`](demos_real/supernova/snls.py) respectively.
-The name of this file and the domain should be specified in
+The optimisation problem can be specified in
 [JSON](https://en.wikipedia.org/wiki/JSON) (recommended) or
 [protocol buffer](https://en.wikipedia.org/wiki/Protocol_Buffers) format.
 See
@@ -190,15 +183,15 @@ See
 [`examples/synthetic/branin/config.pb`](examples/synthetic/branin/config.pb) for examples.
 Then, specify the optimisation parameters in an options file, in the format shown in
 [`examples/options_example.txt`](examples/options_example.txt).
+We have demonstrated these via some examples below.
 
 We recommend using JSON since we have exhaustively tested JSON format.
 If using protocol buffers, you might need to install this package via
 `pip install protobuf`.
 
 The first example is on the
-[`Branin`](https://www.sfu.ca/~ssurjano/branin.html) benchmark for global optimisation,
-which is defined in
-[`examples/synthetic/branin/branin.py`](examples/synthetic/branin/branin.py).
+[Branin](https://www.sfu.ca/~ssurjano/branin.html) benchmark for global optimisation,
+which is defined in [`examples/synthetic/branin/branin.py`](examples/synthetic/branin/branin.py).
 The branin demo can be run via following commands.
 ```bash
 $ dragonfly-script.py --config examples/synthetic/branin/config.json --options examples/options_example.txt
@@ -218,8 +211,6 @@ The multi-fidelity version of the branin demo can be run via following command.
 $ dragonfly-script.py --config examples/branin/config_mf.json --options examples/options_example.txt
 ```
 
-&nbsp;
-
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
 domain which includes a combination of these variables.
 See other demos on synthetic functions in the
@@ -231,7 +222,8 @@ $ dragonfly-script.py --config examples/synthetic/park2_3/config_mf.json --optio
 ```
 
 The next demo is a maximum likelihood problem in computational astrophysics,
-which can be run via the following commands.
+where we wish to estimate cosmological parameters from Type Ia supernova data.
+This demo be run via the following commands.
 
 ```bash
 $ dragonfly-script.py --config examples/supernova/config.json --options examples/options.txt

@@ -1,5 +1,5 @@
 """
-  Parkd2 function.
+  Park2 function.
   -- kandasamy@cs.cmu.edu
 """
 # pylint: disable=invalid-name

@@ -374,3 +374,4 @@ def multiobjective_minimise_functions(funcs, *args, **kwargs):
   history.curr_true_pareto_vals = [_negate_array(ctpv) for ctpv in
                                    history.curr_true_pareto_vals]
   return pareto_min_values, pareto_points, history
+
