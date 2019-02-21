@@ -6,7 +6,7 @@
 # pylint: disable=invalid-name
 
 # Local
-from nn.syn_nn_functions import cnn_syn_func1
+from dragonfly.nn.syn_nn_functions import cnn_syn_func1
 
 def syn_cnn_1(x):
   """ Computes the Branin function. """

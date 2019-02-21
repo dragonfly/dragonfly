@@ -4,8 +4,6 @@
 """
 
 # pylint: disable=invalid-name
-
-
 import numpy as np
 
 

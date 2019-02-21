@@ -5,7 +5,7 @@
 
 # pylint: disable=invalid-name
 
-from demos_synthetic.park2_4.park2_4 import park2_4_z
+from .park2_4 import park2_4_z
 
 # Write a function like this called 'obj'.
 def park2_4_mf(z, x):

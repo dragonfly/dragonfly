@@ -6,7 +6,7 @@
 # pylint: disable=invalid-name
 
 # Local
-from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2_z_x
+from .syn_cnn_2 import syn_cnn_2_z_x
 
 
 def syn_cnn_2_mf(z, x):
