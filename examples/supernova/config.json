@@ -1,0 +1,27 @@
+{
+"name": "snls",
+
+"domain" : {
+  "hubble_constant" : {
+    "name":"H",
+    "type":"float",
+    "min":60,
+    "max":80
+  },
+
+  "dark_matter_fraction" : {
+    "name":"omega_m",
+    "type":"float",
+    "min":0,
+    "max":1
+  },
+
+  "dark_energy_fraction" : {
+    "name":"omega_l",
+    "type":"float",
+    "min":0,
+    "max":1
+  }
+ }
+
+}

@@ -1,0 +1,45 @@
+{
+"name": "snls_mf",
+
+"domain" : {
+  "hubble_constant" : {
+    "name":"H",
+    "type":"float",
+    "min":60,
+    "max":80
+  },
+
+  "dark_matter_fraction" : {
+    "name":"omega_m",
+    "type":"float",
+    "min":0,
+    "max":1
+  },
+
+  "dark_energy_fraction" : {
+    "name":"omega_l",
+    "type":"float",
+    "min":0,
+    "max":1
+  }
+ },
+
+"fidel_space": {
+  "log10_resolution": {
+    "name":"log10_resolution",
+    "type":"float",
+    "min":2,
+    "max":5
+  },
+
+  "num_obs_to_use": {
+    "name":"num_obs_to_use",
+    "type":"int",
+    "min":50,
+    "max":192
+  }
+ },
+
+"fidel_to_opt":[5, 192]
+
+}

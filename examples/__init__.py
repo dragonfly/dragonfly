@@ -1,4 +1,4 @@
 """
-  Demos on Synthetic functions.
+  Demos for Dragonfly.
   -- kandasamy@cs.cmu.edu
 """
