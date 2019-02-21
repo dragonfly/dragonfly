@@ -4,9 +4,8 @@
   -- kvysyara@andrew.cmu.edu
 
   Usage:
-  python dragonfly-script.py --config <config file in .json or .pb format>
-    --options <options file>
-  See README.MD for examples.
+  python dragonfly-script.py --config <config file in .json or .pb format> --options <options file>
+  See README in main repository for examples.
 """
 
 # pylint: disable=relative-import
@@ -26,8 +25,9 @@ from dragonfly import maximise_function, minimise_function, \
                       multiobjective_minimise_functions
 from dragonfly.exd.cp_domain_utils import load_config_file
 from dragonfly.exd.exd_utils import get_unique_list_of_option_args
-from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args, \
-                          get_all_mf_euc_gp_bandit_args, get_all_mf_cp_gp_bandit_args
+from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, \
+                               get_all_cp_gp_bandit_args, get_all_mf_euc_gp_bandit_args, \
+                               get_all_mf_cp_gp_bandit_args
 from dragonfly.opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
                                          get_all_cp_moo_gp_bandit_args
 from dragonfly.utils.option_handler import get_option_specs, load_options
@@ -37,11 +37,9 @@ dragonfly_args = [ \
   get_option_specs('options', False, None, 'Path to the options file. '),
   get_option_specs('max_or_min', False, 'max', 'Whether to maximise or minimise. '),
   get_option_specs('max_capital', False, -1.0,
-                   'Maximum capital to be used in the experiment. '),
+      'Maximum capital (available budget) to be used in the experiment. '),
   get_option_specs('is_multi_objective', False, False,
                    'If True, will treat it as a multiobjective optimisation problem. '),
-  get_option_specs('budget', False, -1.0, \
-      'The budget of evaluations. If max_capital is none, will use this as max_capital.'),
                  ]
 
 
@@ -68,14 +66,9 @@ def main():
                                os.path.join(expt_dir, objective_file_name + '.py'))
 
   # Set capital
-  options.capital_type = 'return_value'
-  if options.budget < 0:
-    budget = options.max_capital
-  else:
-    budget = options.budget
-  if budget < 0:
-    raise ValueError('Specify the budget via argument budget or max_capital.')
-  options.max_capital = budget
+  if options.max_capital < 0:
+    raise ValueError('Specify max_capital (time or number of evaluations). for ' +
+                     'optimisation')
 
   # Call optimiser
   _print_prefix = 'Maximising' if options.max_or_min == 'max' else 'Minimising'
