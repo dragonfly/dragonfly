@@ -1,7 +1,7 @@
 # Indicate that this is a multi-objective problem. 1 is True, 0 is False.
 --is_multi_objective 1
 
-# The budget of evaluations
+# The capital (time budget or number of evaluations)
 --budget 120
 
 # How frequently to report progress on optimisation

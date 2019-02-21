@@ -1,5 +1,5 @@
-# The budget of evaluations
---budget 100
+# The capital (time budget or number of evaluations)
+--max_capital 100
 
 # How frequently to report progress on optimisation
 --report_results_every 13
