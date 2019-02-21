@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
   Main APIs and command line tool for GP Bandit Optimisation.
   -- kandasamy@cs.cmu.edu
