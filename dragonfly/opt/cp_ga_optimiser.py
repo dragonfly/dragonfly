@@ -102,7 +102,7 @@ def get_default_mutation_op(dom):
   elif dom.get_type() == 'prod_discrete_numeric':
     return lambda x: prod_discrete_numeric_exp_mutation(x, dom.list_of_list_of_items)
   elif dom.get_type() == 'neural_network':
-    from nn.nn_modifiers import get_single_nn_mutation_op
+    from ..nn.nn_modifiers import get_single_nn_mutation_op
     return get_single_nn_mutation_op(dom, [0.5, 0.25, 0.125, 0.075, 0.05])
   else:
     raise ValueError('No default mutation implemented for domain type %s.'%(

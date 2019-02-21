@@ -1,5 +1,5 @@
 """
-  Harness for black-box optimisation.
+  Harness for black box optimisation.
   -- kandasamy@cs.cmu.edu
 """
 from __future__ import division
@@ -82,7 +82,9 @@ class BlackboxOptimiser(ExperimentDesigner):
     # Update the best point/val
     # check fidelity
     if self.func_caller.is_mf():
-      query_is_at_fidel_to_opt = self.func_caller.is_fidel_to_opt(qinfo.fidel)
+      eval_fidel = qinfo.fidel if hasattr(qinfo, 'fidel') else \
+                     self.func_caller.fidel_to_opt
+      query_is_at_fidel_to_opt = self.func_caller.is_fidel_to_opt(eval_fidel)
       self.history.query_at_fidel_to_opts.append(query_is_at_fidel_to_opt)
       self.num_fidel_to_opt_calls += query_is_at_fidel_to_opt
       self._update_opt_point_and_val(qinfo, query_is_at_fidel_to_opt)
@@ -145,8 +147,10 @@ class BlackboxOptimiser(ExperimentDesigner):
     """ Handles pre-evaluations. """
     for qinfo in self.options.prev_evaluations.qinfos:
       if self.func_caller.is_mf():
-        self.prev_eval_fidels.append(qinfo.fidel)
-        query_is_at_fidel_to_opt = self.func_caller.is_fidel_to_opt(qinfo.fidel)
+        eval_fidel = qinfo.fidel if hasattr(qinfo, 'fidel') else \
+                     self.func_caller.fidel_to_opt
+        self.prev_eval_fidels.append(eval_fidel)
+        query_is_at_fidel_to_opt = self.func_caller.is_fidel_to_opt(eval_fidel)
         self._update_opt_point_and_val(qinfo, query_is_at_fidel_to_opt)
       else:
         self._update_opt_point_and_val(qinfo)
