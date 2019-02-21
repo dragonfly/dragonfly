@@ -18,6 +18,7 @@
 from __future__ import print_function
 import os
 import imp
+import sys
 # Local
 
 from dragonfly import maximise_function, minimise_function, \
@@ -112,5 +113,6 @@ def main():
 
 
 if __name__ == '__main__':
+  sys.path.insert(0, os.getcwd())
   main()
 
