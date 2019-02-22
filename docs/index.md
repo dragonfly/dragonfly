@@ -2,7 +2,7 @@
 
 <h3>Quick Start</h3>
   * [Getting started](getting_started.md)
-  * [Installation](installation.md)
+  * [Installation](install.md)
   * [Usage](usage.md)
 
 <h3>Manual</h3>
