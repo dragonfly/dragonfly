@@ -12,8 +12,7 @@
 
 # pylint: disable=relative-import
 # pylint: disable=invalid-name
-# pylint: disable=maybe-no-member
-# pylint: disable=no-member
+# pylint: disable=import-error
 
 from __future__ import print_function
 import os
@@ -27,13 +26,28 @@ from dragonfly import maximise_function, minimise_function, \
                       multiobjective_maximise_functions, \
                       multiobjective_minimise_functions
 from dragonfly.exd.cp_domain_utils import load_config_file
+from dragonfly.exd.exd_utils import get_unique_list_of_option_args
 from dragonfly.utils.option_handler import get_option_specs, load_options
+# Get options
+from dragonfly.opt.ga_optimiser import ga_opt_args
+from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, \
+                            get_all_cp_gp_bandit_args, get_all_mf_euc_gp_bandit_args, \
+                            get_all_mf_cp_gp_bandit_args
+from dragonfly.opt.random_optimiser import euclidean_random_optimiser_args, \
+                                   mf_euclidean_random_optimiser_args, \
+                                   cp_random_optimiser_args, mf_cp_random_optimiser_args
+from dragonfly.opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
+                                                   get_all_cp_moo_gp_bandit_args
+from dragonfly.opt.random_multiobjective_optimiser import \
+              euclidean_random_multiobjective_optimiser_args, \
+              cp_random_multiobjective_optimiser_args
+
 
 dragonfly_args = [ \
-  get_option_specs('config', True, None, 'Path to the json or pb config file. '),
-  get_option_specs('options', True, None, 'Path to the options file. '),
+  get_option_specs('config', False, None, 'Path to the json or pb config file. '),
+  get_option_specs('options', False, None, 'Path to the options file. '),
   get_option_specs('max_or_min', False, 'max', 'Whether to maximise or minimise. '),
-  get_option_specs('max_capital', True, None,
+  get_option_specs('max_capital', False, None,
     'Maximum capital (available budget) to be used in the experiment. '),
   get_option_specs('capital_type', False, 'return_value',
     'Maximum capital (available budget) to be used in the experiment. '),
@@ -48,10 +62,23 @@ dragonfly_args = [ \
                  ]
 
 
+def get_command_line_args():
+  """ Returns all arguments for the command line. """
+  ret = dragonfly_args + \
+        ga_opt_args + \
+        euclidean_random_optimiser_args + cp_random_optimiser_args + \
+        mf_euclidean_random_optimiser_args + mf_cp_random_optimiser_args + \
+        get_all_euc_gp_bandit_args() + get_all_cp_gp_bandit_args() + \
+        get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args() + \
+        euclidean_random_multiobjective_optimiser_args + \
+        cp_random_multiobjective_optimiser_args + \
+        get_all_euc_moo_gp_bandit_args() + get_all_cp_moo_gp_bandit_args()
+  return get_unique_list_of_option_args(ret)
+
+
 def main():
   """ Main function. """
-  options = load_options(dragonfly_args, cmd_line=True)
-
+  options = load_options(get_command_line_args(), cmd_line=True)
   # Load domain and objective
   config = load_config_file(options.config)
   if hasattr(config, 'fidel_space'):

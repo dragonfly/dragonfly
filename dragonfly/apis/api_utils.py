@@ -30,11 +30,6 @@ from ..opt.random_multiobjective_optimiser import \
 from ..utils.option_handler import load_options
 
 
-def _get_func_to_max_from_func_caller(func_caller):
-  """ Returns a function to be minimised. """
-  return lambda x, *args, **kwargs: func_caller.eval_single(x)[0]
-
-
 def get_worker_manager_from_capital_type(capital_type, num_workers=1):
   """ Get worker manager. """
   if capital_type in ['return_value', 'num_evals']:
