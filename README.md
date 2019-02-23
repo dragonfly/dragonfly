@@ -236,9 +236,36 @@ $ dragonfly-script.py --config supernova/config.json --options options_files/opt
 $ dragonfly-script.py --config supernova/config_mf.json --options options_files/options_example_realtime.txt    # For multi-fidelity version
 ```
 
+
+*Other Methods*:
+BO is ideally suited for expensive function evaluations - it aims to find the optimum
+in as few evaluations and invests significant computation to do so.
+This pays dividends if the evaluations are expensive.
+However,
+if your function evaluations are cheap, we recommended using DiRect or PDOO for
+Euclidean domains, and evolutionary algorithms for non-Euclidean domains.
+See example below.
+```bash
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example_pdoo.txt
+$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options options_files/options_example_ea.txt
+```
+You will notice that they run significantly faster than BO.
+However, these methods will perform worse than BO on the supernova problem as evaluations
+are expensive.
+
+
 &nbsp;
 
 **In python code**:
+
+The main APIs for Dragonfly are declared in
+['__init__.py'](__init__.py) and defined in the 
+['dragonfly/apis'](dragonfly/apis) directory.
+For their definitions and arguments, see
+['dragonfly/apis/opt.py'](dragonfly/apis/opt.py) and
+['dragonfly/apis/moo.py'](dragonfly/apis/moo.py).
+
 
 You can import the main API in python code via,
 ```python
