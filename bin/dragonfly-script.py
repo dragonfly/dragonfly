@@ -27,12 +27,6 @@ from dragonfly import maximise_function, minimise_function, \
                       multiobjective_maximise_functions, \
                       multiobjective_minimise_functions
 from dragonfly.exd.cp_domain_utils import load_config_file
-# from dragonfly.exd.exd_utils import get_unique_list_of_option_args
-# from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, \
-#                                get_all_cp_gp_bandit_args, get_all_mf_euc_gp_bandit_args, \
-#                                get_all_mf_cp_gp_bandit_args
-# from dragonfly.opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
-#                                          get_all_cp_moo_gp_bandit_args
 from dragonfly.utils.option_handler import get_option_specs, load_options
 
 dragonfly_args = [ \
@@ -56,12 +50,6 @@ dragonfly_args = [ \
 
 def main():
   """ Main function. """
-  # First load arguments
-#   all_args = dragonfly_args + get_all_euc_gp_bandit_args() + get_all_cp_gp_bandit_args() \
-#              + get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args() \
-#              + get_all_euc_moo_gp_bandit_args() + get_all_cp_moo_gp_bandit_args()
-#   all_args = get_unique_list_of_option_args(all_args)
-#   options = load_options(all_args, cmd_line=True)
   options = load_options(dragonfly_args, cmd_line=True)
 
   # Load domain and objective
