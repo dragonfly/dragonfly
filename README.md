@@ -260,11 +260,11 @@ are expensive.
 **In python code**:
 
 The main APIs for Dragonfly are declared in
-['__init__.py'](__init__.py) and defined in the 
-['dragonfly/apis'](dragonfly/apis) directory.
+[`__init__.py`](__init__.py) and defined in the 
+[`dragonfly/apis`](dragonfly/apis) directory.
 For their definitions and arguments, see
-['dragonfly/apis/opt.py'](dragonfly/apis/opt.py) and
-['dragonfly/apis/moo.py'](dragonfly/apis/moo.py).
+[`dragonfly/apis/opt.py`](dragonfly/apis/opt.py) and
+[`dragonfly/apis/moo.py`](dragonfly/apis/moo.py).
 
 
 You can import the main API in python code via,
