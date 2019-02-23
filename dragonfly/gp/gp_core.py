@@ -395,9 +395,13 @@ class GPFitter(object):
     """ Sets up bounds for the mean value and the noise. """
     if not (hasattr(self.options, 'mean_func') and self.options.mean_func is not None) \
       and self.options.mean_func_type == 'tune':
-      Y_median = np.median(self.Y)
       Y_std = np.sqrt(self.Y_var)
-      Y_half_range = 0.5 * (max(self.Y) - min(self.Y)) if len(self.Y) > 0 else 1.0
+      if len(self.Y) > 0:
+        Y_median = np.median(self.Y)
+        Y_half_range = 0.5 * (max(self.Y) - min(self.Y)) if len(self.Y) > 0 else 1.0
+      else:
+        Y_median = 0.0
+        Y_half_range = 1.0
       Y_width = 0.5 * (Y_half_range + Y_std)
       self.mean_func_bounds = [Y_median - 3 * Y_width, Y_median + 3 * Y_width]
       self.cts_hp_bounds.append(self.mean_func_bounds)

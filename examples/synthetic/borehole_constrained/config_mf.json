@@ -1,0 +1,93 @@
+{
+"name": "borehole_constrained_mf",
+
+"domain": {
+
+  "rw": {
+    "name":"rw",
+    "type":"float",
+    "min":0.05,
+    "max":0.15,
+    "kernel":"matern",
+    "dim":1
+  },
+
+  "L_Kw": {
+    "name":"L_Kw",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":2
+  },
+
+  "Tu": {
+    "name":"Tu",
+    "type":"int",
+    "min":63070,
+    "max":115600
+  },
+
+  "Tl": {
+    "name":"Tl",
+    "type":"float",
+    "min":63.1,
+    "max":116,
+    "dim":""
+  },
+
+  "Hu_Hl": {
+    "name":"Hu_Hl",
+    "type":"int",
+    "min":0,
+    "max":240,
+    "dim":2
+  },
+
+  "r": {
+    "name":"r",
+    "type":"float",
+    "min":100,
+    "max":50000,
+    "kernel":"se"
+  }
+
+ },
+
+"domain_constraints": {
+  "dc1" : {
+    "name": "dc1",
+    "constraint": "np.sqrt(rw[0]) + L_Kw[1] <= 0.9"
+  },
+
+  "dc2" : {
+    "name": "dc2",
+    "constraint": "r/100.0 + Hu_Hl[1] < 200"
+  }
+ },
+
+"fidel_space": {
+  "fidel_0": {
+    "name":"fidel_0",
+    "type":"float",
+    "min":0.05,
+    "max":0.25,
+    "kernel":"matern"
+  },
+  "fidel_1": {
+    "name":"fidel_1",
+    "type":"discrete_numeric",
+    "items":"0.1:0.05:1.01"
+  }
+ },
+
+"fidel_space_constraints": {
+  "fsc1" : {
+    "name": "fsc1",
+    "constraint": "fidel_0 + fidel_1 <= 0.9"
+  }
+ },
+
+"fidel_to_opt":[0.1, 0.75]
+
+}
+

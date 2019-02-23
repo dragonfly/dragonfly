@@ -326,13 +326,12 @@ class CartesianProductDomain(Domain):
 
   def _constraint_eval_set_up(self):
     """ Set up for evaluating constraints. """
-    from imp import load_source
-    import os
+    from importlib import import_module
+    import sys
     from ..utils.general_utils import evaluate_strings_with_given_variables
     self.str_constraint_evaluator = evaluate_strings_with_given_variables
     self.domain_constraints = self.domain_info.constraints
     self.num_domain_constraints = len(self.domain_constraints)
-#     self.source_loader = imp.load_source
     # Separate the constraints into different types
     self.eval_as_pyfile_idxs = [idx for idx in range(self.num_domain_constraints) if
                                 isinstance(self.domain_constraints[idx][1], str) and
@@ -347,15 +346,16 @@ class CartesianProductDomain(Domain):
                               in self.eval_as_pyfunc_idxs]
     self.str_constraints = [self.domain_constraints[idx][1] for idx in
                             self.eval_as_str_idxs]
-    # pyfunc constraints
+    # pyfile constraints
     pyfile_modules = [self.domain_constraints[idx][1] for idx
                       in self.eval_as_pyfile_idxs]
     self.pyfile_constraints = []
+    sys.path.append(self.config_file_dir)
     for pfm_file_name in pyfile_modules:
       pfm = pfm_file_name.split('.')[0]
-      constraint_source_module = load_source(pfm,
-                                   os.path.join(self.config_file_dir, pfm_file_name))
+      constraint_source_module = import_module(pfm, self.config_file_dir)
       self.pyfile_constraints.append(constraint_source_module.constraint)
+    sys.path.remove(self.config_file_dir)
 
   def get_type(self):
     """ Returns the type of the domain. """
