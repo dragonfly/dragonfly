@@ -278,5 +278,12 @@ def pdoo_wrap(doo_obj, total_budget, nu_max=1.0, rho_max=0.9, K=2, C_init=0.8, t
     history.curr_opt_vals.append(curr_max)
     history.curr_opt_points.append(curr_opt_point)
   history.query_eval_times = [1 for _ in range(max_iter)]
+  history.curr_true_opt_vals = history.curr_opt_vals
   return max_val, max_pt, history
+
+
+def pdoo_maximise_from_args(func, bounds, max_capital, *args, **kwargs):
+  """ PDOO Maximise from Arguments. """
+  doo_obj = DOOFunction(func, bounds)
+  return pdoo_wrap(doo_obj, max_capital, *args, **kwargs)
 

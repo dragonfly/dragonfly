@@ -194,21 +194,24 @@ The first example is on the
 which is defined in [`examples/synthetic/branin/branin.py`](examples/synthetic/branin/branin.py).
 The branin demo can be run via following commands.
 ```bash
-$ dragonfly-script.py --config examples/synthetic/branin/config.json --options examples/options_example.txt
-$ dragonfly-script.py --config examples/synthetic/branin/config.pb --options examples/options_example.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example.txt
+$ dragonfly-script.py --config synthetic/branin/config.pb --options options_files/options_example.txt
 ```
 By default, Dragonfly *maximises* functions. To minimise a function, set the
 `max_or_min` flag to `min` in the options file as shown in
 [`examples/options_example_for_minimisation.txt`](examples/options_example_for_minimisation.txt)
 For example,
 ```bash
-$ dragonfly-script.py --config examples/synthetic/branin/config.json --options examples/options_example_for_minimisation.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example_for_minimisation.txt
 ```
 
 
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
-$ dragonfly-script.py --config examples/branin/config_mf.json --options examples/options_example.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config_mf.json --options options_files/options_example.txt
 ```
 
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
@@ -218,16 +221,19 @@ See other demos on synthetic functions in the
 For example, to run the multi-fidelity [`park2_3`](examples/synthetic/park2_3/park2_3_mf.py)
 demo, simply run
 ```bash
-$ dragonfly-script.py --config examples/synthetic/park2_3/config_mf.json --options examples/options_example.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options options_files/options_example.txt
 ```
 
 The next demo is a maximum likelihood problem in computational astrophysics,
 where we wish to estimate cosmological parameters from Type Ia supernova data.
-This demo be run via the following commands.
+The demos for Bayesian optimisation and multi-fidelity Bayesian optimisation
+can be run via the following commands.
 
 ```bash
-$ dragonfly-script.py --config examples/supernova/config.json --options examples/options.txt
-$ dragonfly-script.py --config examples/supernova/config_mf.json --options examples/options.txt  # For multi-fidelity version
+$ cd examples
+$ dragonfly-script.py --config supernova/config.json --options options_files/options_example_realtime.txt
+$ dragonfly-script.py --config supernova/config_mf.json --options options_files/options_example_realtime.txt    # For multi-fidelity version
 ```
 
 &nbsp;

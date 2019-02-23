@@ -11,7 +11,7 @@ from copy import copy
 # Local imports
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                             load_cp_domain_from_config_file
-from ..exd.experiment_caller import CPFunctionCaller
+from ..exd.experiment_caller import ExperimentCaller
 from ..exd.exd_utils import get_cp_domain_initial_qinfos
 from .ga_optimiser import GAOptimiser, ga_opt_args
 from ..utils.general_utils import project_to_bounds
@@ -183,8 +183,8 @@ def cp_ga_optimiser_from_proc_args(func_caller, cp_domain, worker_manager, max_c
                                    single_crossover_ops=None, options=None,
                                    reporter=None):
   """ A GA optimiser on Cartesian product space from the function caller. """
-  if not isinstance(func_caller, CPFunctionCaller):
-    func_caller = CPFunctionCaller(func_caller, cp_domain, orderings=orderings)
+  if not isinstance(func_caller, ExperimentCaller):
+    func_caller = CPFunctionCaller(func_caller, cp_domain, domain_orderings=orderings)
   if options is None:
     reporter = get_reporter(reporter)
     options = load_options(cpga_opt_args, reporter=reporter)

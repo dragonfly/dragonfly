@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-  Main APIs and command line tool for GP Bandit Optimisation.
+  Command line tool for Dragonfly.
   -- kandasamy@cs.cmu.edu
   -- kvysyara@andrew.cmu.edu
 
@@ -27,33 +27,42 @@ from dragonfly import maximise_function, minimise_function, \
                       multiobjective_maximise_functions, \
                       multiobjective_minimise_functions
 from dragonfly.exd.cp_domain_utils import load_config_file
-from dragonfly.exd.exd_utils import get_unique_list_of_option_args
-from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, \
-                               get_all_cp_gp_bandit_args, get_all_mf_euc_gp_bandit_args, \
-                               get_all_mf_cp_gp_bandit_args
-from dragonfly.opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
-                                         get_all_cp_moo_gp_bandit_args
+# from dragonfly.exd.exd_utils import get_unique_list_of_option_args
+# from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, \
+#                                get_all_cp_gp_bandit_args, get_all_mf_euc_gp_bandit_args, \
+#                                get_all_mf_cp_gp_bandit_args
+# from dragonfly.opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
+#                                          get_all_cp_moo_gp_bandit_args
 from dragonfly.utils.option_handler import get_option_specs, load_options
 
 dragonfly_args = [ \
-  get_option_specs('config', False, None, 'Path to the json or pb config file. '),
-  get_option_specs('options', False, None, 'Path to the options file. '),
+  get_option_specs('config', True, None, 'Path to the json or pb config file. '),
+  get_option_specs('options', True, None, 'Path to the options file. '),
   get_option_specs('max_or_min', False, 'max', 'Whether to maximise or minimise. '),
-  get_option_specs('max_capital', False, -1.0,
-      'Maximum capital (available budget) to be used in the experiment. '),
+  get_option_specs('max_capital', True, None,
+    'Maximum capital (available budget) to be used in the experiment. '),
+  get_option_specs('capital_type', False, 'return_value',
+    'Maximum capital (available budget) to be used in the experiment. '),
   get_option_specs('is_multi_objective', False, False,
-                   'If True, will treat it as a multiobjective optimisation problem. '),
+    'If True, will treat it as a multiobjective optimisation problem. '),
+  get_option_specs('opt_method', False, 'bo',
+    ('Optimisation method. Default is bo. This should be one of bo, ga, ea, direct, ' +
+     ' pdoo, or rand, but not all methods apply to all problems.')),
+  get_option_specs('report_progress', False, 'default',
+    ('How to report progress. Should be one of "default" (prints to stdout), ' +
+     '"silent" (no reporting), or a filename (writes to file).')),
                  ]
 
 
 def main():
   """ Main function. """
   # First load arguments
-  all_args = dragonfly_args + get_all_euc_gp_bandit_args() + get_all_cp_gp_bandit_args() \
-             + get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args() \
-             + get_all_euc_moo_gp_bandit_args() + get_all_cp_moo_gp_bandit_args()
-  all_args = get_unique_list_of_option_args(all_args)
-  options = load_options(all_args, cmd_line=True)
+#   all_args = dragonfly_args + get_all_euc_gp_bandit_args() + get_all_cp_gp_bandit_args() \
+#              + get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args() \
+#              + get_all_euc_moo_gp_bandit_args() + get_all_cp_moo_gp_bandit_args()
+#   all_args = get_unique_list_of_option_args(all_args)
+#   options = load_options(all_args, cmd_line=True)
+  options = load_options(dragonfly_args, cmd_line=True)
 
   # Load domain and objective
   config = load_config_file(options.config)
@@ -67,11 +76,9 @@ def main():
   objective_file_name = config.name
   obj_module = imp.load_source(objective_file_name,
                                os.path.join(expt_dir, objective_file_name + '.py'))
-
   # Set capital
   if options.max_capital < 0:
-    raise ValueError('Specify max_capital (time or number of evaluations). for ' +
-                     'optimisation')
+    raise ValueError('max_capital (time or number of evaluations) must be positive.')
 
   # Call optimiser
   _print_prefix = 'Maximising' if options.max_or_min == 'max' else 'Minimising'
@@ -87,14 +94,17 @@ def main():
       print('%s function on fidel_space: %s, domain %s.'%(_print_prefix,
             config.fidel_space, config.domain))
       opt_val, opt_pt, history = call_to_optimise['single_mf'][options.max_or_min](
-        obj_module.objective, domain=None, fidel_space=None,
+        obj_module.objective, fidel_space=None, domain=None,
         fidel_to_opt=config.fidel_to_opt, fidel_cost_func=obj_module.cost,
-        max_capital=options.max_capital, config=config, options=options)
+        max_capital=options.max_capital, capital_type=options.capital_type,
+        opt_method=options.opt_method, config=config, options=options,
+        reporter=options.report_progress)
     else:
       print('%s function on domain %s.'%(_print_prefix, config.domain))
       opt_val, opt_pt, history = call_to_optimise['single'][options.max_or_min](
-        obj_module.objective, domain=None, max_capital=options.max_capital, config=config,
-        options=options)
+        obj_module.objective, domain=None, max_capital=options.max_capital,
+        capital_type=options.capital_type, opt_method=options.opt_method,
+        config=config, options=options, reporter=options.report_progress)
     print('Optimum Value in %d evals: %0.4f'%(len(history.curr_opt_points), opt_val))
     print('Optimum Point: %s.'%(opt_pt))
   else:
@@ -106,7 +116,9 @@ def main():
             config.domain, len(obj_module.objectives)))
       pareto_values, pareto_points, history = \
         call_to_optimise['multi'][options.max_or_min](obj_module.objectives,
-        domain=None, max_capital=options.max_capital, config=config, options=options)
+        domain=None, max_capital=options.max_capital, capital_type=options.capital_type,
+        opt_method=options.opt_method, config=config, options=options,
+        reporter=options.report_progress)
     num_pareto_points = len(pareto_points)
     print('Found %d Pareto Points: %s.'%(num_pareto_points, pareto_points))
     print('Corresponding Pareto Values: %s.'%(pareto_values))

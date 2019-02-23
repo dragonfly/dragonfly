@@ -197,6 +197,7 @@ def direct_ft_maximise(obj, bounds, max_evals, *args, **kwargs):
   max_val = - min_val
   if history is not None:
     history.curr_opt_vals = -history.curr_opt_vals
+    history.curr_true_opt_vals = history.curr_opt_vals
     history.query_vals = -history.query_vals
   return max_val, max_pt, history
 
@@ -216,7 +217,8 @@ def get_direct_history(results_file_name):
   results_file_handle.close()
   return Namespace(curr_opt_vals=np.array(curr_opt_vals),
                    query_vals=np.array(query_vals),
-                   query_points=np.array(query_points))
+                   query_points=np.array(query_points),
+                   curr_true_opt_vals=np.array(curr_opt_vals))
 
 
 def get_history_from_direct_log(log_file_name):

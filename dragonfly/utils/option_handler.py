@@ -35,6 +35,7 @@ def get_option_specs(name, required=False, default=None, help_str='', **kwargs):
     ret[key] = value
   return ret
 
+
 def _print_options(ondp, desc, reporter):
   """ Prints the options out. """
   if reporter is None:
@@ -71,3 +72,4 @@ def load_options(list_of_options, descr='Algorithm', reporter=None, cmd_line=Fal
     opt_names_default_parsed[key][1] = getattr(args, key)
   _print_options(opt_names_default_parsed, descr, reporter)
   return args
+
