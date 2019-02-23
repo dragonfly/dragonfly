@@ -198,6 +198,7 @@ $ cd examples
 $ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example.txt
 $ dragonfly-script.py --config synthetic/branin/config.pb --options options_files/options_example.txt
 ```
+*Minimisation*:
 By default, Dragonfly *maximises* functions. To minimise a function, set the
 `max_or_min` flag to `min` in the options file as shown in
 [`examples/options_example_for_minimisation.txt`](examples/options_example_for_minimisation.txt)
@@ -208,6 +209,7 @@ $ dragonfly-script.py --config synthetic/branin/config.json --options options_fi
 ```
 
 
+*Multi-fidelity Optimisation*:
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
 $ cd examples
@@ -225,10 +227,13 @@ $ cd examples
 $ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options options_files/options_example.txt
 ```
 
+*Optimisation on a time budget*:
+Dragonfly also allows specifying a time budget for optimisation.
 The next demo is a maximum likelihood problem in computational astrophysics,
 where we wish to estimate cosmological parameters from Type Ia supernova data.
 The demos for Bayesian optimisation and multi-fidelity Bayesian optimisation
 can be run via the following commands.
+This uses a time budget of 2 hours.
 
 ```bash
 $ cd examples
@@ -237,7 +242,7 @@ $ dragonfly-script.py --config supernova/config_mf.json --options options_files/
 ```
 
 
-*Other Methods*:
+*Other methods*:
 BO is ideally suited for expensive function evaluations - it aims to find the optimum
 in as few evaluations and invests significant computation to do so.
 This pays dividends if the evaluations are expensive.
@@ -260,7 +265,7 @@ are expensive.
 **In python code**:
 
 The main APIs for Dragonfly are declared in
-[`__init__.py`](__init__.py) and defined in the 
+[`dragonfly/__init__.py`](dragonfly/__init__.py) and defined in the 
 [`dragonfly/apis`](dragonfly/apis) directory.
 For their definitions and arguments, see
 [`dragonfly/apis/opt.py`](dragonfly/apis/opt.py) and
