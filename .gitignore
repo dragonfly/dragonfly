@@ -6,7 +6,6 @@
 *.mat
 *.gif
 *.so
-*.txt
 *.pyc
 env/*
 build/*

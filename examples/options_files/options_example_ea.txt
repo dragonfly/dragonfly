@@ -1,0 +1,12 @@
+# The capital (time budget or number of evaluations)
+--max_capital 100
+
+# How frequently to report progress on optimisation
+--report_results_every 13
+
+# How frequently to build a new (GP) model
+--build_new_model_every 17
+
+# Method for optimisation, default is bo. But could be bo, rand, ga, ea, direct, pdoo
+--opt_method ea
+

@@ -1,0 +1,12 @@
+# The capital type. The option below indicates we are using a time budget.
+--capital_type realtime
+
+# The capital, i.e. time budget in seconds (below is for 2 hrs)
+--max_capital 7200
+
+# How frequently to report progress on optimisation
+--report_results_every 13
+
+# How frequently to build a new (GP) model
+--build_new_model_every 17
+

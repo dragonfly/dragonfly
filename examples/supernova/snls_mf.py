@@ -27,7 +27,7 @@ from scipy import integrate
 # constants
 SPEED_OF_LIGHT = 299792.48
 INTEGRATE_METHOD = integrate.trapz
-RESOLUTION_MAX = 1e6
+RESOLUTION_MAX = 1e5
 NUM_DATA_MAX = 192
 DFLT_APPROXIMATION_METHOD = 'shchigolev'
 # DFLT_APPROXIMATION_METHOD = 'robertson'
