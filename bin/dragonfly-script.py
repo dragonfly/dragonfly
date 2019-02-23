@@ -16,7 +16,8 @@
 
 from __future__ import print_function
 import os
-import imp
+# import imp
+from importlib import import_module
 import sys
 # Local
 
@@ -85,12 +86,15 @@ def main():
     is_mf = True
   else:
     is_mf = False
+
+  # Load module
   expt_dir = os.path.dirname(os.path.abspath(os.path.realpath(options.config)))
   if not os.path.exists(expt_dir):
     raise ValueError("Experiment directory does not exist.")
-  objective_file_name = config.name
-  obj_module = imp.load_source(objective_file_name,
-                               os.path.join(expt_dir, objective_file_name + '.py'))
+  sys.path.append(expt_dir)
+  obj_module = import_module(config.name, expt_dir)
+  sys.path.remove(expt_dir)
+
   # Set capital
   if options.max_capital < 0:
     raise ValueError('max_capital (time or number of evaluations) must be positive.')

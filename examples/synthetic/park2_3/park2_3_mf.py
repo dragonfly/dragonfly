@@ -5,7 +5,7 @@
 
 # pylint: disable=invalid-name
 
-from .park2_3 import park2_3_z_x
+from park2_3 import park2_3_z_x
 
 
 def park2_3_mf(z, x):

@@ -7,7 +7,7 @@
 
 import numpy as np
 # Local
-from .hartmann6_4 import hartmann6_4_alpha
+from hartmann6_4 import hartmann6_4_alpha
 
 def hartmann6_4_mf(z, x):
   """ Hartmann function in 3D. """

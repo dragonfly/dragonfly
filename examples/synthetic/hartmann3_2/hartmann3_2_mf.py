@@ -9,7 +9,7 @@
 
 import numpy as np
 # Local
-from .hartmann3_2 import hartmann3_2_alpha
+from hartmann3_2 import hartmann3_2_alpha
 
 
 def hartmann3_2_mf(z, x):
