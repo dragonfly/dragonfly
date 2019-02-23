@@ -11,7 +11,7 @@ from copy import copy
 # Local imports
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                             load_cp_domain_from_config_file
-from ..exd.experiment_caller import ExperimentCaller
+from ..exd.experiment_caller import ExperimentCaller, CPFunctionCaller
 from ..exd.exd_utils import get_cp_domain_initial_qinfos
 from .ga_optimiser import GAOptimiser, ga_opt_args
 from ..utils.general_utils import project_to_bounds

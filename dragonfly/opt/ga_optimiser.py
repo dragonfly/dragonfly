@@ -76,7 +76,8 @@ class GAOptimiser(BlackboxOptimiser):
     if num_candidates_to_mutate_from <= 0:
       idxs_to_mutate_from = sample_according_to_exp_probs(all_prev_eval_vals,
                               num_mutations, replace=True,
-                              scaling_const=self.options.fitness_sampler_scaling_const)
+                              scaling_const=self.options.fitness_sampler_scaling_const,
+                              sample_uniformly_if_fail=True)
       num_mutations_arg_to_mutation_op = [(idxs_to_mutate_from == i).sum() for i
                                           in range(len(all_prev_eval_points))]
       candidates_to_mutate_from = all_prev_eval_points
