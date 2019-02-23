@@ -5,7 +5,7 @@
 
 # pylint: disable=invalid-name
 
-from .branin import branin_z_x
+from branin import branin_z_x
 
 
 def branin_mf(z, x):

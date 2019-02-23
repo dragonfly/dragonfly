@@ -6,7 +6,7 @@
 # pylint: disable=invalid-name
 # pylint: disable=bad-whitespace
 
-from .borehole_6 import borehole_6_z
+from borehole_6 import borehole_6_z
 
 def borehole_6_mf(z, x):
   """ Computes the Bore Hole function. """

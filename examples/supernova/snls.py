@@ -19,7 +19,7 @@
 
 # pylint: disable=invalid-name
 
-from demos_real.supernova.snls_mf import snls_avg_log_likelihood
+from snls_mf import snls_avg_log_likelihood
 
 def objective(x):
   """ Multi-fidelity objective. """

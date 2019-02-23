@@ -18,7 +18,7 @@
 
 # pylint: disable=invalid-name
 
-from .salsa_energy_mf import salsa_compute_negative_validation_error, MAX_TR_DATA_SIZE
+from salsa_energy_mf import salsa_compute_negative_validation_error, MAX_TR_DATA_SIZE
 
 def objective(x):
   """ Objective. """
