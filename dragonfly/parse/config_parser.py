@@ -211,7 +211,7 @@ def read_pb(config_file):
   except ImportError:
     raise ImportError('Protocol Buffer library is not installed')
   # Read PB file
-  from parse import config_pb2
+  from . import config_pb2
   config_pb = config_pb2.Experiment()
   _file = open(config_file, "rb")
   text_format.Merge(_file.read(), config_pb)
