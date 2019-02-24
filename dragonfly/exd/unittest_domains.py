@@ -155,7 +155,6 @@ class CartesianProductDomainTestCase(DomainBaseTestCase, BaseTestClass):
       [[1.2, 6.4, 2.2], [0, -1, 70], [6.5, None], 'k'],
       [[0.2, 7.9, 0.5], [0, -1, 69], ['abc', None, float], 5],
       [[3.2, 7.9, 0.5], [-20, -1, 69], ['abc', None, float], 5],
-      long,
       [[2.2, 3.6, 0.99], [5, 0, 68], ('abc', float), int, (3.2, 8.5)],
       ]
 

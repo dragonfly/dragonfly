@@ -200,7 +200,7 @@ def gen_curves(
   percentile_vals = np.percentile(all_plot_vals, percentiles)
   print_percentile_list = ['%0.3f:%0.4f'%(p, v) for (p, v) in
                            zip(percentiles, percentile_vals)]
-  print 'Percentiles:: %s.'%(',  '.join(print_percentile_list))
+  print('Percentiles:: %s.'%(',  '.join(print_percentile_list)))
 
   err_bar_pts = grid_pts[err_bar_idxs]
   err_bar_means = plot_means[:, err_bar_idxs]
