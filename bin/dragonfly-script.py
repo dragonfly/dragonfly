@@ -110,8 +110,8 @@ def main():
   }
   if not options.is_multi_objective:
     if is_mf:
-      print('%s function on fidel_space: %s, domain %s.'%(_print_prefix,
-            config.fidel_space, config.domain))
+      print('%s multi-fidelity function on\n Fidelity-Space: %s.\n Domain: %s.\n'%(
+            _print_prefix, config.fidel_space, config.domain))
       opt_val, opt_pt, history = call_to_optimise['single_mf'][options.max_or_min](
         obj_module.objective, fidel_space=None, domain=None,
         fidel_to_opt=config.fidel_to_opt, fidel_cost_func=obj_module.cost,
@@ -119,7 +119,7 @@ def main():
         opt_method=options.opt_method, config=config, options=options,
         reporter=options.report_progress)
     else:
-      print('%s function on domain %s.'%(_print_prefix, config.domain))
+      print('%s function on Domain: %s.\n'%(_print_prefix, config.domain))
       opt_val, opt_pt, history = call_to_optimise['single'][options.max_or_min](
         obj_module.objective, domain=None, max_capital=options.max_capital,
         capital_type=options.capital_type, opt_method=options.opt_method,
@@ -131,8 +131,8 @@ def main():
       raise ValueError('Multi-objective multi-fidelity optimisation has not been ' +
                        'implemented yet.')
     else:
-      print('%s multiobjective functions on domain %s with %d functions.'%(_print_prefix,
-            config.domain, len(obj_module.objectives)))
+      print('%s %d multiobjective functions on Domain: %s.\n'%(_print_prefix,
+            len(obj_module.objectives), config.domain))
       pareto_values, pareto_points, history = \
         call_to_optimise['multi'][options.max_or_min](obj_module.objectives,
         domain=None, max_capital=options.max_capital, capital_type=options.capital_type,

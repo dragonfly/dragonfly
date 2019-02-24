@@ -227,7 +227,7 @@ def _unpack_vectorised_domain(x, dim_ordering):
     else:
       ret[idx] = x[counter:counter+num_dims]
       counter += num_dims
-  assert counter == len(x) # TODO: remove this assertion (for debugging only).
+  assert counter == len(x) # Check if number of variables match
   return ret
 
 

@@ -18,7 +18,7 @@ from .exd_utils import EVAL_ERROR_CODE
 from ..utils.option_handler import get_option_specs
 from ..utils.reporters import get_reporter
 
-exd_core_args = [ \
+exd_core_args = [
   get_option_specs('max_num_steps', False, 1e7,
     'If exceeds this many evaluations, stop.'),
   get_option_specs('capital_type', False, 'return_value',
@@ -115,7 +115,7 @@ class ExperimentDesigner(object):
         'send_time': 'query_send_times',
         'receive_time': 'query_receive_times',
         'eval_time': 'query_eval_times',
-        'worker_id': 'query_worker_ids', \
+        'worker_id': 'query_worker_ids',
       }
     # Set pre_eval_points and results
     self.prev_eval_points = []
@@ -144,11 +144,15 @@ class ExperimentDesigner(object):
 
   def _exd_child_set_up(self):
     """ Set up for a child class of Blackbox Experiment designer. """
-    raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
+    raise NotImplementedError('Implement in a child class of ExperimentDesigner.')
 
   def _get_method_str(self):
     """ Return a string describing the method. """
-    raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
+    raise NotImplementedError('Implement in a child class of ExperimentDesigner.')
+
+  def _get_problem_str(self):
+    """ Return a string describing the method. """
+    raise NotImplementedError('Implement in a child class of ExperimentDesigner.')
 
   def is_asynchronous(self):
     """ Returns true if asynchronous."""
@@ -210,15 +214,34 @@ class ExperimentDesigner(object):
       return ', jobs_by_each_worker=%s, in_progress=%s'%(self._get_jobs_for_each_worker(),
                                                     self._get_curr_job_idxs_in_progress())
 
+  def _print_header(self):
+    """ Print header. """
+    header_str = 'Legend: <iteration_number> (<num_successful_queries>) ' + \
+                 'cap=<fraction_of_capital_spent>:: '
+    child_header_str = self._get_exd_child_header_str()
+    self.reporter.writeln(header_str + child_header_str)
+
+  @classmethod
+  def _get_exd_child_header_str(cls):
+    """ Get header for child. """
+    return ''
+
   def _report_curr_results(self):
     """ Writes current result to reporter. """
     cap_frac = (np.nan if self.available_capital <= 0 else
                 self.get_curr_spent_capital()/self.available_capital)
-    report_str = ' '.join(['%s'%(self.full_method_name),
-                           '(%03d/%03d)'%(self.num_succ_queries, self.step_idx),
-                           'cap=%0.3f:: '%(cap_frac),
-                           self._get_exd_child_report_results_str(),
-                          ])
+#     report_str = ' '.join(['%s'%(self.full_method_name),
+#                            '(%03d/%03d)'%(self.num_succ_queries, self.step_idx),
+#                            'cap=%0.3f:: '%(cap_frac),
+#                            self._get_exd_child_report_results_str(),
+#                           ])
+#     report_str = ' '.join(['#%03d (%03d,)'%(self.step_idx, self.num_succ_queries),
+#                            'cap=%0.3f:: '%(cap_frac),
+#                            self._get_exd_child_report_results_str(),
+#                           ])
+    report_str = '#%03d (%03d, %0.3f):: '%(self.step_idx, self.num_succ_queries,
+                                           cap_frac)
+    report_str += self._get_exd_child_report_results_str()
     report_str += self._get_multiple_workers_str()
     self.reporter.writeln(report_str)
     self.last_report_at = self.step_idx
@@ -317,11 +340,23 @@ class ExperimentDesigner(object):
     if self.options.capital_type == 'return_value':
       self.spent_capital = spent_capital
 
+  def _print_method_description(self):
+    """ Prints method description at the beginning of the routine. """
+    method_str = self._get_method_str()
+    problem_str = self._get_problem_str()
+    if self.num_workers > 1:
+      parallel_mode = '-asynchronous' if self.is_asynchronous() else '-synchronous'
+      method_str += parallel_mode
+    self.reporter.writeln('%s with %s using capital %s'%(problem_str, method_str,
+                          str(self.available_capital)))
+
   def run_experiment_initialise(self):
     """ Initialisation before running initialisation. """
+    self._print_method_description()
     self.initialise_capital()
     self.perform_initial_queries()
     self._child_run_experiments_initialise()
+    self._print_header()
 
   def _child_run_experiments_initialise(self):
     """ Handles any initialisation before running experiments. """
@@ -506,6 +541,8 @@ class ExperimentDesigner(object):
     while not self._terminate_now():
       # Main loop pre
       self._main_loop_pre()
+      if self.step_idx - self.last_report_at >= self.options.report_results_every:
+        self._report_curr_results()
       # Experimentation step
       if self.is_asynchronous():
         self._asynchronous_run_experiment_routine()
@@ -514,8 +551,6 @@ class ExperimentDesigner(object):
       # Book keeeping
       if self.step_idx - self.last_model_build_at >= self.options.build_new_model_every:
         self._build_new_model()
-      if self.step_idx - self.last_report_at >= self.options.report_results_every:
-        self._report_curr_results()
       # Main loop post
       self._main_loop_post()
 

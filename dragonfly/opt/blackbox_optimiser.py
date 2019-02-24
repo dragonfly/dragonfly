@@ -76,6 +76,10 @@ class BlackboxOptimiser(ExperimentDesigner):
     """ Any set up for the specific optimisation method. """
     raise NotImplementedError('Implement in Optimisation Method class.')
 
+  def _get_problem_str(self):
+    """ Description of the problem. """
+    return 'Optimisation'
+
   # Book-keeping ----------------------------------------------------------------
   def _exd_child_update_history(self, qinfo):
     """ Updates to the history specific to optimisation. """
@@ -121,15 +125,27 @@ class BlackboxOptimiser(ExperimentDesigner):
     """ Any updates to the history specific to the method. """
     pass # Pass by default. Not necessary to override.
 
+  def _get_exd_child_header_str(self):
+    """ Header for black box optimisation. """
+    ret = 'curr_max=<current_maximum_value>'
+    if self.func_caller.is_mf():
+      ret += ', f2o=<#queries_at_highest_fidelity>' + \
+             '(<#queries_at_highest_fidelity_in_last_20_iterations>)'
+    ret += self._get_opt_method_header_str()
+    return ret
+
+  @classmethod
+  def _get_opt_method_header_str(cls):
+    """ Header for optimisation method. """
+    return ''
+
   def _get_exd_child_report_results_str(self):
     """ Returns a string describing the progress in optimisation. """
-    best_val_str = 'best_val=(e%0.3f, t%0.3f)'%(self.curr_opt_val,
-                                                self.curr_true_opt_val)
+    best_val_str = 'curr_max=%0.5f'%(self.curr_opt_val)
     if self.func_caller.is_mf():
       window_length = 20
       window_queries_at_f2o = self.history.query_at_fidel_to_opts[-window_length:]
-      fidel_to_opt_str = ', #f2o: %d[%0.2f](%d/%d)'%(self.num_fidel_to_opt_calls,
-        self.num_fidel_to_opt_calls / float(len(self.history.query_vals)),
+      fidel_to_opt_str = ', #f2o=%d(%d/%d)'%(self.num_fidel_to_opt_calls,
         sum(window_queries_at_f2o), window_length)
     else:
       fidel_to_opt_str = ''

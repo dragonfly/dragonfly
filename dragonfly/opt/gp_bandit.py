@@ -349,19 +349,16 @@ class GPBandit(BlackboxOptimiser):
     gp_fit_report_str = '    -- GP at iter %d: %s'%(self.step_idx, str(self.gp))
     self.reporter.writeln(gp_fit_report_str)
 
+  def _get_opt_method_header_str(self):
+    """ Header for optimisation Method. """
+    return ', acqs=<num_times_each_acquisition_was_used>'
+
   def _get_opt_method_report_results_str(self):
     """ Any details to include in a child method when reporting results.
     """
-    if len(self.acqs_to_use) > 1:
-      acq_str = ', acqs=' + get_list_as_str([self.acqs_to_use_counter[key] for key in
-                                             self.acqs_to_use])
-    else:
-      acq_str = ''
-    if self.is_an_mf_method() and self.options.mf_strategy == 'boca':
-      mf_str = ', boca-thresh=%0.3f'%(self.mf_params_for_anc_data['boca_thresh_coeff'])
-    else:
-      mf_str = ''
-    return acq_str + mf_str
+    ret_list = ['%s:%d'%(key, self.acqs_to_use_counter[key]) for key in self.acqs_to_use]
+    ret = 'acqs=[' + ', '.join(ret_list) + ']'
+    return ', ' + ret
 
   def _get_gp_reg_data(self):
     """ Returns the current data collected using initialisation and optimisation.
