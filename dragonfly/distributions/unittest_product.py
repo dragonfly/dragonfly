@@ -20,7 +20,7 @@ class JointDistributionTestCase(BaseTestClass):
   def setUp(self):
     """ Sets up unit tests. """
     self.size = 1000000
-    self.threshold = 0.01
+    self.threshold = 0.1
 
   def _check_sample_sizes(self, samples):
     """ Compares the sample sizes with the size parameter"""
@@ -53,3 +53,4 @@ class JointDistributionTestCase(BaseTestClass):
 
 if __name__ == '__main__':
   execute_tests()
+

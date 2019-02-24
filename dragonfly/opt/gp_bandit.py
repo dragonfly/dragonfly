@@ -141,9 +141,9 @@ def get_all_mf_cp_gp_bandit_args(additional_args=None):
 def get_default_acquisition_for_domain(domain):
   """ Returns the default acquisition for the domain. """
   if domain.get_type() == 'euclidean':
-    return 'ei-ucb-ttei-add_ucb'
+    return 'ei-ucb-ttei-ts-add_ucb'
   else:
-    return 'ei-ucb-ttei'
+    return 'ei-ucb-ttei-ts'
 
 def get_default_acq_opt_method_for_domain(domain):
   """ Returns the default acquisition optimisation method for the domain. """
@@ -315,9 +315,12 @@ class GPBandit(BlackboxOptimiser):
 #     if self.step_idx == self.last_model_build_at or \
 #        self.step_idx == self.last_model_build_at + self.worker_manager.num_workers:
 #       # printing multiple times every model build is a way to check that post_sampling
-#       # is picking different hyper-parameters.
+#       # is picking different hyperparameters.
 #       self._report_current_gp()
-    if self.step_idx == self.last_model_build_at:
+    # We need to do this separately since posterior sampling complicates how we keep
+    # track of the GPs.
+    if self.step_idx == self.last_model_build_at and \
+       self.options.report_model_on_each_build:
       self._report_current_gp()
 
   def _domain_specific_set_next_gp(self):
@@ -334,6 +337,12 @@ class GPBandit(BlackboxOptimiser):
   def _child_build_new_model(self):
     """ Builds a new model. """
     self._build_new_gp()
+
+  def _report_model(self):
+    """ Report the current model. """
+    # We will do this separately since posterior sampling complicates how we keep
+    # track of the GPs. See _set_next_gp()
+    pass
 
   def _report_current_gp(self):
     """ Reports the current GP. """

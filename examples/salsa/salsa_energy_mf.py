@@ -21,7 +21,7 @@
 import numpy as np
 import pickle
 # Local
-from salsa import salsa_train_and_validate
+from salsa_estimator import salsa_train_and_validate
 
 # Load data
 try:
@@ -33,9 +33,11 @@ try:
     ENERGY_DATA = pickle.load(open(data_path, 'rb'))
   else:
     ENERGY_DATA = pickle.load(open(data_path, 'rb'), encoding='latin1')
-except IOError:
-  print(('Could not load file %s. Make sure the file energy_appliance.p is in the same ' +
-         'directory as this file or pass the dataset to the function.')%(data_path))
+except IOError as e:
+  err_msg = (('Could not load file %s. Make sure the file energy_appliance.p is in the ' +
+              'same directory as this file. See dragonfly/examples/salsa/README.md ' +
+              'for more details.')%(data_path))
+  raise IOError('%s %s'%(err_msg, e))
 
 
 # _MAX_TR_DATA_SIZE = 10000

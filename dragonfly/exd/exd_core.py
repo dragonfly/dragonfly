@@ -20,37 +20,40 @@ from ..utils.reporters import get_reporter
 
 exd_core_args = [ \
   get_option_specs('max_num_steps', False, 1e7,
-                   'If exceeds this many evaluations, stop.'),
+    'If exceeds this many evaluations, stop.'),
   get_option_specs('capital_type', False, 'return_value',
-                   'Should be one of return_value, cputime, or realtime'),
-  get_option_specs('mode', False, 'asy', \
+    'Should be one of return_value, cputime, or realtime'),
+  get_option_specs('mode', False, 'asy',
     'If \'syn\', uses synchronous parallelisation, else asynchronous.'),
-  get_option_specs('build_new_model_every', False, 17, \
+  get_option_specs('build_new_model_every', False, 17,
     'Updates the model via a suitable procedure every this many iterations.'),
+  get_option_specs('report_model_on_each_build', False, 0,
+    'If True, will report the model each time it is built.'),
   get_option_specs('report_results_every', False, 13,
-                   'Report results every this many iterations.'),
+    'Report results every this many iterations.'),
   # Initialisation
   get_option_specs('init_capital', False, 'default',
-                   ('The capital to be used for initialisation.')),
+    ('The capital to be used for initialisation.')),
   get_option_specs('init_capital_frac', False, None,
-                   ('The fraction of the total capital to be used for initialisation.')),
-  get_option_specs('num_init_evals', False, 20, \
+    ('The fraction of the total capital to be used for initialisation.')),
+  get_option_specs('num_init_evals', False, 20,
     ('The number of evaluations for initialisation. If <0, will use default.')),
   # The amount of effort we will use for initialisation is prioritised by init_capital,
   # init_capital_frac and num_init_evals.
   get_option_specs('prev_evaluations', False, None,
-                   'Data for any previous evaluations.'),
+    'Data for any previous evaluations.'),
   get_option_specs('get_initial_qinfos', False, None,
-                   'A function to obtain initial qinfos.'),
-  get_option_specs('init_method', False, 'rand', \
-    'Method to obtain initial queries. Is used if get_initial_qinfos is None.'), \
+    'A function to obtain initial qinfos.'),
+  get_option_specs('init_method', False, 'rand',
+    'Method to obtain initial queries. Is used if get_initial_qinfos is None.'),
   ]
 
-mf_exd_args = [ \
-  get_option_specs('fidel_init_method', False, 'rand', \
+
+mf_exd_args = [
+  get_option_specs('fidel_init_method', False, 'rand',
     'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'),
-  get_option_specs('init_set_to_fidel_to_opt_with_prob', False, 0.25, \
-    'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'), \
+  get_option_specs('init_set_to_fidel_to_opt_with_prob', False, 0.25,
+    'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'),
   ]
 
 
@@ -424,10 +427,16 @@ class ExperimentDesigner(object):
     """ Builds a new model. """
     self.last_model_build_at = self.step_idx
     self._child_build_new_model()
+    if self.options.report_model_on_each_build:
+      self._report_model()
 
   def _child_build_new_model(self):
     """ Builds a new model. """
     raise NotImplementedError('Implement in a child class.!')
+
+  def _report_model(self):
+    """ Reports the model. Can be overridden by a child class. """
+    pass
 
   def _update_capital(self, qinfos):
     """ Updates the capital according to the cost of the current query. """

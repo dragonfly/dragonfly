@@ -347,7 +347,6 @@ Chris Collins: [github](https://github.com/crcollins/),
 ### Acknowledgements
 Research and development of the methods in this package were funded by
 DOE grant DESC0011114, NSF grant IIS1563887, the DARPA D3M program, and AFRL.
-Chris Collins helped make this package pip installable.
 
 
 ### Citation
