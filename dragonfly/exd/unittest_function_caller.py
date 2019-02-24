@@ -180,17 +180,18 @@ class CPFunctionCaller(BaseTestClass):
   def setUp(self):
     """ set up. """
     file_dir = os.path.dirname(os.path.realpath(__file__))
-    test_data_dir = os.path.dirname(file_dir)
+    test_data_pardir = os.path.dirname(file_dir)
     self.test_function_data = [
-      (test_data_dir + '/test_data/park2_4/config.json', park2_4, 'gauss', 2.1, None),
-      (test_data_dir + '/test_data/park1_3/config.json', park1_3, 'no_noise', None, None),
-#       (test_data_dir + '/test_data/syn_cnn_2/config.json', syn_cnn_2, 'no_noise',
+      (test_data_pardir + '/test_data/park2_4/config.json', park2_4, 'gauss', 2.1, None),
+      (test_data_pardir + '/test_data/park1_3/config.json', park1_3, 'no_noise',
+                                                                     None, None),
+#       (test_data_pardir + '/test_data/syn_cnn_2/config.json', syn_cnn_2, 'no_noise',
 #                                                                       None, None),
       ]
     self.mf_test_function_data = [
-      (test_data_dir + '/test_data/park2_4/config_mf.json', park2_4_mf,
+      (test_data_pardir + '/test_data/park2_4/config_mf.json', park2_4_mf,
        'gauss', 0.1, cost_park2_4),
-      (test_data_dir + '/test_data/park1_3/config_mf.json', park1_3_mf,
+      (test_data_pardir + '/test_data/park1_3/config_mf.json', park1_3_mf,
        'gauss', 0.2, cost_park1_3),
       ]
     self.num_test_points = 100

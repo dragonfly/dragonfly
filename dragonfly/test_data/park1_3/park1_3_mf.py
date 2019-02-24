@@ -4,7 +4,7 @@
 """
 
 # pylint: disable=invalid-name
-from demos_synthetic.park1_3.park1_3 import park1_3_z_x
+from .park1_3 import park1_3_z_x
 
 
 def park1_3_mf(z, x):

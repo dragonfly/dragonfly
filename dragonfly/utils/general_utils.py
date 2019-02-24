@@ -366,8 +366,11 @@ def get_exp_probs_from_fitness(fitness_vals, scaling_param=None, scaling_const=N
   return exp_probs/exp_probs.sum()
 
 def sample_according_to_exp_probs(fitness_vals, num_samples, replace=False,
-                                  scaling_param=None, scaling_const=None):
+                                  scaling_param=None, scaling_const=None,
+                                  sample_uniformly_if_fail=False):
   """ Samples after exponentiating the fitness values. """
   exp_probs = get_exp_probs_from_fitness(fitness_vals, scaling_param, scaling_const)
+  if (not np.isfinite(exp_probs.sum())) and sample_uniformly_if_fail:
+    exp_probs = np.ones((len(fitness_vals),)) / float(len(fitness_vals))
   return np.random.choice(len(fitness_vals), num_samples, p=exp_probs, replace=replace)
 

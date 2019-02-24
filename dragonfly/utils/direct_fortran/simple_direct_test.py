@@ -2,10 +2,12 @@
   A simple test for the fortran direct library.
   -- kandasamy@cs.cmu.edu
 """
+
 # pylint: disable=invalid-name
 # pylint: disable=unused-argument
 # pylint: disable=relative-import
 
+from __future__ import print_function
 import numpy as np
 import direct
 
@@ -26,12 +28,9 @@ def main():
   fglper = 0.01
   volper = -1.0
   sigmaper = -1.0
-#   user_data = None
 
   def _objective_wrap(x, iidata, ddata, cdata, n, iisize, idsize, icsize):
-    """
-      A wrapper to comply with the fortran requirements.
-    """
+    """ A wrapper to comply with the fortran requirements. """
     return obj(x)
 
   iidata = np.ones(0, dtype=np.int32)
@@ -56,7 +55,7 @@ def main():
                        ddata,
                        cdata
                       )
-  print soln
+  print('Solution: %s'%(str(soln)))
 
 
 if __name__ == '__main__':

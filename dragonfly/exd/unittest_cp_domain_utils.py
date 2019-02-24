@@ -25,26 +25,26 @@ class CPDomainUtilsTestCase(BaseTestClass):
   def setUp(self):
     """ Set up. """
     file_dir = os.path.dirname(os.path.realpath(__file__))
-    test_data_dir = os.path.dirname(file_dir)
+    test_data_pardir = os.path.dirname(file_dir)
     self.domain_config_files = [
-      test_data_dir + '/test_data/example_configs/eg01.json',
-      test_data_dir + '/test_data/example_configs/eg02.json',
-      test_data_dir + '/test_data/example_configs/eg03.json',
-      test_data_dir + '/test_data/example_configs/eg01.pb',
-      test_data_dir + '/test_data/example_configs/eg02.pb',
-      test_data_dir + '/test_data/example_configs/eg04.pb',
-      test_data_dir + '/test_data/park2_4/config.json',
-      test_data_dir + '/test_data/park1_3/config.json',
-#       test_data_dir + '/test_data/syn_cnn_2/config.json',
+      test_data_pardir + '/test_data/example_configs/eg01.json',
+      test_data_pardir + '/test_data/example_configs/eg02.json',
+      test_data_pardir + '/test_data/example_configs/eg03.json',
+      test_data_pardir + '/test_data/example_configs/eg01.pb',
+      test_data_pardir + '/test_data/example_configs/eg02.pb',
+      test_data_pardir + '/test_data/example_configs/eg04.pb',
+      test_data_pardir + '/test_data/park2_4/config.json',
+      test_data_pardir + '/test_data/park1_3/config.json',
+#       test_data_pardir + '/test_data/syn_cnn_2/config.json',
       ]
     self.synthetic_functions = [
-      (test_data_dir + '/test_data/park2_4/config.json', park2_4),
-      (test_data_dir + '/test_data/park1_3/config.json', park1_3),
+      (test_data_pardir + '/test_data/park2_4/config.json', park2_4),
+      (test_data_pardir + '/test_data/park1_3/config.json', park1_3),
 #       ('test_data/syn_cnn_2/config.json', syn_cnn_2),
       ]
     self.domain_fidel_synthetic_functions = [
-      (test_data_dir + '/test_data/park2_4/config_mf.json', park2_4_mf),
-      (test_data_dir + '/test_data/park1_3/config_mf.json', park1_3_mf),
+      (test_data_pardir + '/test_data/park2_4/config_mf.json', park2_4_mf),
+      (test_data_pardir + '/test_data/park1_3/config_mf.json', park1_3_mf),
       ]
 
   def test_load_domain(self):

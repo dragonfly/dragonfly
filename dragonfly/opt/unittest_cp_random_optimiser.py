@@ -6,34 +6,17 @@
 # pylint: disable=no-member
 # pylint: disable=invalid-name
 
+import os
 # Local imports
-from demos_synthetic.borehole_6.borehole_6 import borehole_6
-from demos_synthetic.borehole_6.borehole_6_mf import borehole_6_mf
-from demos_synthetic.borehole_6.borehole_6_mf import cost as cost_borehole_6_mf
-from demos_synthetic.branin.branin import branin
-from demos_synthetic.branin.branin_mf import branin_mf
-from demos_synthetic.branin.branin_mf import cost as cost_branin_mf
-from demos_synthetic.hartmann3_2.hartmann3_2 import hartmann3_2
-from demos_synthetic.hartmann3_2.hartmann3_2_mf import hartmann3_2_mf
-from demos_synthetic.hartmann3_2.hartmann3_2_mf import cost as cost_hartmann3_2_mf
-from demos_synthetic.hartmann6_4.hartmann6_4 import hartmann6_4
-from demos_synthetic.hartmann6_4.hartmann6_4_mf import hartmann6_4_mf
-from demos_synthetic.hartmann6_4.hartmann6_4_mf import cost as cost_hartmann6_4_mf
-from demos_synthetic.park2_4.park2_4 import park2_4
-from demos_synthetic.park2_4.park2_4_mf import park2_4_mf
-from demos_synthetic.park2_4.park2_4_mf import cost as cost_park2_4_mf
-from demos_synthetic.park2_3.park2_3 import park2_3
-from demos_synthetic.park2_3.park2_3_mf import park2_3_mf
-from demos_synthetic.park2_3.park2_3_mf import cost as cost_park2_3_mf
-from demos_synthetic.park1_3.park1_3 import park1_3
-from demos_synthetic.park1_3.park1_3_mf import park1_3_mf
-from demos_synthetic.park1_3.park1_3_mf import cost as cost_park1_3_mf
-from demos_synthetic.syn_cnn_1.syn_cnn_1 import syn_cnn_1
-from demos_synthetic.syn_cnn_1.syn_cnn_1_mf import syn_cnn_1_mf
-from demos_synthetic.syn_cnn_1.syn_cnn_1_mf import cost as cost_syn_cnn_1_mf
-from demos_synthetic.syn_cnn_2.syn_cnn_2 import syn_cnn_2
-from demos_synthetic.syn_cnn_2.syn_cnn_2_mf import syn_cnn_2_mf
-from demos_synthetic.syn_cnn_2.syn_cnn_2_mf import cost as cost_syn_cnn_2_mf
+from ..test_data.park1_3.park1_3 import park1_3
+from ..test_data.park1_3.park1_3_mf import park1_3_mf
+from ..test_data.park1_3.park1_3_mf import cost as cost_park1_3_mf
+from ..test_data.park2_4.park2_4 import park2_4
+from ..test_data.park2_4.park2_4_mf import park2_4_mf
+from ..test_data.park2_4.park2_4_mf import cost as cost_park2_4_mf
+# from ..test_data.syn_cnn_2.syn_cnn_2 import syn_cnn_2
+# from ..test_data.syn_cnn_2.syn_cnn_2_mf import syn_cnn_2_mf
+# from ..test_data.syn_cnn_2.syn_cnn_2_mf import cost as cost_syn_cnn_2_mf
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 get_raw_point_from_processed_point, \
                                 load_cp_domain_from_config_file, \
@@ -56,16 +39,12 @@ class CPOptimiserBaseTestCase(object):
     self._child_set_up()
     self.worker_manager_1 = SyntheticWorkerManager(1, time_distro='const')
     self.worker_manager_3 = SyntheticWorkerManager(3, time_distro='halfnormal')
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    test_data_pardir = os.path.dirname(file_dir)
     self.opt_problems = [
-      ('demos_synthetic/branin/config.json', (branin,)),
-      ('demos_synthetic/hartmann3_2/config.json', (hartmann3_2,)),
-      ('demos_synthetic/hartmann6_4/config.json', (hartmann6_4,)),
-      ('demos_synthetic/borehole_6/config.json', (borehole_6,)),
-      ('demos_synthetic/park2_4/config.json', (park2_4,)),
-      ('demos_synthetic/park2_3/config.json', (park2_3,)),
-      ('demos_synthetic/park1_3/config.json', (park1_3,)),
-      ('demos_synthetic/syn_cnn_1/config.json', (syn_cnn_1,)),
-      ('demos_synthetic/syn_cnn_2/config.json', (syn_cnn_2,)),
+      (test_data_pardir + '/test_data/park1_3/config.json', (park1_3,)),
+      (test_data_pardir + '/test_data/park2_4/config.json', (park2_4,)),
+#       (test_data_pardir + '/test_data/syn_cnn_2/config.json', (syn_cnn_2,)),
       ]
 
   def _child_set_up(self):
@@ -171,25 +150,15 @@ class MFCPOptimiserBaseTestCase(CPOptimiserBaseTestCase):
     self._child_set_up()
     self.worker_manager_1 = SyntheticWorkerManager(1, time_distro='const')
     self.worker_manager_3 = SyntheticWorkerManager(3, time_distro='halfnormal')
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    test_data_pardir = os.path.dirname(file_dir)
     self.opt_problems = [
-      ('demos_synthetic/branin/config_mf.json',
-        (branin_mf, cost_branin_mf)),
-      ('demos_synthetic/hartmann3_2/config_mf.json',
-        (hartmann3_2_mf, cost_hartmann3_2_mf)),
-      ('demos_synthetic/hartmann6_4/config_mf.json',
-        (hartmann6_4_mf, cost_hartmann6_4_mf)),
-      ('demos_synthetic/borehole_6/config_mf.json',
-        (borehole_6_mf, cost_borehole_6_mf)),
-      ('demos_synthetic/park1_3/config_mf.json',
-        (park1_3_mf, cost_park1_3_mf)),
-      ('demos_synthetic/park2_3/config_mf.json',
-        (park2_3_mf, cost_park2_3_mf)),
-      ('demos_synthetic/park2_4/config_mf.json',
-        (park2_4_mf, cost_park2_4_mf)),
-      ('demos_synthetic/syn_cnn_1/config_mf.json',
-        (syn_cnn_1_mf, cost_syn_cnn_1_mf)),
-      ('demos_synthetic/syn_cnn_2/config_mf.json',
-        (syn_cnn_2_mf, cost_syn_cnn_2_mf)),
+      (test_data_pardir + '/test_data/park1_3/config_mf.json',
+                                (park1_3_mf, cost_park1_3_mf)),
+      (test_data_pardir + '/test_data/park2_4/config_mf.json',
+                                (park2_4_mf, cost_park2_4_mf)),
+#       (test_data_pardir + '/test_data/syn_cnn_2/config_mf.json',
+#                               (syn_cnn_2_mf, cost_syn_cnn_2_mf)),
       ]
 
   @classmethod

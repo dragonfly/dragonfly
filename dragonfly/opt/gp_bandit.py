@@ -11,9 +11,7 @@ from __future__ import division
 
 from argparse import Namespace
 import numpy as np
-
 # Local imports
-# from ..gp.gp_core import GP
 from ..exd import domains
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file, load_config_file
@@ -32,6 +30,7 @@ from ..utils.ancillary_utils import get_list_as_str
 from ..utils.general_utils import block_augment_array, get_idxs_from_list_of_lists
 from ..utils.option_handler import get_option_specs, load_options
 from ..utils.reporters import get_reporter
+
 
 gp_bandit_args = [ \
   get_option_specs('acq', False, 'default', \
@@ -154,7 +153,8 @@ def get_default_acq_opt_method_for_domain(domain):
     else:
       return 'direct'
   elif domain.get_type() == 'cartesian_product':
-    if all([dom.get_type() == 'euclidean' for dom in domain.list_of_domains]):
+    if all([dom.get_type() == 'euclidean' for dom in domain.list_of_domains]) and \
+       (not domain.has_constraints()):
       if domain.get_dim() > 60:
         return 'pdoo'
       else:
@@ -360,10 +360,14 @@ class GPBandit(BlackboxOptimiser):
         are the outputs. If multi-fidelity, returns a 3-tuple (Z,X,Y) where Z is a list
         of fidelities.
     """
-    reg_X = self.prev_eval_points + self.history.query_points
-    reg_Y = self.prev_eval_vals + self.history.query_vals
+    reg_X_raw = self.prev_eval_points + self.history.query_points
+    reg_Y_raw = self.prev_eval_vals + self.history.query_vals
+    finite_idxs = [idx for idx in range(len(reg_Y_raw)) if np.isfinite(reg_Y_raw[idx])]
+    reg_X = [reg_X_raw[idx] for idx in finite_idxs]
+    reg_Y = [reg_Y_raw[idx] for idx in finite_idxs]
     if self.is_an_mf_method():
-      reg_Z = self.prev_eval_fidels + self.history.query_fidels
+      reg_Z_raw = self.prev_eval_fidels + self.history.query_fidels
+      reg_Z = [reg_Z_raw[idx] for idx in finite_idxs]
       return reg_Z, reg_X, reg_Y
     else:
       return reg_X, reg_Y
@@ -771,7 +775,7 @@ class CPGPBandit(GPBandit):
     # since we don't expect pre-computing distances will be necessary there.
     for idx, dom in enumerate(self.domain.list_of_domains):
       if dom.get_type() == 'neural_network' and self.domain_dist_computers[idx] is None:
-        from nn.otmann import get_otmann_distance_computer_from_args
+        from ..nn.otmann import get_otmann_distance_computer_from_args
         otm_mislabel_coeffs =  \
           dummy_gp_fitter.domain_kernel_params_for_each_domain[idx].otmann_mislabel_coeffs
         otm_struct_coeffs =  \

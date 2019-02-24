@@ -244,7 +244,7 @@ def _rand_maximise_vectorised_objective_in_cp_domain(obj, domain, max_evals,
   """ Maximises a vectorised function in Cartesian product spaces.
       Mostly used for TS style acquisitions in BO.
   """
-  rand_samples = sample_from_cp_domain(domain, max_evals)
+  rand_samples = sample_from_cp_domain(domain, int(max_evals))
   rand_values = [obj(x) for x in rand_samples]
   max_idx = np.argmax(rand_values)
   max_pt = rand_samples[max_idx]

@@ -76,7 +76,8 @@ class GAOptimiser(BlackboxOptimiser):
     if num_candidates_to_mutate_from <= 0:
       idxs_to_mutate_from = sample_according_to_exp_probs(all_prev_eval_vals,
                               num_mutations, replace=True,
-                              scaling_const=self.options.fitness_sampler_scaling_const)
+                              scaling_const=self.options.fitness_sampler_scaling_const,
+                              sample_uniformly_if_fail=True)
       num_mutations_arg_to_mutation_op = [(idxs_to_mutate_from == i).sum() for i
                                           in range(len(all_prev_eval_points))]
       candidates_to_mutate_from = all_prev_eval_points
@@ -92,6 +93,36 @@ class GAOptimiser(BlackboxOptimiser):
   def generate_new_eval_points(self, num_mutations=None,
                                num_candidates_to_mutate_from=None):
     """ Generates the mutations. """
+    new_candidates = []
+    num_tries = 0
+    num_mutations_to_try = self.num_mutations_per_epoch if num_mutations is None \
+                           else num_mutations
+    while len(new_candidates) == 0:
+      num_tries += 1
+      generated_from_mutation_op = self.generate_new_eval_points_from_mutation_op(
+                                     num_mutations_to_try, num_candidates_to_mutate_from)
+      points_in_domain = [elem for elem in generated_from_mutation_op if
+                          self.domain.is_a_member(elem)]
+      new_candidates.extend(points_in_domain)
+      if len(points_in_domain) == 0:
+        if num_tries % 10 == 0:
+          error_msg = ('Could not generate any points in domain from given mutation ' +
+                       'operator despite %d tries with up to %d candidates.')%(num_tries,
+                       num_mutations_to_try)
+          self.reporter.writeln(error_msg)
+        if num_tries == 35:
+          error_msg = ('Could not generate any points in domain from given mutation ' +
+            'operator despite %d tries with up to %d candidates. Quitting now.')%(
+            num_tries, num_mutations_to_try)
+          raise ValueError(error_msg)
+        # Try a larger number of mutations the next time
+        num_mutations_to_try = int(num_mutations_to_try * 1.2 + 1)
+    new_candidates = new_candidates[:num_mutations]
+    self.to_eval_points.extend(new_candidates)
+
+  def generate_new_eval_points_from_mutation_op(self, num_mutations=None,
+                                                num_candidates_to_mutate_from=None):
+    """ Generates the mutations. """
     num_mutations = self.num_mutations_per_epoch if num_mutations is None else \
                       num_mutations
     num_candidates_to_mutate_from = self.num_candidates_to_mutate_from if \
@@ -100,7 +131,7 @@ class GAOptimiser(BlackboxOptimiser):
       self._get_candidates_to_mutate_from(num_mutations, num_candidates_to_mutate_from)
     new_eval_points = self.mutation_op(candidates_to_mutate_from,
                                        num_mutations_arg_to_mutation_op)
-    self.to_eval_points.extend(new_eval_points)
+    return new_eval_points
 
   def _determine_next_query(self):
     """ Determine the next point for evaluation. """

@@ -1,22 +1,24 @@
+#!/usr/bin/env python
+
 """
-  Main APIs and command line tool for GP Bandit Optimisation.
+  Command line tool for Dragonfly.
   -- kandasamy@cs.cmu.edu
   -- kvysyara@andrew.cmu.edu
 
   Usage:
-  python dragonfly-script.py --config <config file in .json or .pb format>
-    --options <options file>
-  See README.MD for examples.
+  python dragonfly-script.py --config <config file in .json or .pb format> --options <options file>
+  See README in main repository for examples.
 """
 
 # pylint: disable=relative-import
 # pylint: disable=invalid-name
-# pylint: disable=maybe-no-member
-# pylint: disable=no-member
+# pylint: disable=import-error
 
 from __future__ import print_function
 import os
-import imp
+# import imp
+from importlib import import_module
+import sys
 # Local
 
 from dragonfly import maximise_function, minimise_function, \
@@ -26,56 +28,76 @@ from dragonfly import maximise_function, minimise_function, \
                       multiobjective_minimise_functions
 from dragonfly.exd.cp_domain_utils import load_config_file
 from dragonfly.exd.exd_utils import get_unique_list_of_option_args
-from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args, \
-                          get_all_mf_euc_gp_bandit_args, get_all_mf_cp_gp_bandit_args
-from dragonfly.opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
-                                         get_all_cp_moo_gp_bandit_args
 from dragonfly.utils.option_handler import get_option_specs, load_options
+# Get options
+from dragonfly.opt.ga_optimiser import ga_opt_args
+from dragonfly.opt.gp_bandit import get_all_euc_gp_bandit_args, \
+                            get_all_cp_gp_bandit_args, get_all_mf_euc_gp_bandit_args, \
+                            get_all_mf_cp_gp_bandit_args
+from dragonfly.opt.random_optimiser import euclidean_random_optimiser_args, \
+                                   mf_euclidean_random_optimiser_args, \
+                                   cp_random_optimiser_args, mf_cp_random_optimiser_args
+from dragonfly.opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
+                                                   get_all_cp_moo_gp_bandit_args
+from dragonfly.opt.random_multiobjective_optimiser import \
+              euclidean_random_multiobjective_optimiser_args, \
+              cp_random_multiobjective_optimiser_args
+
 
 dragonfly_args = [ \
   get_option_specs('config', False, None, 'Path to the json or pb config file. '),
   get_option_specs('options', False, None, 'Path to the options file. '),
   get_option_specs('max_or_min', False, 'max', 'Whether to maximise or minimise. '),
-  get_option_specs('max_capital', False, -1.0,
-                   'Maximum capital to be used in the experiment. '),
+  get_option_specs('max_capital', False, None,
+    'Maximum capital (available budget) to be used in the experiment. '),
+  get_option_specs('capital_type', False, 'return_value',
+    'Maximum capital (available budget) to be used in the experiment. '),
   get_option_specs('is_multi_objective', False, False,
-                   'If True, will treat it as a multiobjective optimisation problem. '),
-  get_option_specs('budget', False, -1.0, \
-      'The budget of evaluations. If max_capital is none, will use this as max_capital.'),
+    'If True, will treat it as a multiobjective optimisation problem. '),
+  get_option_specs('opt_method', False, 'bo',
+    ('Optimisation method. Default is bo. This should be one of bo, ga, ea, direct, ' +
+     ' pdoo, or rand, but not all methods apply to all problems.')),
+  get_option_specs('report_progress', False, 'default',
+    ('How to report progress. Should be one of "default" (prints to stdout), ' +
+     '"silent" (no reporting), or a filename (writes to file).')),
                  ]
+
+
+def get_command_line_args():
+  """ Returns all arguments for the command line. """
+  ret = dragonfly_args + \
+        ga_opt_args + \
+        euclidean_random_optimiser_args + cp_random_optimiser_args + \
+        mf_euclidean_random_optimiser_args + mf_cp_random_optimiser_args + \
+        get_all_euc_gp_bandit_args() + get_all_cp_gp_bandit_args() + \
+        get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args() + \
+        euclidean_random_multiobjective_optimiser_args + \
+        cp_random_multiobjective_optimiser_args + \
+        get_all_euc_moo_gp_bandit_args() + get_all_cp_moo_gp_bandit_args()
+  return get_unique_list_of_option_args(ret)
 
 
 def main():
   """ Main function. """
-  # First load arguments
-  all_args = dragonfly_args + get_all_euc_gp_bandit_args() + get_all_cp_gp_bandit_args() \
-             + get_all_mf_euc_gp_bandit_args() + get_all_mf_cp_gp_bandit_args() \
-             + get_all_euc_moo_gp_bandit_args() + get_all_cp_moo_gp_bandit_args()
-  all_args = get_unique_list_of_option_args(all_args)
-  options = load_options(all_args, cmd_line=True)
-
+  options = load_options(get_command_line_args(), cmd_line=True)
   # Load domain and objective
   config = load_config_file(options.config)
   if hasattr(config, 'fidel_space'):
     is_mf = True
   else:
     is_mf = False
+
+  # Load module
   expt_dir = os.path.dirname(os.path.abspath(os.path.realpath(options.config)))
   if not os.path.exists(expt_dir):
     raise ValueError("Experiment directory does not exist.")
-  objective_file_name = config.name
-  obj_module = imp.load_source(objective_file_name,
-                               os.path.join(expt_dir, objective_file_name + '.py'))
+  sys.path.append(expt_dir)
+  obj_module = import_module(config.name, expt_dir)
+  sys.path.remove(expt_dir)
 
   # Set capital
-  options.capital_type = 'return_value'
-  if options.budget < 0:
-    budget = options.max_capital
-  else:
-    budget = options.budget
-  if budget < 0:
-    raise ValueError('Specify the budget via argument budget or max_capital.')
-  options.max_capital = budget
+  if options.max_capital < 0:
+    raise ValueError('max_capital (time or number of evaluations) must be positive.')
 
   # Call optimiser
   _print_prefix = 'Maximising' if options.max_or_min == 'max' else 'Minimising'
@@ -91,14 +113,17 @@ def main():
       print('%s function on fidel_space: %s, domain %s.'%(_print_prefix,
             config.fidel_space, config.domain))
       opt_val, opt_pt, history = call_to_optimise['single_mf'][options.max_or_min](
-        obj_module.objective, domain=None, fidel_space=None,
+        obj_module.objective, fidel_space=None, domain=None,
         fidel_to_opt=config.fidel_to_opt, fidel_cost_func=obj_module.cost,
-        max_capital=options.max_capital, config=config, options=options)
+        max_capital=options.max_capital, capital_type=options.capital_type,
+        opt_method=options.opt_method, config=config, options=options,
+        reporter=options.report_progress)
     else:
       print('%s function on domain %s.'%(_print_prefix, config.domain))
       opt_val, opt_pt, history = call_to_optimise['single'][options.max_or_min](
-        obj_module.objective, domain=None, max_capital=options.max_capital, config=config,
-        options=options)
+        obj_module.objective, domain=None, max_capital=options.max_capital,
+        capital_type=options.capital_type, opt_method=options.opt_method,
+        config=config, options=options, reporter=options.report_progress)
     print('Optimum Value in %d evals: %0.4f'%(len(history.curr_opt_points), opt_val))
     print('Optimum Point: %s.'%(opt_pt))
   else:
@@ -110,12 +135,15 @@ def main():
             config.domain, len(obj_module.objectives)))
       pareto_values, pareto_points, history = \
         call_to_optimise['multi'][options.max_or_min](obj_module.objectives,
-        domain=None, max_capital=options.max_capital, config=config, options=options)
+        domain=None, max_capital=options.max_capital, capital_type=options.capital_type,
+        opt_method=options.opt_method, config=config, options=options,
+        reporter=options.report_progress)
     num_pareto_points = len(pareto_points)
     print('Found %d Pareto Points: %s.'%(num_pareto_points, pareto_points))
     print('Corresponding Pareto Values: %s.'%(pareto_values))
 
 
 if __name__ == '__main__':
+  sys.path.insert(0, os.getcwd())
   main()
 

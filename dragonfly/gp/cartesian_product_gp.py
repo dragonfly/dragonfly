@@ -534,7 +534,7 @@ def _set_up_hyperparams_for_domain(fitter, X_data, gp_domain, dom_prefix,
         raise NotImplementedError('Not implemented polynomial kernels yet.')
       elif kernel_type == 'expdecay':
         # Offset
-        scale_range = fitter.Y_var / np.sqrt(fitter.num_tr_data)
+        scale_range = fitter.Y_var / np.sqrt(fitter.num_tr_data + 0.0001)
         fitter.cts_hp_bounds.append(
           [np.log(0.1 * scale_range), np.log(10 * scale_range)])
         fitter.param_order.append(['%s-expdecay_log_offset'%(dom_identifier), 'cts'])

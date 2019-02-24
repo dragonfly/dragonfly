@@ -1,0 +1,45 @@
+{
+"name": "hartmann3_2_mf",
+
+"domain": {
+  "var_1": {
+    "name":"var_1",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":2
+  },
+  "var_2": {
+    "name":"var_2",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":1
+  }
+ },
+
+"fidel_space": {
+  "f1": {
+    "name":"f1",
+    "type":"int",
+    "min":0,
+    "max":999,
+    "dim":2
+  },
+
+  "f2": {
+    "name":"f2",
+    "type":"float",
+    "min":-1,
+    "max":1
+  },
+
+  "f3": {
+    "name":"f3",
+    "type":"discrete_numeric",
+    "items":"0.0:0.1:1.01"
+  }
+ },
+
+"fidel_to_opt":[[999, 999], 1.0, 1.0]
+}

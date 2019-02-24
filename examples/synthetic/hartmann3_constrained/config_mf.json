@@ -1,0 +1,38 @@
+{
+"name": "hartmann3_constrained",
+
+"domain": {
+  "x": {
+    "name":"x",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":3
+  }
+ },
+
+"domain_constraints": {
+  "constraint_1":{
+    "name": "quadrant",
+    "constraint": "np.linalg.norm(x[0:2]) <= 0.5"
+  }
+ },
+
+"fidel_space": {
+  "z": {
+    "name":"z",
+    "type":"float",
+    "min":0,
+    "max":10
+  }
+ },
+
+"fidel_space_constraints": {
+ "fsc1": {
+    "name": "fidel_space_constraint_1",
+    "constraint": "fsc1_constraint.py"
+  }
+ },
+
+"fidel_to_opt":[9.1]
+}

@@ -23,7 +23,7 @@ from ..utils.general_utils import map_to_bounds
 
 random_multiobjective_optimiser_args = multiobjective_opt_args
 euclidean_random_multiobjective_optimiser_args = random_multiobjective_optimiser_args
-cp_random_optimiser_args = random_multiobjective_optimiser_args
+cp_random_multiobjective_optimiser_args = random_multiobjective_optimiser_args
 
 
 class RandomMultiObjectiveOptimiser(MultiObjectiveOptimiser):
@@ -120,7 +120,7 @@ def random_multiobjective_optimisation_from_multi_func_caller(multi_func_caller,
     dflt_list_of_options = euclidean_random_multiobjective_optimiser_args
   elif isinstance(multi_func_caller.domain, domains.CartesianProductDomain):
     moo_constructor = CPRandomMultiObjectiveOptimiser
-    dflt_list_of_options = cp_random_optimiser_args
+    dflt_list_of_options = cp_random_multiobjective_optimiser_args
   else:
     raise ValueError('Random optimiser not implemented for domain of type %s.'%(
                      type(multi_func_caller.domain)))

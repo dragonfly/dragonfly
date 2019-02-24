@@ -11,7 +11,7 @@ from copy import copy
 # Local imports
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                             load_cp_domain_from_config_file
-from ..exd.experiment_caller import CPFunctionCaller
+from ..exd.experiment_caller import ExperimentCaller, CPFunctionCaller
 from ..exd.exd_utils import get_cp_domain_initial_qinfos
 from .ga_optimiser import GAOptimiser, ga_opt_args
 from ..utils.general_utils import project_to_bounds
@@ -102,7 +102,7 @@ def get_default_mutation_op(dom):
   elif dom.get_type() == 'prod_discrete_numeric':
     return lambda x: prod_discrete_numeric_exp_mutation(x, dom.list_of_list_of_items)
   elif dom.get_type() == 'neural_network':
-    from nn.nn_modifiers import get_single_nn_mutation_op
+    from ..nn.nn_modifiers import get_single_nn_mutation_op
     return get_single_nn_mutation_op(dom, [0.5, 0.25, 0.125, 0.075, 0.05])
   else:
     raise ValueError('No default mutation implemented for domain type %s.'%(
@@ -183,8 +183,8 @@ def cp_ga_optimiser_from_proc_args(func_caller, cp_domain, worker_manager, max_c
                                    single_crossover_ops=None, options=None,
                                    reporter=None):
   """ A GA optimiser on Cartesian product space from the function caller. """
-  if not isinstance(func_caller, CPFunctionCaller):
-    func_caller = CPFunctionCaller(func_caller, cp_domain, orderings=orderings)
+  if not isinstance(func_caller, ExperimentCaller):
+    func_caller = CPFunctionCaller(func_caller, cp_domain, domain_orderings=orderings)
   if options is None:
     reporter = get_reporter(reporter)
     options = load_options(cpga_opt_args, reporter=reporter)

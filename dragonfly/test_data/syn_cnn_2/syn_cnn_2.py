@@ -7,7 +7,7 @@
 
 import numpy as np
 # Local
-from demos_synthetic.park2_4.park2_4 import sub_park_1, sub_park_2, sub_park_3, sub_park_4
+from ..park2_4 import sub_park_1, sub_park_2, sub_park_3, sub_park_4
 from nn.syn_nn_functions import syn_func1_common
 
 

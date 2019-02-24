@@ -36,7 +36,8 @@ with open('README.md', 'r') as f:
 
 
 direct_files = ['direct.pyf', 'DIRect.f', 'DIRserial.f', 'DIRsubrout.f']
-direct_paths = [os.path.join('dragonfly', 'utils', 'direct_fortran', x) for x in direct_files]
+direct_paths = [os.path.join('dragonfly', 'utils', 'direct_fortran', x)
+                for x in direct_files]
 ext1 = Extension(name='dragonfly.utils.direct_fortran.direct',
                  sources=direct_paths)
 
@@ -45,7 +46,7 @@ setup_options = dict(
     long_description=LONG_DESCRIPTION,
     url='https://github.com/dragonfly/dragonfly/',
     license='MIT',
-    packages=['dragonfly', 'dragonfly.distributions', 'dragonfly.exd',
+    packages=['dragonfly', 'dragonfly.apis', 'dragonfly.distributions', 'dragonfly.exd',
               'dragonfly.gp', 'dragonfly.opt', 'dragonfly.parse',
               'dragonfly.sampling', 'dragonfly.utils', 'dragonfly.utils.direct_fortran',
              ],

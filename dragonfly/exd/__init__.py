@@ -1,4 +1,4 @@
 """
-  Library for Multi-fidelity Gaussian Process Bandit Optimisation.
+  Implements core functionality for Design of Experiments.
   -- kandasamy@cs.cmu.edu
 """

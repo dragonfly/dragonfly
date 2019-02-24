@@ -16,7 +16,6 @@ from ..gp.gp_core import get_post_covar_from_raw_covar
 from ..exd.domains import EuclideanDomain
 from ..exd.exd_utils import maximise_with_method
 
-# TODO: add hallucinations for add_ucb
 # TODO: implement using different samples for synchronous methods
 
 

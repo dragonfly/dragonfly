@@ -1,0 +1,20 @@
+{
+"name": "hartmann3_constrained",
+
+"domain": {
+  "x": {
+    "name":"x",
+    "type":"float",
+    "min":0,
+    "max":1,
+    "dim":3
+  }
+ },
+
+"domain_constraints": {
+  "constraint_1":{
+    "name": "quadrant",
+    "constraint": "np.linalg.norm(x[0:2]) <= 0.5"
+  }
+ }
+}

@@ -7,12 +7,12 @@
 # pylint: disable=abstract-class-little-used
 
 
+import os
 # Local imports
-from demos_synthetic.multiobjective_park.multiobjective_park import objectives as moo_park
-from demos_synthetic.multiobjective_hartmann.multiobjective_hartmann \
+from ..test_data.multiobjective_hartmann.multiobjective_hartmann \
          import objectives as moo_hartmann
-from demos_synthetic.multiobjective_branin_currinexp.multiobjective_branin_currinexp \
-         import objectives as moo_branin
+from ..test_data.multiobjective_park.multiobjective_park \
+         import objectives as moo_park
 from ..exd.cp_domain_utils import get_raw_point_from_processed_point, \
                                 load_config_file
 from ..exd.experiment_caller import get_multifunction_caller_from_config
@@ -34,10 +34,12 @@ class CPMultiObjectiveOptimiserBaseTestCase(object):
     self._child_set_up()
     self.worker_manager_1 = SyntheticWorkerManager(1, time_distro='const')
     self.worker_manager_3 = SyntheticWorkerManager(3, time_distro='halfnormal')
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    test_data_pardir = os.path.dirname(file_dir)
     self.opt_problems = [
-      ('demos_synthetic/multiobjective_branin_currinexp/config.json', (moo_branin,)),
-      ('demos_synthetic/multiobjective_hartmann/config.json', (moo_hartmann,)),
-      ('demos_synthetic/multiobjective_park/config.json', (moo_park,)),
+      (test_data_pardir + '/test_data/multiobjective_hartmann/config.json',
+                                                           (moo_hartmann,)),
+      (test_data_pardir + '/test_data/multiobjective_park/config.json', (moo_park,)),
       ]
 
   def _child_set_up(self):
