@@ -23,9 +23,9 @@ exd_core_args = [ \
     'If exceeds this many evaluations, stop.'),
   get_option_specs('capital_type', False, 'return_value',
     'Should be one of return_value, cputime, or realtime'),
-  get_option_specs('mode', False, 'asy', \
+  get_option_specs('mode', False, 'asy',
     'If \'syn\', uses synchronous parallelisation, else asynchronous.'),
-  get_option_specs('build_new_model_every', False, 17, \
+  get_option_specs('build_new_model_every', False, 17,
     'Updates the model via a suitable procedure every this many iterations.'),
   get_option_specs('report_model_on_each_build', False, 0,
     'If True, will report the model each time it is built.'),
@@ -36,7 +36,7 @@ exd_core_args = [ \
     ('The capital to be used for initialisation.')),
   get_option_specs('init_capital_frac', False, None,
     ('The fraction of the total capital to be used for initialisation.')),
-  get_option_specs('num_init_evals', False, 20, \
+  get_option_specs('num_init_evals', False, 20,
     ('The number of evaluations for initialisation. If <0, will use default.')),
   # The amount of effort we will use for initialisation is prioritised by init_capital,
   # init_capital_frac and num_init_evals.
@@ -44,15 +44,16 @@ exd_core_args = [ \
     'Data for any previous evaluations.'),
   get_option_specs('get_initial_qinfos', False, None,
     'A function to obtain initial qinfos.'),
-  get_option_specs('init_method', False, 'rand', \
-    'Method to obtain initial queries. Is used if get_initial_qinfos is None.'), \
+  get_option_specs('init_method', False, 'rand',
+    'Method to obtain initial queries. Is used if get_initial_qinfos is None.'),
   ]
 
-mf_exd_args = [ \
-  get_option_specs('fidel_init_method', False, 'rand', \
+
+mf_exd_args = [
+  get_option_specs('fidel_init_method', False, 'rand',
     'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'),
-  get_option_specs('init_set_to_fidel_to_opt_with_prob', False, 0.25, \
-    'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'), \
+  get_option_specs('init_set_to_fidel_to_opt_with_prob', False, 0.25,
+    'Method to obtain initial fidels. Is used if get_initial_qinfos is None.'),
   ]
 
 
