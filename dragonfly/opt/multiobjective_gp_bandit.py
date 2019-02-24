@@ -241,19 +241,16 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
                             gp_idx, self.step_idx, str(gp))
       self.reporter.writeln(gp_fit_report_str)
 
+  def _get_opt_method_header_str(self):
+    """ Header for optimisation Method. """
+    return ', acqs=<num_times_each_acquisition_was_used>'
+
   def _get_opt_method_report_results_str(self):
     """ Any details to include in a child method when reporting results.
     """
-    if len(self.acqs_to_use) > 1:
-      acq_str = ', acqs=' + get_list_as_str([self.acqs_to_use_counter[key] for key in
-                                             self.acqs_to_use])
-    else:
-      acq_str = ''
-    if self.is_an_mf_method():
-      raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
-    else:
-      mf_str = ''
-    return acq_str + mf_str
+    ret_list = ['%s:%d'%(key, self.acqs_to_use_counter[key]) for key in self.acqs_to_use]
+    ret = 'acqs=[' + ', '.join(ret_list) + ']'
+    return ', ' + ret
 
   def _get_gp_reg_data(self):
     """ Returns the current data to be added to the GP. """

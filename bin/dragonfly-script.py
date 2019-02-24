@@ -48,11 +48,11 @@ dragonfly_args = [ \
   get_option_specs('config', False, None, 'Path to the json or pb config file. '),
   get_option_specs('options', False, None, 'Path to the options file. '),
   get_option_specs('max_or_min', False, 'max', 'Whether to maximise or minimise. '),
-  get_option_specs('max_capital', False, None,
+  get_option_specs('max_capital', False, -1.0,
     'Maximum capital (available budget) to be used in the experiment. '),
   get_option_specs('capital_type', False, 'return_value',
     'Maximum capital (available budget) to be used in the experiment. '),
-  get_option_specs('is_multi_objective', False, False,
+  get_option_specs('is_multi_objective', False, 0,
     'If True, will treat it as a multiobjective optimisation problem. '),
   get_option_specs('opt_method', False, 'bo',
     ('Optimisation method. Default is bo. This should be one of bo, ga, ea, direct, ' +
