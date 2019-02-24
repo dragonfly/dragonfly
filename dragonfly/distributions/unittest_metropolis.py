@@ -3,6 +3,7 @@
   -- kvysyara@andrew.cmu.edu
 """
 from __future__ import absolute_import
+import unittest
 
 # pylint: disable=no-self-use
 
@@ -64,6 +65,7 @@ class MetropolisTestCases(BaseTestClass):
     self.report('%s, mean=%0.3f, variance=%0.3f :: test result: mean=%0.3f, '
                 'variance=%0.3f'%(str(dist), mean, var, mean_r, var_r), 'test_result')
 
+  @unittest.skip('Stochastic')
   def test_metropolis_uniform(self):
     """ Tests metropolis sampling from Continuous Uniform """
     self.report('Test metropolis sampling of Continuous Uniform Distribution.')
