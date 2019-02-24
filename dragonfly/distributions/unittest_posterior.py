@@ -4,6 +4,7 @@
 """
 from __future__ import absolute_import
 from __future__ import division
+import unittest
 
 # pylint: disable=invalid-name
 # pylint: disable=no-self-use
@@ -64,6 +65,7 @@ class PosteriorTestCase(BaseTestClass):
       val = val - dist.grad_logp(self.data[i])
     return val
 
+  @unittest.skip
   def test_posterior_NUTS(self):
     """ Tests posterior estimation using NUTS sampling """
     self.report('Test posterior estimation with Gaussian likelihood and Gaussian prior '
@@ -91,6 +93,7 @@ class PosteriorTestCase(BaseTestClass):
     self.report('Map Estimation: mean=%0.3f, variance=%0.3f :: test result: mean=%0.3f, '
                 'variance=%0.3f'%(mean_a, var_a, mean_r, var_r), 'test_result')
 
+  @unittest.skip
   def test_posterior_Slice(self):
     """ Tests posterior estimation using Slice sampling """
     self.report('Test posterior estimation with Gaussian likelihood and Gaussian prior '

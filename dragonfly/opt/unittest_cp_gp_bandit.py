@@ -2,7 +2,7 @@
   Unit tests for GP Bandits on Cartesian Product domains.
   -- kandasamy@cs.cmu.edu
 """
-
+import unittest
 
 # Local imports
 from . import gp_bandit
@@ -10,6 +10,7 @@ from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
+@unittest.skip
 class CPGPBanditTestCase(CPOptimiserBaseTestCase, BaseTestClass):
   """ Unit tests for GP Bandits on cartesian product spaces. """
 

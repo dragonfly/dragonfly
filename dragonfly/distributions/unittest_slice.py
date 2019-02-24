@@ -3,6 +3,7 @@
   -- kvysyara@andrew.cmu.edu
 """
 from __future__ import absolute_import
+import unittest
 
 # pylint: disable=no-self-use
 
@@ -32,6 +33,7 @@ class SliceTestCase(BaseTestClass):
     """ Computes Variance """
     return np.var(samples)
 
+  @unittest.skip
   def test_slice_sampling_normal(self):
     """ Tests slice sampling from Normal distribution """
     self.report('Test slice sampling from Normal Distribution.')
