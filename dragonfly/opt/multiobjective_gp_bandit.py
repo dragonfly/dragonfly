@@ -201,7 +201,8 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
                                         'post_sample_hps_with_probs']:
         reg_data = self._get_moo_gp_reg_data(i)
         self._child_set_moo_gp_data(reg_data, i)
-    if self.step_idx == self.last_model_build_at:
+    if self.step_idx == self.last_model_build_at and \
+       self.options.report_model_on_each_build:
       self._report_current_gps()
 
   def _domain_specific_set_next_gp(self):
@@ -222,6 +223,12 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
   def _child_build_new_model(self):
     """ Builds a new model. """
     self._build_new_gps()
+
+  def _report_model(self):
+    """ Report the current model. """
+    # We will do this separately since posterior sampling complicates how we keep
+    # track of the GPs. See _set_next_gp()
+    pass
 
   def _report_current_gps(self):
     """ Reports the current GP. """

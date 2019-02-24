@@ -21,7 +21,7 @@
 import numpy as np
 import pickle
 # Local
-from salsa import salsa_train_and_validate
+from salsa_estimator import salsa_train_and_validate
 
 # Load data
 try:
