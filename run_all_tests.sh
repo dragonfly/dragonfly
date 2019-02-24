@@ -29,8 +29,6 @@ then
     exit $(($code == 0 ));
 fi
 
-for f in $(find . -name "unittest*" | grep -v ".pyc" | sed -e 's_\./__;s_/_._g;s/\.py//');
-do
-    python -m unittest $f;
-done
-
+# This is to ensure that there will not be an error due to matplotlib not having a valid backend.
+export MPLBACKEND="Agg"
+nosetests dragonfly --all-modules -m '^test_' -e 'test_data'

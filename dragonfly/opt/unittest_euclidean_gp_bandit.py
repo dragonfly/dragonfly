@@ -2,6 +2,7 @@
   Unit tests for EuclideanGPBandit.
   -- kandasamy@cs.cmu.edu
 """
+import unittest
 
 # Local imports
 from ..gp.euclidean_gp import euclidean_gp_args
@@ -12,6 +13,7 @@ from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.option_handler import load_options
 
 
+@unittest.skip
 class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
 # class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase):
   """ Unit tests for the GP Bandit in Euclidean spaces. """
@@ -53,6 +55,7 @@ class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase):
              *args, **kwargs)
 
 
+@unittest.skip
 class MFEuclideanGPBanditTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):
 # class MFEuclideanGPBanditTestCase(MFEuclideanOptimisersBaseTestCase):
   """ Unit tests for multi-fidelity GP Bandit Optimiser in Euclidean spaces. """

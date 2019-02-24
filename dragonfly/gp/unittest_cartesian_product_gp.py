@@ -85,7 +85,7 @@ def gen_cpgp_test_data():
   n_test = 300
   # Dataset 1
   domain_file_name = test_data_dir + '/' + 'test_data/example_configs/eg01.json'
-  func = lambda(x): x[0][0]**2 + 2*x[1][0] * x[0][0] + 3*x[1][0] + 2.1
+  func = lambda x: x[0][0]**2 + 2*x[1][0] * x[0][0] + 3*x[1][0] + 2.1
   bounds = np.array([[-5, 10], [0, 15]])
   X_train = map_to_bounds(np.random.random((n_train, 2)), bounds)
   X_test = map_to_bounds(np.random.random((n_train, 2)), bounds)

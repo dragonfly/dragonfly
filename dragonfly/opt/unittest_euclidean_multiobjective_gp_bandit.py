@@ -2,6 +2,7 @@
   Unit tests for multi-objective optimisation using GP Bandits.
   -- kandasamy@cs.cmu.edu
 """
+import unittest
 
 from . import multiobjective_gp_bandit
 from .unittest_euclidean_random_multiobjective_optimiser import \
@@ -9,6 +10,7 @@ from .unittest_euclidean_random_multiobjective_optimiser import \
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
+@unittest.skip
 class EuclideanRandomMultiObjectiveOptimiserTestCase(
   EuclideanMultiObjectiveOptimiserBaseTestCase, BaseTestClass):
   """ Unit-tests for random multi-objective optimisation. """

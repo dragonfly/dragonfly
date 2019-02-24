@@ -439,7 +439,7 @@ class HammingKernel(Kernel):
   def __init__(self, dim_weights):
     """ Constructor. """
     super(HammingKernel, self).__init__()
-    if isinstance(dim_weights, (int, float, long)):
+    if isinstance(dim_weights, (int, float)):
       dim_weights = np.ones((dim_weights,))/float(dim_weights)
     dim_weights = np.array(dim_weights)
     self.set_hyperparams(dim_weights=dim_weights)

@@ -5,6 +5,7 @@
 # Writing it as a separate file (unlike unittest_cp_random_optimiser.py) since these tests
 # can be quite expensive.
 
+import unittest
 
 # Local imports
 from . import gp_bandit
@@ -12,6 +13,7 @@ from .unittest_cp_random_optimiser import MFCPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
+@unittest.skip
 class MFCPGPBanditTestCase(MFCPOptimiserBaseTestCase, BaseTestClass):
   """ Unit tests for GP Bandits on cartesian product spaces. """
 
