@@ -140,10 +140,6 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
     # Do any child specific set up
     self._domain_specific_multi_opt_method_set_up()
 
-  def _get_problem_str(self):
-    """ Description of the problem. """
-    return 'Multi-objective Optimisation'
-
   @classmethod
   def _get_default_acquisition_for_domain(cls, domain):
     """ Return default acqusition for domain. """
