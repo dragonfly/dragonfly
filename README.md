@@ -312,7 +312,7 @@ For example, to run the
 [`hartmann`](examples/synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
 demo, simply run
 ```bash
-$ dragonfly-script.py --config examples/synthetic/multiobjective_hartmann/config.json --options examples/synthetic/multiobjective_options_example.txt
+$ dragonfly-script.py --config examples/synthetic/multiobjective_hartmann/config.json --options examples/synthetic/options_example_moo.txt
 ```
 
 Similarly, you can import and run this in python code via,

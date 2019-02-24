@@ -218,7 +218,7 @@ def maximise_with_method_on_product_euclidean_spaces(method, obj, list_of_euc_do
   def _regroup_flattended_point(pt, _dom_dims, _cum_dims):
     """ Regroups a flattened point into a list of lists. """
     ret = [pt[cd:cd+d] for (cd, d) in zip(_cum_dims, _dom_dims)]
-    assert len(ret) == len(_dom_dims) # TODO: remove this (debugging only).
+    assert len(ret) == len(_dom_dims) # Check if dimensions match.
     return ret
   dom_dims = [dom.dim for dom in list_of_euc_domains]
   cum_dims = list(np.cumsum(dom_dims))

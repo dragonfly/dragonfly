@@ -117,9 +117,20 @@ class MultiObjectiveOptimiser(ExperimentDesigner):
     """ Any updates to the history specific to the method. """
     pass # Pass by default. Not necessary to override.
 
+  def _get_exd_child_header_str(self):
+    """ Header for black box optimisation. """
+    ret = '#Pareto=<num_pareto_optimal_points_found>'
+    ret += self._get_opt_method_header_str()
+    return ret
+
+  @classmethod
+  def _get_opt_method_header_str(cls):
+    """ Header for optimisation method. """
+    return ''
+
   def _get_exd_child_report_results_str(self):
     """ Returns a string describing the progress in optimisation. """
-    best_val_str = 'Curr length of Pareto front: %d'%(len(self.curr_pareto_vals))
+    best_val_str = '#Pareto: %d'%(len(self.curr_pareto_vals))
     opt_method_str = self._get_opt_method_report_results_str()
     return best_val_str + opt_method_str + ', '
 

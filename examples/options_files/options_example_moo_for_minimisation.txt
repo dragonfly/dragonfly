@@ -1,8 +1,11 @@
+# For minimisiation, set the max_or_min flag to min
+--max_or_min min
+
 # Indicate that this is a multi-objective problem. 1 is True, 0 is False.
 --is_multi_objective 1
 
 # The capital (time budget or number of evaluations)
---budget 120
+--max_capital 120
 
 # How frequently to report progress on optimisation
 --report_results_every 13
