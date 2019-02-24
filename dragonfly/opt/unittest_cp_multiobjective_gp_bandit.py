@@ -2,6 +2,7 @@
   Unit tests for Multi-objective GP Bandits in Cartesian product domains.
   -- kandasamy@cs.cmu.edu
 """
+import unittest
 
 from . import multiobjective_gp_bandit
 from .unittest_cp_random_multiobjective_optimiser import \
@@ -9,6 +10,7 @@ from .unittest_cp_random_multiobjective_optimiser import \
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
+@unittest.skip
 class CPMultiObjectiveGPBanditTestCase(
   CPMultiObjectiveOptimiserBaseTestCase, BaseTestClass):
   """ Unit-tests for multi-objective optimisation with GP Bandits. """

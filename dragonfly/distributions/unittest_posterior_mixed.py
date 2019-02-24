@@ -4,6 +4,7 @@
 """
 from __future__ import absolute_import
 from __future__ import division
+import unittest
 
 # pylint: disable=invalid-name
 # pylint: disable=no-self-use
@@ -65,6 +66,7 @@ class PosteriorMixedTestCase(BaseTestClass):
     value = value + (self.n - self.Y + self.beta - 1.0)/(1 - x)
     return value
 
+  @unittest.skip
   def test_posterior_NUTS(self):
     """ Tests posterior estimation using NUTS sampling """
     self.report('Test posterior estimation with Bernoulli likelihood and Beta prior '

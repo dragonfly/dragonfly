@@ -3,6 +3,7 @@
   -- kandasamy@cs.cmu.edu
 """
 from __future__ import division
+import unittest
 
 # pylint: disable=invalid-name
 
@@ -123,6 +124,7 @@ class EuclideanGPFitterBaseTestClass(object):
 
 
 # Test for naive predictions vs fitted predictions --------------------------------
+@unittest.skip
 class EuclideanGPFitterTestCase(EuclideanGPFitterBaseTestClass, BaseTestClass):
   """ Unit tests for the EuclideanGP and EuclideanGPFitter class. """
   # pylint: disable=too-many-locals
@@ -153,6 +155,7 @@ class EuclideanGPFitterTestCase(EuclideanGPFitterBaseTestClass, BaseTestClass):
 
 
 # Test for non-additive vs additive predictions --------------------------------
+@unittest.skip
 class AdditiveGPFitterTestCase(EuclideanGPFitterBaseTestClass, BaseTestClass):
 # class AdditiveGPFitterTestCase(EuclideanGPFitterBaseTestClass):
   """ Unit tests for the additive kernel. """

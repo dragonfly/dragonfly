@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 
 # pylint: disable=no-self-use
+import unittest
 
 import numpy as np
 
@@ -12,6 +13,8 @@ import numpy as np
 from .continuous import Normal, Beta, Exponential
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
+
+@unittest.skip
 class NutsTestCase(BaseTestClass):
   """ Unit tests for distributions in continuous.py """
 

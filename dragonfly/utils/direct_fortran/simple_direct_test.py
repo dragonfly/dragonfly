@@ -9,7 +9,12 @@
 
 from __future__ import print_function
 import numpy as np
-import direct
+try:
+  import direct
+  RUN_TESTS = True
+except ImportError:
+  RUN_TESTS = False
+
 
 def main():
   """ Main function. """
@@ -59,5 +64,7 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
-
+  if RUN_TESTS:
+    main()
+  else:
+    pass
