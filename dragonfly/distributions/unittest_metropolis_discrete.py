@@ -3,7 +3,7 @@
   -- kvysyara@andrew.cmu.edu
 """
 from __future__ import absolute_import
-
+import unittest
 # pylint: disable=invalid-name
 # pylint: disable=no-self-use
 
@@ -33,6 +33,7 @@ class MetropolisDiscreteTestCases(BaseTestClass):
     """ Computes Variance """
     return np.var(samples)
 
+  @unittest.skip
   def test_metropolis_discreteuniform(self):
     """ Tests metropolis sampling from Discrete Uniform distribution """
     self.report('Test metropolis sampling of Discrete Uniform Distribution.')
