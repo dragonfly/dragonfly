@@ -328,9 +328,9 @@ class DistSumNNKernel(SumOfExpSumOfDistsKernel):
   @classmethod
   def _get_groups(cls, num_dists, num_dist_types):
     """ Returns the number of groups. """
-    num_dists_per_group = num_dists/num_dist_types
+    num_dists_per_group = num_dists//num_dist_types
     groups = [[(i + num_dist_types * j) for j in range(num_dists_per_group)]
-              for i in range(int(num_dist_types))]
+              for i in range(num_dist_types)]
     return groups
 
   def compute_dists(self, X1, X2):
