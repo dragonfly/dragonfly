@@ -5,33 +5,32 @@
 
 # pylint: disable=no-member
 # pylint: disable=invalid-name
+# pylint: disable=unused-argument
 
 import os
 import unittest
 # Local imports
 try:
-    from ..test_data.park1_3.park1_3 import park1_3
-    from ..test_data.park1_3.park1_3_mf import park1_3_mf
-    from ..test_data.park1_3.park1_3_mf import cost as cost_park1_3_mf
-    from ..test_data.park2_4.park2_4 import park2_4
-    from ..test_data.park2_4.park2_4_mf import park2_4_mf
-    from ..test_data.park2_4.park2_4_mf import cost as cost_park2_4_mf
-    # from ..test_data.syn_cnn_2.syn_cnn_2 import syn_cnn_2
-    # from ..test_data.syn_cnn_2.syn_cnn_2_mf import syn_cnn_2_mf
-    # from ..test_data.syn_cnn_2.syn_cnn_2_mf import cost as cost_syn_cnn_2_mf
-    from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
-                                    get_raw_point_from_processed_point, \
-                                    load_cp_domain_from_config_file, \
-                                    load_config_file
-    from ..exd.experiment_caller import CPFunctionCaller, get_multifunction_caller_from_config
-    from ..exd.worker_manager import SyntheticWorkerManager
-    from . import random_optimiser
-    from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str
-    from ..utils.base_test_class import BaseTestClass, execute_tests
-    from ..utils.reporters import get_reporter
-    RUN_TESTS = True
+  from ..test_data.park1_3.park1_3 import park1_3
+  from ..test_data.park1_3.park1_3_mf import park1_3_mf
+  from ..test_data.park1_3.park1_3_mf import cost as cost_park1_3_mf
+  from ..test_data.park2_4.park2_4 import park2_4
+  from ..test_data.park2_4.park2_4_mf import park2_4_mf
+  from ..test_data.park2_4.park2_4_mf import cost as cost_park2_4_mf
+  from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
+                                  get_raw_point_from_processed_point, \
+                                  load_cp_domain_from_config_file, \
+                                  load_config_file
+  from ..exd.experiment_caller import CPFunctionCaller, \
+                                      get_multifunction_caller_from_config
+  from ..exd.worker_manager import SyntheticWorkerManager
+  from . import random_optimiser
+  from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str
+  from ..utils.base_test_class import BaseTestClass, execute_tests
+  from ..utils.reporters import get_reporter
+  RUN_TESTS = True
 except ImportError:
-    RUN_TESTS = False
+  RUN_TESTS = False
 
 
 @unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
@@ -50,7 +49,6 @@ class CPOptimiserBaseTestCase(object):
     self.opt_problems = [
       (test_data_pardir + '/test_data/park1_3/config.json', (park1_3,)),
       (test_data_pardir + '/test_data/park2_4/config.json', (park2_4,)),
-#       (test_data_pardir + '/test_data/syn_cnn_2/config.json', (syn_cnn_2,)),
       ]
 
   def _child_set_up(self):
@@ -164,8 +162,6 @@ class MFCPOptimiserBaseTestCase(CPOptimiserBaseTestCase):
                                 (park1_3_mf, cost_park1_3_mf)),
       (test_data_pardir + '/test_data/park2_4/config_mf.json',
                                 (park2_4_mf, cost_park2_4_mf)),
-#       (test_data_pardir + '/test_data/syn_cnn_2/config_mf.json',
-#                               (syn_cnn_2_mf, cost_syn_cnn_2_mf)),
       ]
 
   @classmethod
@@ -181,8 +177,8 @@ class MFCPOptimiserBaseTestCase(CPOptimiserBaseTestCase):
 
 
 @unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
-class CPRandomOptimiserTestCase(CPOptimiserBaseTestCase, BaseTestClass):
-  """ Unit tests for the Random optimiser on cartesian product spaces. """
+class CPRandomOptimiserTestCaseDefinitions(object):
+  """ Define Unit tests for the Random optimiser on cartesian product spaces. """
 
   @classmethod
   def _child_instantiate_optimiser(cls, func_caller, worker_manager, options, reporter):
@@ -205,7 +201,15 @@ class CPRandomOptimiserTestCase(CPOptimiserBaseTestCase, BaseTestClass):
 
 
 @unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
-class MFCPRandomOptimiserTestCase(MFCPOptimiserBaseTestCase, BaseTestClass):
+class CPRandomOptimiserTestCase(CPRandomOptimiserTestCaseDefinitions,
+                                CPOptimiserBaseTestCase,
+                                BaseTestClass):
+  """ Unit tests for the Random optimiser on cartesian product spaces. """
+  pass
+
+
+@unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
+class MFCPRandomOptimiserTestCaseDefinitions(object):
   """ Unit tests for Multi-fidelity random optimiser on cartesian product spaces. """
 
   @classmethod
@@ -224,6 +228,14 @@ class MFCPRandomOptimiserTestCase(MFCPOptimiserBaseTestCase, BaseTestClass):
                                 raw_fidel_cost_func=raw_fidel_cost_func)
     return random_optimiser.mf_random_optimiser_from_func_caller(func_caller,
              worker_manager, max_capital, mode)
+
+
+@unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
+class MFCPRandomOptimiserTestCase(MFCPRandomOptimiserTestCaseDefinitions,
+                                  MFCPOptimiserBaseTestCase,
+                                  BaseTestClass):
+  """ Unit tests for Multi-fidelity random optimiser on cartesian product spaces. """
+  pass
 
 
 if __name__ == '__main__':

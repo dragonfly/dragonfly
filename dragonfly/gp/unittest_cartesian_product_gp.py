@@ -20,47 +20,19 @@ from ..test_data.park1_3.park1_3 import park1_3
 from ..test_data.park1_3.park1_3_mf import park1_3_mf
 from ..test_data.park2_4.park2_4 import park2_4
 from ..test_data.park2_4.park2_4_mf import park2_4_mf
-# from ..test_data.syn_cnn_2.syn_cnn_2 import syn_cnn_2
-# from nn import nn_examples
 from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.general_utils import map_to_bounds, get_idxs_from_list_of_lists
 
 
-def get_cnns():
-  """ Returns the initial pool for CNNs. """
-  vgg_nets = [nn_examples.get_vgg_net(1),
-              nn_examples.get_vgg_net(2),
-              nn_examples.get_vgg_net(3),
-              nn_examples.get_vgg_net(4)]
-  blocked_cnns = [nn_examples.get_blocked_cnn(3, 1, 1), # 3
-                  nn_examples.get_blocked_cnn(3, 2, 1), # 6
-                  nn_examples.get_blocked_cnn(3, 3, 1), # 9
-                  nn_examples.get_blocked_cnn(3, 4, 1), # 12
-                  nn_examples.get_blocked_cnn(3, 5, 1), # 15
-                  nn_examples.get_blocked_cnn(4, 4, 1), # 16
-                 ]
-  other_cnns = nn_examples.generate_cnn_architectures()
-  ret = vgg_nets + blocked_cnns + other_cnns
-  np.random.shuffle(ret)
-  return ret
-
-def get_initial_mlp_pool(class_or_reg):
-  """ Returns the initial pool of MLPs. """
-  blocked_mlps = [nn_examples.get_blocked_mlp(class_or_reg, 3, 2), # 6
-                  nn_examples.get_blocked_mlp(class_or_reg, 4, 2), # 8
-                  nn_examples.get_blocked_mlp(class_or_reg, 5, 2), # 10
-                  nn_examples.get_blocked_mlp(class_or_reg, 3, 4), # 12
-                  nn_examples.get_blocked_mlp(class_or_reg, 6, 2), # 12
-                  nn_examples.get_blocked_mlp(class_or_reg, 8, 2), # 16
-                  nn_examples.get_blocked_mlp(class_or_reg, 6, 3), # 18
-                  nn_examples.get_blocked_mlp(class_or_reg, 10, 2), #20
-                  nn_examples.get_blocked_mlp(class_or_reg, 4, 6), #24
-                  nn_examples.get_blocked_mlp(class_or_reg, 8, 3), #24
-                 ]
-  other_mlps = nn_examples.generate_mlp_architectures()
-  ret = blocked_mlps + other_mlps
-  np.random.shuffle(ret)
-  return ret
+def get_test_dataset(domain_file_name, func, X_train, X_test, kernel=None):
+  """ An internal function to organise what is being returned. """
+  domain, orderings = load_cp_domain_from_config_file(domain_file_name)
+  func = get_processed_func_from_raw_func_for_cp_domain(func, domain, \
+           orderings.index_ordering, orderings.dim_ordering)
+  Y_train = [func(x) for x in X_train]
+  Y_test = [func(x) for x in X_test]
+  return Namespace(domain_file_name=domain_file_name, X_train=X_train, Y_train=Y_train,
+                   X_test=X_test, Y_test=Y_test, kernel=kernel)
 
 
 def gen_cpgp_test_data():
@@ -70,15 +42,6 @@ def gen_cpgp_test_data():
   # pylint: disable=too-many-statements
   # pylint: disable=too-many-locals
   # TODO: test against a naive GP in each of these cases
-  def _get_test_dataset(domain_file_name, func, X_train, X_test, kernel=None):
-    """ An internal function to organise what is being returned. """
-    domain, orderings = load_cp_domain_from_config_file(domain_file_name)
-    func = get_processed_func_from_raw_func_for_cp_domain(func, domain, \
-             orderings.index_ordering, orderings.dim_ordering)
-    Y_train = [func(x) for x in X_train]
-    Y_test = [func(x) for x in X_test]
-    return Namespace(domain_file_name=domain_file_name, X_train=X_train, Y_train=Y_train,
-                     X_test=X_test, Y_test=Y_test, kernel=kernel)
   # Now define the datasets --------------------------------------------------------------
   ret = []
   n_train = 200
@@ -91,7 +54,7 @@ def gen_cpgp_test_data():
   X_test = map_to_bounds(np.random.random((n_train, 2)), bounds)
   X_train = [[x] for x in X_train]
   X_test = [[x] for x in X_test]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
+  ret.append(get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 2
   domain_file_name = test_data_dir + '/' + 'test_data/park2_4/config.json'
   func = park2_4
@@ -104,7 +67,7 @@ def gen_cpgp_test_data():
              for (x, xd) in zip(X_tr_num, X_tr_disc)]
   X_test = [[[x[0], x[1], x[3]], [int(x[2])], [xd]]
              for (x, xd) in zip(X_te_num, X_te_disc)]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
+  ret.append(get_test_dataset(domain_file_name, func, X_train, X_test))
   # Dataset 3
   domain_file_name = test_data_dir + '/' + 'test_data/park1_3/config.json'
   func = park1_3
@@ -118,33 +81,7 @@ def gen_cpgp_test_data():
   X_test_1 = map_to_bounds(np.random.random((n_test, len(bounds))), bounds)
   X_test_2 = np.random.choice(x2_elems, n_test)
   X_test = [modify_func(x1, x2) for (x1, x2) in zip(X_test_1, X_test_2)]
-  ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
-#   # Dataset 4
-#   num_train = max(len(all_cnns), n_train)
-#   num_test = max(len(all_cnns), n_test)
-#   domain_file_name = test_data_dir + '/' + 'test_data/syn_cnn_2/config.json'
-#   func = syn_cnn_2
-#   x1_bounds = np.array([[0, 1], [0, 1], [10, 14]])
-#   x4_elems = [4, 10, 23, 45, 78, 87.1, 91.8, 99, 75.7, 28.1, 3.141593]
-#     # Create training set
-#   X_tr_0 = np.random.choice(all_cnns, num_train)
-#   X_tr_1 = map_to_bounds(np.random.random((num_train, len(x1_bounds))), x1_bounds)
-#   X_tr_2 = [[elem1, elem2] for (elem1, elem2) in zip(
-#              np.random.choice(['foo', 'bar'], num_train),
-#              np.random.choice(['foo', 'bar'], num_train))]
-#   X_tr_3 = np.random.choice(x4_elems, num_train)
-#   X_train = [[x0, x1, x2, [x3]] for (x0, x1, x2, x3) in \
-#              zip(X_tr_0, X_tr_1, X_tr_2, X_tr_3)]
-#     # Create test set
-#   X_te_0 = np.random.choice(all_cnns, num_test)
-#   X_te_1 = map_to_bounds(np.random.random((num_test, len(x1_bounds))), x1_bounds)
-#   X_te_2 = [[elem1, elem2] for (elem1, elem2) in zip(
-#              np.random.choice(['foo', 'bar'], num_test),
-#              np.random.choice(['foo', 'bar'], num_test))]
-#   X_te_3 = np.random.choice(x4_elems, num_test)
-#   X_test = [[x0, x1, x2, [x3]] for (x0, x1, x2, x3) in \
-#              zip(X_te_0, X_te_1, X_te_2, X_te_3)]
-#   ret.append(_get_test_dataset(domain_file_name, func, X_train, X_test))
+  ret.append(get_test_dataset(domain_file_name, func, X_train, X_test))
   # Return
   return ret
 
@@ -207,13 +144,8 @@ def fit_cpmfgp_with_dataset(dataset, *args, **kwargs):
   return ret[1]
 
 
-class CPGPTestCase(BaseTestClass):
-  """ Unit tests for CartesianProduct GPs. """
-
-  def setUp(self):
-    """ Set up. """
-    self.cpgp_datasets = gen_cpgp_test_data()
-    self.num_datasets = len(self.cpgp_datasets)
+class CPGPTestCaseDefinitions(object):
+  """ Defing unit tests for CartesianProduct GPs. """
 
   @classmethod
   def _compute_rmse(cls, Y_test, preds):
@@ -257,15 +189,17 @@ class CPGPTestCase(BaseTestClass):
     assert success_frac > 0.5
 
 
-class CPMFGPTestCase(CPGPTestCase):
-  """ Unit tests for Multi-fidelity Cartesian Product GPs. """
+class CPGPTestCase(CPGPTestCaseDefinitions, BaseTestClass):
+  """ Test cases for CPGP. """
 
   def setUp(self):
     """ Set up. """
-    num_tr_data = 300
-    num_te_data = 300
-    self.cpmfgp_datasets = gen_cpmfgp_test_data(num_tr_data, num_te_data)
-    self.num_datasets = len(self.cpmfgp_datasets)
+    self.cpgp_datasets = gen_cpgp_test_data()
+    self.num_datasets = len(self.cpgp_datasets)
+
+
+class CPMFGPTestCaseDefinitions(CPGPTestCaseDefinitions):
+  """ Defing unit tests for Multi-fidelity Cartesian Product GPs. """
 
   def test_gp_fitting_and_creation(self):
     """ Tests fitting and creation. """
@@ -296,6 +230,17 @@ class CPMFGPTestCase(CPGPTestCase):
     self.report('Num successes = %d/%d (%0.4f).\n'%(num_successes, self.num_datasets,
                 success_frac), 'test_result')
     assert success_frac > 0.5
+
+
+class CPMFGPTestCase(CPMFGPTestCaseDefinitions, BaseTestClass):
+  """ Unit tests for Multi-fidelity Cartesian Product GPs. """
+
+  def setUp(self):
+    """ Set up. """
+    num_tr_data = 300
+    num_te_data = 300
+    self.cpmfgp_datasets = gen_cpmfgp_test_data(num_tr_data, num_te_data)
+    self.num_datasets = len(self.cpmfgp_datasets)
 
 
 if __name__ == '__main__':

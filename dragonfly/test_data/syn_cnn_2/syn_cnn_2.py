@@ -5,10 +5,12 @@
 
 # pylint: disable=invalid-name
 
+import sys
+sys.path.append('..')
 import numpy as np
 # Local
-from ..park2_4 import sub_park_1, sub_park_2, sub_park_3, sub_park_4
-from nn.syn_nn_functions import syn_func1_common
+from ..park2_4.park2_4 import sub_park_1, sub_park_2, sub_park_3, sub_park_4
+from ...nn.syn_nn_functions import syn_func1_common
 
 
 def _chooser_park(chooser, y1, y2, y3, y4):

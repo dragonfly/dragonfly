@@ -10,8 +10,7 @@ from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
-@unittest.skip
-class CPGPBanditTestCase(CPOptimiserBaseTestCase, BaseTestClass):
+class CPGPBanditTestCaseDefinitions(object):
   """ Unit tests for GP Bandits on cartesian product spaces. """
 
   @classmethod
@@ -28,6 +27,14 @@ class CPGPBanditTestCase(CPOptimiserBaseTestCase, BaseTestClass):
                                           worker_manager=worker_manager,
                                           max_capital=max_capital, is_mf=False,
                                           mode=mode, *args, **kwargs)
+
+
+@unittest.skip
+class CPGPBanditTestCase(CPGPBanditTestCaseDefinitions,
+                         CPOptimiserBaseTestCase,
+                         BaseTestClass):
+  """ Unit tests for GP Bandits on cartesian product spaces. """
+  pass
 
 
 if __name__ == '__main__':

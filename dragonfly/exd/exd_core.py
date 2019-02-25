@@ -208,11 +208,12 @@ class ExperimentDesigner(object):
 
   def _get_multiple_workers_str(self):
     """ Get string if there are multiple workers. """
-    if self.worker_manager.num_workers == 1:
-      return ''
-    else:
-      return ', jobs_by_each_worker=%s, in_progress=%s'%(self._get_jobs_for_each_worker(),
-                                                    self._get_curr_job_idxs_in_progress())
+    return ''
+#     if self.worker_manager.num_workers == 1:
+#       return ''
+#     else:
+#       return 'jobs_by_each_worker=%s, in_progress=%s'%(self._get_jobs_for_each_worker(),
+#                                                   self._get_curr_job_idxs_in_progress())
 
   def _print_header(self):
     """ Print header. """
@@ -230,15 +231,6 @@ class ExperimentDesigner(object):
     """ Writes current result to reporter. """
     cap_frac = (np.nan if self.available_capital <= 0 else
                 self.get_curr_spent_capital()/self.available_capital)
-#     report_str = ' '.join(['%s'%(self.full_method_name),
-#                            '(%03d/%03d)'%(self.num_succ_queries, self.step_idx),
-#                            'cap=%0.3f:: '%(cap_frac),
-#                            self._get_exd_child_report_results_str(),
-#                           ])
-#     report_str = ' '.join(['#%03d (%03d,)'%(self.step_idx, self.num_succ_queries),
-#                            'cap=%0.3f:: '%(cap_frac),
-#                            self._get_exd_child_report_results_str(),
-#                           ])
     report_str = '#%03d (%03d, %0.3f):: '%(self.step_idx, self.num_succ_queries,
                                            cap_frac)
     report_str += self._get_exd_child_report_results_str()

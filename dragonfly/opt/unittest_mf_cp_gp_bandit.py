@@ -13,9 +13,8 @@ from .unittest_cp_random_optimiser import MFCPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
-@unittest.skip
-class MFCPGPBanditTestCase(MFCPOptimiserBaseTestCase, BaseTestClass):
-  """ Unit tests for GP Bandits on cartesian product spaces. """
+class MFCPGPBanditTestCaseDefinitions(object):
+  """ Definitions for unit tests for GP Bandits on cartesian product spaces. """
 
   @classmethod
   def _child_instantiate_optimiser(cls, func_caller, worker_manager, options, reporter):
@@ -30,6 +29,14 @@ class MFCPGPBanditTestCase(MFCPOptimiserBaseTestCase, BaseTestClass):
     return gp_bandit.mf_cp_gpb_from_raw_args(prob_funcs[0], prob_funcs[1],
              domain_config_file, worker_manager=worker_manager, max_capital=max_capital,
              is_mf=True, mode=mode, *args, **kwargs)
+
+
+@unittest.skip
+class MFCPGPBanditTestCase(MFCPGPBanditTestCaseDefinitions,
+                           MFCPOptimiserBaseTestCase,
+                           BaseTestClass):
+  """ Unit tests for GP Bandits on cartesian product spaces. """
+  pass
 
 
 if __name__ == '__main__':
