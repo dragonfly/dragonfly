@@ -66,6 +66,7 @@ class SliceTestCase(BaseTestClass):
     self.report('%s, mean=%0.3f, variance=%0.3f :: test result: mean=%0.3f, '
                 'variance=%0.3f'%(str(dist), mean, var, mean_r, var_r), 'test_result')
 
+  @unittest.skip
   def test_slice_sampling_uniform(self):
     """ Tests slice sampling from Continuous Uniform """
     self.report('Test slice sampling of Continuous Uniform Distribution.')
