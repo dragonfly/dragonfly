@@ -8,12 +8,14 @@
 # pylint: disable=invalid-name
 
 import os
+import unittest
 # Local imports
 from . import nn_examples
 from .nn_visualise import visualise_list_of_nns
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 # Test cases for nn_examples.py ----------------------------------------------------------
+@unittest.skip
 class NNExamplesTestCase(BaseTestClass):
   """ Unit test for some neural network examples. We are just testing for generation. """
 

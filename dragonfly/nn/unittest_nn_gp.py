@@ -7,6 +7,7 @@
 # pylint: disable=invalid-name
 
 import numpy as np
+import unittest
 # Local imports
 from .syn_nn_functions import syn_func1_common, cnn_syn_func1, mlp_syn_func1
 from .nn_examples import generate_cnn_architectures, generate_mlp_architectures
@@ -111,6 +112,7 @@ def compute_average_prediction_error(dataset, preds, true_labels_idx=None):
           len(dataset[true_labels_idx])
 
 # Test classes =========================================================================
+@unittest.skip
 class NNGPTestCase(BaseTestClass):
   """ Contains unit tests for the TransportNNDistanceComputer class. """
 
@@ -179,6 +181,7 @@ def return_kernel_hyperparams_as_str(kernel_hyperparams):
   return scale_str + ', ' + betas_str
 
 
+@unittest.skip
 class NNGPFitterTestCase(BaseTestClass):
   """ Contains unit tests for the TransportNNDistanceComputer class. """
 

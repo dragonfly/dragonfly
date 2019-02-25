@@ -9,6 +9,7 @@ from copy import deepcopy
 import numpy as np
 import os
 from shutil import rmtree
+import unittest
 # Local imports
 from . import nn_domains
 from . import nn_modifiers
@@ -64,6 +65,7 @@ def test_for_orig_vs_modifications(save_dir, save_prefix, old_nn,
     save_prefix, old_nn.nn_class, len(new_nns)), 'test_result')
 
 
+@unittest.skip
 class NNModifierTestCase(BaseTestClass):
   """ Unit tests for the NNModifier class. """
 

@@ -9,6 +9,7 @@
 
 import os
 import numpy as np
+import unittest
 # Local
 from ..gp.unittest_cartesian_product_gp import get_test_dataset, \
      gen_cpmfgp_test_data_from_config_file, \
@@ -117,6 +118,7 @@ class CPNNGPTestCase(CPGPTestCaseDefinitions, BaseTestClass):
     self.num_datasets = len(self.cpgp_datasets)
 
 
+@unittest.skip
 class CPMFGPTestCase(CPMFGPTestCaseDefinitions, BaseTestClass):
   """ Unit tests for Multi-fidelity Cartesian Product GPs. """
 

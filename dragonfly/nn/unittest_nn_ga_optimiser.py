@@ -9,6 +9,7 @@
 
 from copy import deepcopy
 from argparse import Namespace
+import unittest
 # Local
 from . import nn_ga_optimiser
 from .nn_domains import NNDomain
@@ -77,6 +78,7 @@ def get_nn_opt_arguments():
 
 
 # Tester class ========================================================================
+@unittest.skip
 class GAOptimiserTestCase(BaseTestClass):
   """ Unit test for GA Optimisation. """
 
