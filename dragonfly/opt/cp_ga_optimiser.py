@@ -198,7 +198,7 @@ def cp_ga_optimiser_from_proc_args(func_caller, cp_domain, worker_manager, max_c
 def cp_ga_optimiser_from_raw_args(raw_func, domain_config_file, worker_manager,
                                   max_capital, mode='asy', single_mutation_ops=None,
                                   single_crossover_ops=None, options=None,
-                                  reporter=None):
+                                  reporter='default'):
   """ Optimise a function from raw args such as the raw function and the configuration
       file. """
   # pylint: disable=no-member
