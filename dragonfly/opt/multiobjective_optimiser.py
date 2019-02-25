@@ -81,6 +81,10 @@ class MultiObjectiveOptimiser(ExperimentDesigner):
     """ Any set up for the specific optimisation method. """
     raise NotImplementedError('Implement in Optimisation Method class.')
 
+  def _get_problem_str(self):
+    """ Description of the problem. """
+    return 'Multi-objective Optimisation'
+
   # Book-keeping ----------------------------------------------------------------
   def _exd_child_update_history(self, qinfo):
     """ Updates to the history specific to optimisation. """
