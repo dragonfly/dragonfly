@@ -249,7 +249,7 @@ class NeuralNetwork(object):
 
   def get_layer_descr(self, layer_idx, *_):
     """ Returns a string describing the layer. Used in visualing the layer. """
-    if isinstance(self.num_units_in_each_layer[layer_idx], (int, float, long)) and \
+    if isinstance(self.num_units_in_each_layer[layer_idx], (int, float)) and \
       np.isfinite(self.num_units_in_each_layer[layer_idx]):
       num_units_descr = str(int(self.num_units_in_each_layer[layer_idx])) + ','
     else:
