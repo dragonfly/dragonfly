@@ -26,7 +26,6 @@ from ..gp.cartesian_product_gp import cartesian_product_gp_args, \
 from . import gpb_acquisitions
 from .blackbox_optimiser import blackbox_opt_args, BlackboxOptimiser, \
                                    CalledMFOptimiserWithSFCaller
-from ..utils.ancillary_utils import get_list_as_str
 from ..utils.general_utils import block_augment_array, get_idxs_from_list_of_lists
 from ..utils.option_handler import get_option_specs, load_options
 from ..utils.reporters import get_reporter
@@ -78,9 +77,12 @@ gp_bandit_args = [ \
      'mainly to avoid numerical stability issues.')),
   get_option_specs('track_every_time_step', False, 0,
                    ('If 1, it tracks every time step.')),
-  get_option_specs('next_pt_std_thresh', False, 0.005, \
+  get_option_specs('next_pt_std_thresh', False, 0.005,
     ('If the std of the queried point queries below this times the kernel scale ', \
-     'frequently we will reduce the bandwidth range')), \
+     'frequently we will reduce the bandwidth range')),
+  # Miscellanneous
+  get_option_specs('nn_report_results_every', False, 1,
+    ('If NN variables are present, report results more frequently')),
   ]
 
 mf_gp_bandit_args = [ \
@@ -791,6 +793,10 @@ class CPGPBandit(GPBandit):
           otm_mislabel_coeffs, otm_struct_coeffs, self.options.otmann_dist_type)
         self.kernel_params_for_each_domain[idx]['otmann_dist_type'] = \
           self.options.otmann_dist_type
+    # Report more frquently if Neural networks are present
+    domain_types = [dom.get_type() for dom in self.domain.list_of_domains]
+    if 'neural_network' in domain_types:
+      self.options.report_results_every = self.options.nn_report_results_every
 
   def _domain_specific_acq_opt_set_up(self):
     """ Set up acquisition optimisation for the child class. """
@@ -830,7 +836,7 @@ class CPGPBandit(GPBandit):
     domain_types = [dom.get_type() for dom in self.domain.list_of_domains]
     if 'neural_network' in domain_types:
       # Because Neural networks can be quite expensive
-      self._set_up_cp_acq_opt_with_params(1, 500, 2e4)
+      self._set_up_cp_acq_opt_with_params(1, 50, 1e3)
     else:
       self._set_up_cp_acq_opt_with_params(1, 1000, 3e4)
 
@@ -871,12 +877,12 @@ class CPGPBandit(GPBandit):
     # Add data to the GP as we will be repeating with the same GP.
     if hasattr(self, 'gp_processor') and hasattr(self.gp_processor, 'fit_type') and \
       self.gp_processor.fit_type == 'fitted_gp':
+      reg_data = self._get_gp_reg_data()
       if self.is_an_mf_method():
-        self.gp.add_mf_data_multiple(new_data[0], new_data[1], new_data[2],
-                                  build_posterior=False)
+        self.gp.set_mf_data(reg_data[0], reg_data[1], reg_data[2], build_posterior=False)
         self.gp.set_domain_lists_of_dists(self.domain_lists_of_dists)
       else:
-        self.gp.add_data_multiple(new_data[0], new_data[1], build_posterior=False)
+        self.gp.set_data(reg_data[0], reg_data[1], build_posterior=False)
         self.gp.set_domain_lists_of_dists(self.domain_lists_of_dists)
       # Build the posterior
       self.gp.build_posterior()

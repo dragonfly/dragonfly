@@ -30,7 +30,6 @@ from . import multiobjective_gpb_acquisitions
 from .blackbox_optimiser import CalledMFOptimiserWithSFCaller
 from .multiobjective_optimiser import MultiObjectiveOptimiser
 from .gp_bandit import GPBandit, get_all_euc_gp_bandit_args, get_all_cp_gp_bandit_args
-from ..utils.ancillary_utils import get_list_as_str
 from ..utils.option_handler import get_option_specs, load_options
 from ..utils.reporters import get_reporter
 

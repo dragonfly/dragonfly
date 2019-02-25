@@ -60,6 +60,7 @@ class MFNNCPOptimiserBaseTestCase(CPOptimiserBaseTestCase):
 
 
 # Random Optimiser Unit tests -----------------------------------------------------
+@unittest.skip
 class NNCPRandomOptimiserTestCase(CPRandomOptimiserTestCaseDefinitions,
                                   NNCPOptimiserBaseTestCase,
                                   BaseTestClass):
@@ -67,6 +68,7 @@ class NNCPRandomOptimiserTestCase(CPRandomOptimiserTestCaseDefinitions,
   pass
 
 
+@unittest.skip
 class MFNNCPRandomOptimiserTestCase(MFCPRandomOptimiserTestCaseDefinitions,
                                     MFNNCPOptimiserBaseTestCase,
                                     BaseTestClass):
@@ -84,7 +86,7 @@ class NNCPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
 
 
 # GPBandit Unit tests ---------------------------------------------------------------
-@unittest.skip
+# @unittest.skip
 class NNCPGPBanditTestCase(CPGPBanditTestCaseDefinitions,
                            NNCPOptimiserBaseTestCase,
                            BaseTestClass):
