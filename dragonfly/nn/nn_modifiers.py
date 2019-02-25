@@ -872,9 +872,9 @@ class NNModifier(object):
     if not hasattr(list_of_nns, '__iter__'):
       list_of_nns = [list_of_nns]
     # determine num_steps_probs
-    if num_steps_probs is None and isinstance(max_num_steps, (int, long, float)):
+    if num_steps_probs is None and isinstance(max_num_steps, (int, float)):
       num_steps_probs = np.ones((max_num_steps,))/float(max_num_steps)
-    elif isinstance(num_steps_probs, (int, long, float)):
+    elif isinstance(num_steps_probs, (int, float)):
       num_steps_probs = np.zeros((num_steps_probs,))
       num_steps_probs[-1] = 1.0
     # Determine how many modifications per nn

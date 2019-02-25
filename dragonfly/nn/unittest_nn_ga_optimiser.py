@@ -85,7 +85,7 @@ class GAOptimiserTestCase(BaseTestClass):
   def setUp(self):
     """ Set up. """
     ret = get_nn_opt_arguments()
-    for key, val in ret.__dict__.iteritems():
+    for key, val in ret.__dict__.items():
       setattr(self, key, val)
 
   def test_instantiation(self):
