@@ -20,7 +20,7 @@ from .unittest_neural_network import generate_cnn_architectures, \
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
-def test_if_two_networks_are_equal(net1, net2, false_if_net1_is_net2=True):
+def networks_are_equal(net1, net2, false_if_net1_is_net2=True):
   """ Returns true if both net1 and net2 are equal.
       If any part of net1 is copied onto net2, then the output will be false
       if false_if_net1_is_net2 is True (default).
@@ -46,7 +46,7 @@ def test_if_two_networks_are_equal(net1, net2, false_if_net1_is_net2=True):
   return is_true
 
 
-def test_for_orig_vs_modifications(save_dir, save_prefix, old_nn,
+def run_orig_vs_modifications(save_dir, save_prefix, old_nn,
                                    get_modifications, constraint_checker, write_result):
   """ Tests for the original network and the modifications. Also, visualises the networks.
   """
@@ -60,7 +60,7 @@ def test_for_orig_vs_modifications(save_dir, save_prefix, old_nn,
     assert constraint_checker(new_nn)
     visualise_nn(new_nn, os.path.join(save_dir, '%s_%d'%(save_prefix, new_idx)))
   # Finally test if the networks have not changed.
-  assert test_if_two_networks_are_equal(old_nn, old_nn_copy)
+  assert networks_are_equal_are_equal(old_nn, old_nn_copy)
   write_result('%s (%s):: #new-networks: %d.'%(
     save_prefix, old_nn.nn_class, len(new_nns)), 'test_result')
 
@@ -106,12 +106,12 @@ class NNModifierTestCase(BaseTestClass):
       report_str = '%d (%s n=%d,m=%d):: '%(idx, nn.nn_class, nn.num_layers,
                                            nn.get_total_num_edges())
       total_num_primitives = 0
-      for _, list_or_prims in primitives.iteritems():
+      for _, list_or_prims in primitives.items():
         report_str += '%d, '%(len(list_or_prims))
         total_num_primitives += len(list_or_prims)
       report_str += 'tot=%d'%(total_num_primitives)
       self.report(report_str, 'test_result')
-      assert test_if_two_networks_are_equal(nn_copy, nn)
+      assert networks_are_equal_are_equal(nn_copy, nn)
 
   def test_get_single_step_modifications(self):
     """ Tests single step modifications. """
@@ -130,7 +130,7 @@ class NNModifierTestCase(BaseTestClass):
         num_modifications = 'all'
       get_modifications = lambda arg_nn: modifier.get_single_step_modifications(
                                            arg_nn, num_modifications)
-      test_for_orig_vs_modifications(save_dir, save_prefix, old_nn,
+      run_orig_vs_modifications(save_dir, save_prefix, old_nn,
         get_modifications, constraint_checker, self.report)
 
   def test_multi_step_modifications(self):
@@ -148,7 +148,7 @@ class NNModifierTestCase(BaseTestClass):
       modifier, constraint_checker = self._get_modifier_and_cc(old_nn)
       get_modifications = lambda arg_nn: modifier.get_multi_step_modifications(
                                            arg_nn, num_steps, num_modifications)
-      test_for_orig_vs_modifications(save_dir, save_prefix, old_nn,
+      run_orig_vs_modifications(save_dir, save_prefix, old_nn,
         get_modifications, constraint_checker, self.report)
 
   def test_call(self):
@@ -165,7 +165,7 @@ class NNModifierTestCase(BaseTestClass):
       modifier, constraint_checker = self._get_modifier_and_cc(old_nn)
       get_modifications = lambda arg_nn: modifier(arg_nn, num_modifications,
                                                   num_steps_probs)
-      test_for_orig_vs_modifications(save_dir, save_prefix, old_nn,
+      run_orig_vs_modifications(save_dir, save_prefix, old_nn,
         get_modifications, constraint_checker, self.report)
 
   def test_call_with_list(self):

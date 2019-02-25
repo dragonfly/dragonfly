@@ -16,7 +16,7 @@ from .nn_domains import NNDomain
 from .syn_nn_functions import cnn_syn_func1, mlp_syn_func1
 from .nn_domains import CNNConstraintChecker, MLPConstraintChecker
 from .nn_modifiers import get_nn_modifier_from_args
-from .unittest_nn_modifier_class import test_if_two_networks_are_equal
+from .unittest_nn_modifier_class import networks_are_equal
 from .nn_opt_utils import get_initial_cnn_pool, get_initial_mlp_pool
 from ..exd.experiment_caller import FunctionCaller
 from ..exd.worker_manager import SyntheticWorkerManager
@@ -25,7 +25,7 @@ from ..utils.option_handler import load_options
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
 
-def test_if_pre_eval_networks_have_changed(options_1, options_2):
+def check_if_pre_eval_networks_have_changed(options_1, options_2):
   """ Checks if the pre_eval networks have changed. Raises an error if they have. """
   assert options_1.pre_eval_vals is not options_2.pre_eval_vals and \
          options_1.pre_eval_vals == options_2.pre_eval_vals
@@ -33,8 +33,8 @@ def test_if_pre_eval_networks_have_changed(options_1, options_2):
          options_1.pre_eval_true_vals == options_2.pre_eval_true_vals
   for idx in range(len(options_1.pre_eval_points)):
     assert options_1.pre_eval_points[idx] is not options_2.pre_eval_points[idx]
-    assert test_if_two_networks_are_equal(options_1.pre_eval_points[idx],
-                                          options_2.pre_eval_points[idx])
+    assert networks_are_equal(options_1.pre_eval_points[idx],
+                              options_2.pre_eval_points[idx])
 
 def get_optimiser_args(tester, nn_type, optimiser_args):
   """ Returns arguments for the optimiser. """
@@ -85,7 +85,7 @@ class GAOptimiserTestCase(BaseTestClass):
   def setUp(self):
     """ Set up. """
     ret = get_nn_opt_arguments()
-    for key, val in ret.__dict__.iteritems():
+    for key, val in ret.__dict__.items():
       setattr(self, key, val)
 
   def test_instantiation(self):
@@ -109,7 +109,7 @@ class GAOptimiserTestCase(BaseTestClass):
   def _test_optimiser_results(cls, opt_val, _, history, options, options_clone):
     """ Tests optimiser results. """
     assert opt_val == history.curr_opt_vals[-1]
-    test_if_pre_eval_networks_have_changed(options, options_clone)
+    check_if_pre_eval_networks_have_changed(options, options_clone)
 
   def test_ga_optimisation_single(self):
     """ Test optimisation. """

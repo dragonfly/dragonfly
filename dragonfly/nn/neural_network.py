@@ -249,7 +249,7 @@ class NeuralNetwork(object):
 
   def get_layer_descr(self, layer_idx, *_):
     """ Returns a string describing the layer. Used in visualing the layer. """
-    if isinstance(self.num_units_in_each_layer[layer_idx], (int, float, long)) and \
+    if isinstance(self.num_units_in_each_layer[layer_idx], (int, float)) and \
       np.isfinite(self.num_units_in_each_layer[layer_idx]):
       num_units_descr = str(int(self.num_units_in_each_layer[layer_idx])) + ','
     else:
@@ -473,7 +473,7 @@ class ConvNeuralNetwork(NeuralNetwork):
       if is_a_pooling_layer_label(self.layer_labels[layer_idx]) or \
          is_a_conv_layer_label(self.layer_labels[layer_idx]):
         # Checking only the first parent because we are checking for equality later.
-        assert isinstance(parent_post_img_sizes[0], (int, long, float)) and \
+        assert isinstance(parent_post_img_sizes[0], (int, float)) and \
                parent_post_img_sizes[0] > 0
       # Check parent image sizes and if they are consistent
       check_parent_img_sizes = self._check_if_parent_image_sizes_are_valid(
@@ -542,7 +542,7 @@ class ConvNeuralNetwork(NeuralNetwork):
       child_str = ' [%s%s]'%(img_size_str, stride_str)
       return super(ConvNeuralNetwork, self).get_layer_descr(layer_idx) + child_str
     else:
-      if isinstance(self.num_units_in_each_layer[layer_idx], (int, float, long)) and \
+      if isinstance(self.num_units_in_each_layer[layer_idx], (int, float)) and \
         np.isfinite(self.num_units_in_each_layer[layer_idx]):
         num_units_descr = ', ' + str(int(self.num_units_in_each_layer[layer_idx]))
       elif is_a_pooling_layer_label(self.layer_labels[layer_idx]):

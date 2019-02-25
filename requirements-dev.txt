@@ -4,3 +4,6 @@ protobuf
 coverage
 scikit-learn
 matplotlib
+cython
+POT
+graphviz

@@ -179,7 +179,7 @@ def load_parameter(parameter, key=None):
     # For CNNs add strides
     if param['type'].startswith('cnn'):
       nn_params['max_num_2strides'] = parameter.get('max_num_2strides', 'inf')
-    for nnp_key, nnp_val in nn_params.iteritems():
+    for nnp_key, nnp_val in nn_params.items():
       if isinstance(nnp_val, str):
         nnp_val = unicode_to_str(nnp_val)
       nnp_val = np.inf if nnp_val == 'inf' else nnp_val
