@@ -335,9 +335,15 @@ function values and `pareto_points` are the corresponding points in `domain`.
 
 Dragonfly has APIs for defining neural network architectures, defining distances
 between them, and also implements the
-[NASBOT](https://arxiv.org/pdf/1802.07191.pdf) algorithm for neural architecture search.
+[NASBOT](https://arxiv.org/pdf/1802.07191.pdf) algorithm,
+which uses Bayesian optimisation and optimal transport for neural architecture search.
+You will first need to install the following dependencies. Cython will also require
+a C++ library already installed in the system.
+```bash
+$ pip install cython POT
+```
 
-Below, is a demo on a synthetic function.
+Below, is an architecture search demo on a synthetic function.
 See the [`demos/nas`](demos/nas) directory for demos of NASBOT in using some large
 datasets.
 ```bash
