@@ -303,7 +303,7 @@ $ python examples/supernova/in_code_demo.py
 
 &nbsp;
 
-**Multiobjective optimisation**
+**Multi-objective optimisation**
 
 Dragonfly also provides functionality for multi-objective optimisation.
 Some synthetic demos are available in the `multiobjective_xxx` directories in
@@ -328,6 +328,23 @@ Here, `funcs` is a list of functions to be maximised,
 `pareto_values` are the
 [Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
 function values and `pareto_points` are the corresponding points in `domain`.
+
+&nbsp;
+
+**Neural Architecture Search**
+
+Dragonfly has APIs for defining neural network architectures, defining distances
+between them, and also implements the
+[NASBOT](https://arxiv.org/pdf/1802.07191.pdf) algorithm for neural architecture search.
+
+Below, is a demo on a synthetic function.
+See the [`demos/nas`](demos/nas) directory for demos of NASBOT in using some large
+datasets.
+```bash
+$ cd examples
+$ dragonfly-script.py --config synthetic/syn_cnn_1/config.json --options options_files/options_example.txt
+```
+
 
 &nbsp;
 
