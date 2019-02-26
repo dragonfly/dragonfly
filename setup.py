@@ -5,7 +5,7 @@ from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatfo
 from numpy.distutils.core import setup, Extension
 from numpy.distutils.command.build_ext import build_ext as old_build_ext
 from numpy.distutils.fcompiler import CompilerNotFound
-
+from setuptools import find_packages
 
 class BuildFailed(Exception):
     pass
@@ -47,10 +47,7 @@ setup_options = dict(
     url='https://github.com/dragonfly/dragonfly/',
     license='MIT',
     author_email='kandasamy@cs.cmu.edu',
-    packages=['dragonfly', 'dragonfly.apis', 'dragonfly.distributions', 'dragonfly.exd',
-              'dragonfly.gp', 'dragonfly.opt', 'dragonfly.parse', 'dragonfly.nn',
-              'dragonfly.sampling', 'dragonfly.utils', 'dragonfly.utils.direct_fortran',
-             ],
+    packages=find_packages(exclude=('examples*', 'dragonfly.test_data*')),
     scripts=['bin/dragonfly-script.py'],
     install_requires=[
       'future',
