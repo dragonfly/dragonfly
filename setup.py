@@ -55,10 +55,9 @@ setup_options = dict(
       'scipy',
       'six',
     ],
-    extras_require=[
-      'cython',
-      'POT',
-    ],
+    extras_require={
+        'extra': ['cython', 'POT'],
+    },
     classifiers=[
       "Intended Audience :: Developers",
       "Intended Audience :: Science/Research",
