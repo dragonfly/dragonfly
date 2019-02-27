@@ -42,8 +42,10 @@ ext1 = Extension(name='dragonfly.utils.direct_fortran.direct',
                  sources=direct_paths)
 
 setup_options = dict(
-    name='dragonfly',
+    name='dragonfly-opt',
+    version="0.0.1",
     long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
     url='https://github.com/dragonfly/dragonfly/',
     license='MIT',
     author_email='kandasamy@cs.cmu.edu',
@@ -87,3 +89,4 @@ except BuildFailed:
     print("Fortran compilation failed. Falling back on pure Python version.")
     print("*" * 80)
     setup(**setup_options)
+
