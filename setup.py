@@ -59,9 +59,18 @@ setup_options = dict(
         'extra': ['cython', 'POT'],
     },
     classifiers=[
+      "Development Status :: 3 - Alpha",
       "Intended Audience :: Developers",
+      "Intended Audience :: Education",
       "Intended Audience :: Science/Research",
       "License :: OSI Approved :: MIT License",
+      "Operating System :: MacOS",
+      "Operating System :: Microsoft :: Windows",
+      "Operating System :: POSIX :: Linux",
+      "Operating System :: Unix",
+      "Programming Language :: Python :: 2",
+      "Programming Language :: Python :: 3",
+      "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
 )
 

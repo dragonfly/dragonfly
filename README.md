@@ -120,7 +120,7 @@ Dragonfly.
 ```bash
 $ HOME_PATH=$(pwd)
 $ PATH=$PATH:$HOME_PATH
-$ export PYTHONPATH=$HOME_PATH
+$ PYTHONPATH=$HOME_PATH
 ```
 
 
@@ -337,14 +337,15 @@ Dragonfly has APIs for defining neural network architectures, defining distances
 between them, and also implements the
 [NASBOT](https://arxiv.org/pdf/1802.07191.pdf) algorithm,
 which uses Bayesian optimisation and optimal transport for neural architecture search.
-You will first need to install the following dependencies. Cython will also require
+You will first need to install the following dependencies.
+Cython will also require
 a C++ library already installed in the system.
 ```bash
 $ pip install cython POT
 ```
 
-Below, is an architecture search demo on a synthetic function.
-See the [`demos/nas`](demos/nas) directory for demos of NASBOT in using some large
+Below is an architecture search demo on a synthetic function.
+See the [`examples/nas`](examples/nas) directory for demos of NASBOT in using some large
 datasets.
 ```bash
 $ cd examples
