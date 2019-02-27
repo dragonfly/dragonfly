@@ -47,13 +47,14 @@ except ImportError as e:
 # The progress of optimization will be logged in mlp_experiment_dir_<time>/log where
 # <time> is a time stamp.
 
-# DATASET = 'slice'
+DATASET = 'slice'
 # DATASET = 'indoor'
-DATASET = 'cifar10'
+# DATASET = 'cifar10'
 
 # Which GPU IDs are available
 # GPU_IDS = [0, 1]
-GPU_IDS = [0, 3]
+# GPU_IDS = [0, 3]
+GPU_IDS = [1, 2]
 
 CIFAR_DATA_DIR = 'cifar-10-data'
 
@@ -64,7 +65,7 @@ CNN_CONFIG_FILE = 'config_cnn_mf.json'
 # Where to store temporary model checkpoints
 EXP_DIR = 'experiment_dir_%s'%(time.strftime('%Y%m%d%H%M%S'))
 LOG_FILE = os.path.join(EXP_DIR, 'log')
-TMP_DIR = './tmp'
+TMP_DIR = './tmp_' + DATASET
 
 # Function to return the name of the file containing dataset
 def get_train_file_name(dataset):

@@ -26,11 +26,11 @@
   "num_batch_loops":{
     "name":"num_batch_loops",
     "type":"int",
-    "min":40,
-    "max":200
+    "min":10,
+    "max":40
   }
  },
 
-"fidel_to_opt":[200]
+"fidel_to_opt":[40]
 }
 

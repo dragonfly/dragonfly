@@ -24,15 +24,15 @@ def get_default_cnn_tf_params():
   return {
     'trainBatchSize':32,
     'valiBatchSize':32,
-    'trainNumStepsPerLoop':4000,
-    'valiNumStepsPerLoop':313,
+    'trainNumStepsPerLoop':2000,
+    'valiNumStepsPerLoop':616,
     }
 
 class CNNFunctionCaller(NNFunctionCaller):
   """ Function caller to be used in the MLP experiments. """
 
   def __init__(self, config, train_params, descr='', debug_mode=False,
-               reporter='silent', tmp_dir='/tmp'):
+               reporter='silent', tmp_dir='/tmp_cnn'):
     """ Constructor. """
     super(CNNFunctionCaller, self).__init__(config, train_params, descr, debug_mode,
                                             reporter)
@@ -53,6 +53,7 @@ class CNNFunctionCaller(NNFunctionCaller):
     curr_tf_params = deepcopy(self.train_params.tf_params)
     curr_tf_params['learningRate'] = learning_rate
     curr_tf_params['numLoops'] = num_loops
+#     self.reporter.writeln('Eval: %s, %0.8f, %0d.'%(str(nn), learning_rate, num_loops))
     # Set up
     os.environ['CUDA_VISIBLE_DEVICES'] = str(qinfo.worker_id)
     num_tries = 0

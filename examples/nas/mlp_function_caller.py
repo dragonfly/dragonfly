@@ -35,7 +35,7 @@ class MLPFunctionCaller(NNFunctionCaller):
   """ Function caller to be used in the MLP experiments. """
 
   def __init__(self, config, train_params, descr='', debug_mode=False,
-               reporter='silent', tmp_dir='/tmp'):
+               reporter='silent', tmp_dir='/tmp_mlp'):
     """ Constructor. """
     # NNFunctionCaller.__init__(self, config, train_params, descr='', debug_mode=False,
     #                           reporter='silent')
@@ -57,9 +57,6 @@ class MLPFunctionCaller(NNFunctionCaller):
     # Check tf_params
     if not hasattr(self.train_params, 'tf_params'):
       self.train_params.tf_params = get_default_mlp_tf_params()
-#     if self.domain.get_type() == 'mlp-class':
-#       self.train_params.tf_params = deepcopy(self.train_params.tf_params)
-#       self.train_params.tf_params['num_classes'] = self.data_train['y'].shape[1]
 
   def _eval_validation_score(self, raw_fidel, raw_point, qinfo):
     """ Evaluates the validation score. """
@@ -71,6 +68,7 @@ class MLPFunctionCaller(NNFunctionCaller):
     curr_tf_params = deepcopy(self.train_params.tf_params)
     curr_tf_params['learningRate'] = learning_rate
     curr_tf_params['numLoops'] = num_loops
+#     self.reporter.writeln('Eval: %s, %0.4f, %0d.'%(str(nn), learning_rate, num_loops))
     # Set up
     os.environ['CUDA_VISIBLE_DEVICES'] = str(qinfo.worker_id)
     num_tries = 0
