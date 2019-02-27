@@ -86,7 +86,6 @@ def multiobjective_maximise_functions(funcs, domain, max_capital,
                      pt in pareto_points]
     history.query_points_raw = [get_raw_from_processed_via_config(pt, config)
                                 for pt in history.query_points]
-    import pdb; pdb.set_trace()
   return pareto_values, pareto_points, history
 
 
