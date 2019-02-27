@@ -1,10 +1,10 @@
 {
-"name": "syn_cnn_1_mf",
+"name": "mlp_reg_mf",
 
 "domain":{
   "mlp0":{
     "name":"mlp0",
-    "type":"mlp",
+    "type":"mlp-reg",
     "max_num_layers":60,
     "min_num_layers":5,
     "max_in_degree":5,
@@ -17,9 +17,20 @@
   "log10_learning_rate":{
     "name":"log10_learning_rate",
     "type":"float",
-    "min":-2,
-    "max":-7
+    "min":-7,
+    "max":-2
   }
- }
+ },
+
+"fidel_space": {
+  "num_batch_loops":{
+    "name":"num_batch_loops",
+    "type":"int",
+    "min":40,
+    "max":200
+  }
+ },
+
+"fidel_to_opt":[200]
 }
 

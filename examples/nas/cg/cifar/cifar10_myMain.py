@@ -23,8 +23,6 @@ import six
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
-from opt.nn_opt_utils import get_initial_pool
-
 tf.logging.set_verbosity(tf.logging.INFO)
 
 

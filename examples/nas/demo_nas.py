@@ -10,10 +10,11 @@ from __future__ import print_function
 from argparse import Namespace
 import time
 import os
-from dragonfly.opt.gp_bandit import bo_from_func_caller
+import shutil
 # Local
-from nas.mlp_function_caller import MLPFunctionCaller
-from nas.cnn_function_caller import CNNFunctionCaller
+from mlp_function_caller import MLPFunctionCaller
+from cnn_function_caller import CNNFunctionCaller
+from dragonfly.opt.gp_bandit import bo_from_func_caller
 from dragonfly.exd.worker_manager import RealWorkerManager
 from dragonfly.utils.reporters import get_reporter
 # Visualise
@@ -47,7 +48,7 @@ except ImportError as e:
 # <time> is a time stamp.
 
 # DATASET = 'slice'
-DATASET = 'indoor'
+# DATASET = 'indoor'
 DATASET = 'cifar10'
 
 # Which GPU IDs are available
@@ -57,14 +58,13 @@ GPU_IDS = [0, 3]
 CIFAR_DATA_DIR = 'cifar-10-data'
 
 # Config file which specifies the domain
-CONFIG_FILE = 'config_mf.json'
+MLP_CONFIG_FILE = 'config_mlp_mf.json'
+CNN_CONFIG_FILE = 'config_cnn_mf.json'
 
 # Where to store temporary model checkpoints
 EXP_DIR = 'experiment_dir_%s'%(time.strftime('%Y%m%d%H%M%S'))
 LOG_FILE = os.path.join(EXP_DIR, 'log')
-TMP_DIR = '/tmp'
-os.mkdir(EXP_DIR)
-os.mkdir(TMP_DIR)
+TMP_DIR = './tmp'
 
 # Function to return the name of the file containing dataset
 def get_train_file_name(dataset):
@@ -80,23 +80,31 @@ def get_train_file_name(dataset):
 BUDGET = 8 * 60 * 60
 
 # Obtain a reporter object
-# REPORTER = get_reporter('default') # Writes results to stdout
-REPORTER = get_reporter(open(LOG_FILE, 'w')) # Writes to file log_mlp
 
 def main():
   """ Main function. """
+  # Make directories
+  if os.path.exists(TMP_DIR):
+    shutil.rmtree(TMP_DIR)
+  if os.path.exists(EXP_DIR):
+    shutil.rmtree(EXP_DIR)
+  os.mkdir(TMP_DIR)
+  os.mkdir(EXP_DIR)
+  # Obtain a reporter
+  reporter = get_reporter(open(LOG_FILE, 'w')) # Writes to file log_mlp
+
   # First, obtain a function caller: A function_caller is used to evaluate a function
   # defined on a given domain (and a fidelity space). The train_params
   # can be used to specify additional training parameters such as the batch size etc.
   if DATASET == 'cifar10':
     # We have defined the CNNFunctionCaller in cnn_function_caller.py.
     train_params = Namespace(data_dir=CIFAR_DATA_DIR)
-    func_caller = CNNFunctionCaller(CONFIG_FILE, train_params, reporter=REPORTER,
+    func_caller = CNNFunctionCaller(CNN_CONFIG_FILE, train_params, reporter=reporter,
                                     tmp_dir=TMP_DIR)
   else:
     # We have defined the MLPFunctionCaller in mlp_function_caller.py.
     train_params = Namespace(data_train_file=get_train_file_name(DATASET))
-    func_caller = MLPFunctionCaller(CONFIG_FILE, train_params, reporter=REPORTER,
+    func_caller = MLPFunctionCaller(MLP_CONFIG_FILE, train_params, reporter=reporter,
                                     tmp_dir=TMP_DIR)
   # Obtain a worker manager: A worker manager (defined in opt/worker_manager.py) is used
   # to manage (possibly) multiple workers. For a RealWorkerManager, the budget should be
@@ -105,16 +113,16 @@ def main():
 
   # Run the optimiser
   opt_val, opt_nn, _ = bo_from_func_caller(func_caller, worker_manager, BUDGET,
-                                           is_mf=True, reporter=REPORTER)
+                                           is_mf=True, reporter=reporter)
 
   # Print the optimal value and visualise the best network.
-  REPORTER.writeln('\nOptimum value found: %0.5f'%(opt_val))
+  reporter.writeln('\nOptimum value found: %0.5f'%(opt_val))
   if visualise_nn is not None:
     visualise_file = os.path.join(EXP_DIR, 'mlp_optimal_network')
-    REPORTER.writeln('Optimal network visualised in %s.eps.'%(visualise_file))
+    reporter.writeln('Optimal network visualised in %s.eps.'%(visualise_file))
     visualise_nn(opt_nn, visualise_file)
   else:
-    REPORTER.writeln('Install graphviz (pip install graphviz) to visualise the network.')
+    reporter.writeln('Install graphviz (pip install graphviz) to visualise the network.')
 
 
 if __name__ == '__main__':

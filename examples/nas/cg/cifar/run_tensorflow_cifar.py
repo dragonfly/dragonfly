@@ -12,8 +12,6 @@ import argparse
 import tensorflow as tf
 import cg.cifar.cifar10_myMain as cifar10_myMain
 
-from opt.nn_opt_utils import get_initial_pool
-
 
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2' # To remove the tensorflow compilation warnings
 os.environ['TF_SYNC_ON_FINISH'] = '0'

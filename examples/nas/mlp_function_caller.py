@@ -14,8 +14,8 @@ import shutil
 import tempfile
 from time import sleep
 # Local
-from nas.nn_function_caller import NNFunctionCaller
-from nas.cg import run_tensorflow
+from nn_function_caller import NNFunctionCaller
+from cg import run_tensorflow
 
 _MAX_TRIES = 3
 _SLEEP_BETWEEN_TRIES_SECS = 3
@@ -81,11 +81,11 @@ class MLPFunctionCaller(NNFunctionCaller):
         vali_score = run_tensorflow.compute_validation_error(nn, self.data_train,
                        self.data_vali, 0, curr_tf_params, tmp_dir)
         succ_eval = True
-      except:
+      except Exception as e:
         sleep(_SLEEP_BETWEEN_TRIES_SECS)
         num_tries += 1
-        self.reporter.writeln(' -- Failed on try %d with gpu %d.'%(
-                              num_tries, qinfo.worker_id))
+        self.reporter.writeln(' -- Failed on try %d with gpu %d, %s'%(
+                              num_tries, qinfo.worker_id, e))
     self._clean_up(tmp_dir)
     return vali_score
 

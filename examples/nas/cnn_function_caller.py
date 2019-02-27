@@ -12,8 +12,8 @@ import shutil
 import tempfile
 from time import sleep
 # Local
-from nas.nn_function_caller import NNFunctionCaller
-from nas.cg.cifar import run_tensorflow_cifar
+from nn_function_caller import NNFunctionCaller
+from cg.cifar import run_tensorflow_cifar
 
 
 _MAX_TRIES = 3
@@ -61,13 +61,13 @@ class CNNFunctionCaller(NNFunctionCaller):
       try:
         tmp_dir = tempfile.mkdtemp(dir=self.root_tmp_dir)
         vali_error = run_tensorflow_cifar.compute_validation_error(nn, self.data_file_str,
-                      qinfo.worker_id, self.train_params.tf_params, tmp_dir)
+                      qinfo.worker_id, curr_tf_params, tmp_dir)
         succ_eval = True
-      except:
+      except Exception as e:
         sleep(_SLEEP_BETWEEN_TRIES_SECS)
         num_tries += 1
-        self.reporter.writeln(' -- Failed on try %d with gpu %d.'%(
-                              num_tries, qinfo.worker_id))
+        self.reporter.writeln(' -- Failed on try %d with gpu %d: %s.'%(
+                              num_tries, qinfo.worker_id, e))
     self._clean_up(tmp_dir)
     return vali_error
 

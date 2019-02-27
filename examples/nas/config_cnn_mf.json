@@ -1,0 +1,36 @@
+{
+"name": "cnn",
+
+"domain":{
+  "cnn0":{
+    "name":"cnn0",
+    "type":"cnn",
+    "max_num_layers":60,
+    "min_num_layers":5,
+    "max_in_degree":5,
+    "max_out_degree":5,
+    "max_num_edges":200,
+    "max_num_units_per_layer":1024,
+    "min_num_units_per_layer":8
+  },
+
+  "log10_learning_rate":{
+    "name":"log10_learning_rate",
+    "type":"float",
+    "min":-7,
+    "max":-2
+  }
+ },
+
+"fidel_space": {
+  "num_batch_loops":{
+    "name":"num_batch_loops",
+    "type":"int",
+    "min":40,
+    "max":200
+  }
+ },
+
+"fidel_to_opt":[200]
+}
+

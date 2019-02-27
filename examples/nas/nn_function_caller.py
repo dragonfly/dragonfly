@@ -41,7 +41,8 @@ class NNFunctionCaller(CPFunctionCaller):
                reporter='silent'):
     """ Constructor for train params. """
     constructor_args = _get_cpfc_args_from_config(config)
-    super(NNFunctionCaller, self).__init__(None, descr=descr, **constructor_args)
+    super(NNFunctionCaller, self).__init__(None, descr=descr,
+            fidel_cost_func=self._fidel_cost, **constructor_args)
     self.train_params = deepcopy(train_params)
     self.debug_mode = debug_mode
     self.reporter = get_reporter(reporter)

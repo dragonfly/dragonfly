@@ -1,0 +1,25 @@
+{
+"name": "mlp_reg",
+
+"domain":{
+  "mlp0":{
+    "name":"mlp0",
+    "type":"mlp-reg",
+    "max_num_layers":60,
+    "min_num_layers":5,
+    "max_in_degree":5,
+    "max_out_degree":5,
+    "max_num_edges":200,
+    "max_num_units_per_layer":1024,
+    "min_num_units_per_layer":8
+  },
+
+  "log10_learning_rate":{
+    "name":"log10_learning_rate",
+    "type":"float",
+    "min":-7,
+    "max":-2
+  }
+ }
+}
+
