@@ -157,11 +157,36 @@ class NNDomain(Domain):
     else:
       return self.constraint_checker(point)
 
+  @classmethod
+  def members_are_equal(cls, point_1, point_2):
+    """ Returns true if they are equal. """
+    return neural_nets_are_equal(point_1, point_2)
+
   def __str__(self):
     """ Returns a string representation. """
     cc_attrs = {key:getattr(self.constraint_checker, key) for
                 key in self.constraint_checker.constraint_names}
     return 'NN(%s):%s'%(self.nn_type, cc_attrs)
+
+
+def neural_nets_are_equal(net1, net2):
+  """ Returns true if both net1 and net2 are equal.
+  """
+  is_true = True
+  for key in net1.__dict__.keys():
+    val1 = net1.__dict__[key]
+    val2 = net2.__dict__[key]
+    is_true = True
+    if isinstance(val1, dict):
+      for val_key in val1.keys():
+        is_true = is_true and np.all(val1[val_key] == val2[val_key])
+    elif hasattr(val1, '__iter__'):
+      is_true = is_true and np.all(val1 == val2)
+    else:
+      is_true = is_true and val1 == val2
+    if not is_true: # break here if necessary
+      return is_true
+  return is_true
 
 
 # An API to return an NN Domain using the constraints --------------------------------
