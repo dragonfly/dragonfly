@@ -536,6 +536,22 @@ class CPMultiFunctionCaller(MultiFunctionCaller):
       noise_type=noise_type, noise_scale=noise_scale,
       fidel_space=fidel_space, fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt
       )
+    self._set_up_point_reconfiguration()
+
+  def _set_up_point_reconfiguration(self):
+    """ Sets up reconfiguring points if domain orderings etc. are not None. """
+    if self.domain_orderings is not None or self.fidel_space_orderings is not None:
+      from .cp_domain_utils import get_raw_point_from_processed_point
+    if self.domain_orderings is not None:
+      self.get_raw_domain_point_from_processed = \
+        lambda pt: get_raw_point_from_processed_point(pt, self.domain,
+                     self.domain_orderings.index_ordering,
+                     self.domain_orderings.dim_ordering)
+    if self.fidel_space_orderings is not None:
+      self.get_raw_fidel_from_processed = \
+        lambda pt: get_raw_point_from_processed_point(pt, self.fidel_space,
+                     self.fidel_space_orderings.index_ordering,
+                     self.fidel_space_orderings.dim_ordering)
 
   def _child_get_candidate_fidels(self, domain_point, filter_by_cost=True,
                                   *args, **kwargs):

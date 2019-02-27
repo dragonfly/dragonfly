@@ -1011,3 +1011,7 @@ def mf_cp_gpb_from_raw_args(raw_func, raw_fidel_cost_func, domain_config_file,
                                raw_fidel_cost_func=raw_fidel_cost_func)
   return gpb_from_func_caller(func_caller, *args, **kwargs)
 
+
+# Alternative names
+bo_from_func_caller = gpb_from_func_caller
+
