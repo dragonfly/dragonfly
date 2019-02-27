@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import os
+from setuptools import find_packages
 from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError, DistutilsError
 
 from numpy.distutils.core import setup, Extension
 from numpy.distutils.command.build_ext import build_ext as old_build_ext
 from numpy.distutils.fcompiler import CompilerNotFound
-from setuptools import find_packages
 
 class BuildFailed(Exception):
     pass
