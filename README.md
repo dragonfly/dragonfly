@@ -17,7 +17,6 @@ multiple functions simultaneously).
 
 Dragonfly is compatible with python2 and python3 and has been tested on Linux,
 macOS, and Windows platforms.
-For questions and bug reports please email kandasamy@cs.cmu.edu.
 
 
 &nbsp;
@@ -73,7 +72,7 @@ environment. Once that has been done, the library can be installed with pip.
 
 ```bash
 $ pip install numpy
-$ pip install git+https://github.com/dragonfly/dragonfly.git -v
+$ pip install dragonfly-opt -v
 ```
 
 **2. Installation via source:**
@@ -382,7 +381,7 @@ If you use any part of this code in your work, please cite
 This software is released under the MIT license. For more details, please refer
 [LICENSE.txt](https://github.com/dragonfly/dragonfly/blob/master/LICENSE.txt).
 
-For questions, please email kandasamy@cs.cmu.edu
+For questions, please email kandasamy@cs.cmu.edu.
 
 "Copyright 2018-2019 Kirthevasan Kandasamy"
 
