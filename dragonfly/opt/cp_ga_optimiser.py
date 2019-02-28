@@ -189,6 +189,11 @@ def cp_ga_optimiser_from_proc_args(func_caller, cp_domain, worker_manager, max_c
     reporter = get_reporter(reporter)
     options = load_options(cpga_opt_args, reporter=reporter)
   options.mode = mode
+  from ..exd.worker_manager import RealWorkerManager, SyntheticWorkerManager
+  if isinstance(worker_manager, RealWorkerManager):
+    options.capital_type = 'realtime'
+  elif isinstance(worker_manager, SyntheticWorkerManager):
+    options.capital_type = 'return_value'
   return (CPGAOptimiser(func_caller, worker_manager,
                         single_mutation_ops=single_mutation_ops,
                         single_crossover_ops=single_crossover_ops,

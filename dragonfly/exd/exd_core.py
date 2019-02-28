@@ -339,8 +339,8 @@ class ExperimentDesigner(object):
     if self.num_workers > 1:
       parallel_mode = '-asynchronous' if self.is_asynchronous() else '-synchronous'
       method_str += parallel_mode
-    self.reporter.writeln('%s with %s using capital %s'%(problem_str, method_str,
-                          str(self.available_capital)))
+    self.reporter.writeln('%s with %s using capital %s (%s)'%(problem_str, method_str,
+                          str(self.available_capital), self.options.capital_type))
 
   def run_experiment_initialise(self):
     """ Initialisation before running initialisation. """

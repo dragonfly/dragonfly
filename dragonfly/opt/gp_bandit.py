@@ -975,6 +975,11 @@ def gpb_from_func_caller(func_caller, worker_manager, max_capital, is_mf, mode=N
     options.mode = mode
   if mf_strategy is not None:
     options.mf_strategy = mf_strategy
+  from ..exd.worker_manager import RealWorkerManager, SyntheticWorkerManager
+  if isinstance(worker_manager, RealWorkerManager):
+    options.capital_type = 'realtime'
+  elif isinstance(worker_manager, SyntheticWorkerManager):
+    options.capital_type = 'return_value'
   # Domain Specific Parameters
   if isinstance(func_caller.domain, domains.EuclideanDomain) \
     and domain_add_max_group_size >= 0:

@@ -226,10 +226,15 @@ def random_optimiser_from_func_caller(func_caller, worker_manager, max_capital,
   else:
     raise ValueError('Random optimiser not implemented for domain of type %s.'%(
                      type(func_caller.domain)))
-  # Load options
+  # Load options and modify where necessary
   if options is None:
     options = load_options(dflt_list_of_options)
   options.mode = mode
+  from ..exd.worker_manager import RealWorkerManager, SyntheticWorkerManager
+  if isinstance(worker_manager, RealWorkerManager):
+    options.capital_type = 'realtime'
+  elif isinstance(worker_manager, SyntheticWorkerManager):
+    options.capital_type = 'return_value'
   # Create optimiser
   optimiser = optimiser_constructor(func_caller, worker_manager, options, reporter)
   # optimise and return

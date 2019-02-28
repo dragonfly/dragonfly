@@ -18,3 +18,4 @@ direct-f2pywrappers.f
 directmodule.c
 clean_all*
 *set_up*
+*egg-info*
