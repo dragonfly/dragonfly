@@ -836,7 +836,7 @@ class CPGPBandit(GPBandit):
     domain_types = [dom.get_type() for dom in self.domain.list_of_domains]
     if 'neural_network' in domain_types:
       # Because Neural networks can be quite expensive
-      self._set_up_cp_acq_opt_with_params(1, 50, 1e3)
+      self._set_up_cp_acq_opt_with_params(1, 300, 1e3)
     else:
       self._set_up_cp_acq_opt_with_params(1, 1000, 3e4)
 

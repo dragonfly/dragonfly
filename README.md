@@ -15,8 +15,8 @@ evaluations in parallel), multi-fidelity optimisation (using cheap approximation
 to speed up the optimisation process), and multi-objective optimisation (optimising
 multiple functions simultaneously).
 
-Dragonfly is compatible with python2 and python3 and has been tested on Linux,
-macOS, and Windows platforms.
+Dragonfly is compatible with Python2 (>= 2.7) and Python3 (>= 3.5) and has been tested
+on Linux, macOS, and Windows platforms.
 
 
 &nbsp;
