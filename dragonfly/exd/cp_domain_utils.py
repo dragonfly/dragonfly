@@ -17,6 +17,7 @@ from ..utils.general_utils import flatten_list_of_objects_and_iterables, \
                                 get_original_order_from_reordered_list, \
                                 transpose_list_of_lists
 from ..utils.oper_utils import random_sample_from_euclidean_domain, \
+                             random_sample_from_discrete_euclidean_domain, \
                              random_sample_from_integral_domain, \
                              random_sample_from_prod_discrete_domain
 
@@ -98,6 +99,8 @@ def load_domain_from_params(domain_params,
   general_discrete_idxs = []
   general_discrete_numeric_items_list = []
   general_discrete_numeric_idxs = []
+  discrete_euclidean_items_list = []
+  discrete_euclidean_idxs = []
   raw_name_ordering = []
   # We will need the following variables for the function caller and the kernel
   index_ordering = [] # keeps track of which index goes where in the domain
@@ -122,6 +125,13 @@ def load_domain_from_params(domain_params,
       else:
         list_of_domains.append(domains.EuclideanDomain(curr_bounds))
         index_ordering.append(idx)
+    elif param['type'] == 'discrete_euclidean':
+        if param['kernel'] == '':
+            discrete_euclidean_items_list.extend(curr_items)
+            discrete_euclidean_idxs.extend(idx)
+        else:
+            list_of_domains.append(domains.DiscreteEuclideanDomain(curr_items))
+            index_ordering.append(idx)
     elif param['type'] == 'int':
       if param['kernel'] == '':
         general_integral_bounds.extend(curr_bounds)
@@ -370,6 +380,10 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
       if dom.get_type() == 'euclidean':
         curr_domain_samples = random_sample_from_euclidean_domain(dom.bounds, num_samples,
                                                                   euclidean_sample_type)
+      elif dom.get_type() == 'discrete_euclidean':
+        curr_domain_samples = random_sample_from_discrete_euclidean_domain(dom.valid_vectors, num_samples,
+                                                                           euclidean_sample_type)
+
       elif dom.get_type() == 'integral':
         curr_domain_samples = random_sample_from_integral_domain(dom.bounds, num_samples,
                                                                  integral_sample_type)

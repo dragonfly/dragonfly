@@ -42,6 +42,19 @@ def euclidean_gauss_mutation(x, bounds, sigmas=None):
   ret = _get_gauss_perturbation(x, bounds, sigmas)
   return _return_ndarray_with_type(x, ret)
 
+def discrete_euclidean_mutation(x, valid_vectors):
+  """ Makes a change depending on the vector values. """
+  # cdist requires 2d input
+  dists = cdist([x], valid_vectors)[0]
+  # Exponentiate and normalise to get the probabilities.
+  unnorm_diff_probs = np.exp(-dists)
+  sample_diff_probs = unnorm_diff_probs / unnorm_diff_probs.sum()
+  # Now draw the samples
+  idxs = np.arange(len(sample_diff_probs))
+  idx = np.random.choice(idxs, p=sample_diff_probs)
+  ret = valid_vectors[idx]
+  return _return_ndarray_with_type(x, ret)
+
 def integral_gauss_mutation(x, bounds, sigmas=None):
   """ Defines a Euclidean Mutation. """
   ret = _get_gauss_perturbation(x, bounds, sigmas)
@@ -91,6 +104,8 @@ def get_default_mutation_op(dom):
   """ Returns the default mutation operator for the domain. """
   if dom.get_type() == 'euclidean':
     return lambda x: euclidean_gauss_mutation(x, dom.bounds)
+  elif dom.get_type() == 'disc_euclidean':
+    return lambda x: discrete_euclidean_mutation(x, dom.valid_vectors)
   elif dom.get_type() == 'integral':
     return lambda x: integral_gauss_mutation(x, dom.bounds)
   elif dom.get_type() == 'discrete':
