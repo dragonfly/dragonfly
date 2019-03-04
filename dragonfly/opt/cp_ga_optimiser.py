@@ -42,16 +42,20 @@ def euclidean_gauss_mutation(x, bounds, sigmas=None):
   ret = _get_gauss_perturbation(x, bounds, sigmas)
   return _return_ndarray_with_type(x, ret)
 
-def discrete_euclidean_mutation(x, valid_vectors):
+def discrete_euclidean_mutation(x, valid_vectors, uniform_prob=0.2):
   """ Makes a change depending on the vector values. """
   # cdist requires 2d input
   dists = cdist([x], valid_vectors)[0]
   # Exponentiate and normalise to get the probabilities.
   unnorm_diff_probs = np.exp(-dists)
   sample_diff_probs = unnorm_diff_probs / unnorm_diff_probs.sum()
+  # Change the distribution to interplate between it and uniform
+  n = sample_diff_probs.shape[0]
+  unif = np.full(sample_diff_probs.shape, 1. / n)
+  p = (1 - uniform_prob) * sample_diff_probs + uniform_prob * unif
   # Now draw the samples
-  idxs = np.arange(len(sample_diff_probs))
-  idx = np.random.choice(idxs, p=sample_diff_probs)
+  idxs = np.arange(n)
+  idx = np.random.choice(idxs, p=p)
   ret = valid_vectors[idx]
   return _return_ndarray_with_type(x, ret)
 
