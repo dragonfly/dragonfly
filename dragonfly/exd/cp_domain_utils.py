@@ -323,6 +323,7 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
                           euclidean_sample_type='rand',
                           integral_sample_type='rand',
                           nn_sample_type='rand',
+                          discrete_euclidean_sample_type='rand',
                           max_num_retries_for_constraint_satisfaction=10,
                           verbose_constraint_satisfaction=True):
   """ Samples from the CP domain. """
@@ -334,7 +335,7 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
   for _ in range(max_num_retries_for_constraint_satisfaction):
     curr_ret = sample_from_cp_domain_without_constraints(cp_domain, num_samples_to_draw,
                  domain_samplers, euclidean_sample_type, integral_sample_type,
-                 nn_sample_type)
+                 nn_sample_type, discrete_euclidean_sample_type)
     # Check constraints
     if cp_domain.has_constraints():
       constraint_satisfying_ret = [elem for elem in curr_ret if
@@ -368,7 +369,8 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
                                               domain_samplers=None,
                                               euclidean_sample_type='rand',
                                               integral_sample_type='rand',
-                                              nn_sample_type='rand'):
+                                              nn_sample_type='rand',
+                                              discrete_euclidean_sample_type='rand'):
   """ Samples from the CP domain without the constraints. """
   if domain_samplers is None:
     domain_samplers = [None] * cp_domain.num_domains
@@ -382,7 +384,7 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
                                                                   euclidean_sample_type)
       elif dom.get_type() == 'discrete_euclidean':
         curr_domain_samples = random_sample_from_discrete_euclidean_domain(dom.valid_vectors, num_samples,
-                                                                           euclidean_sample_type)
+                                                                           discrete_euclidean_sample_type)
 
       elif dom.get_type() == 'integral':
         curr_domain_samples = random_sample_from_integral_domain(dom.bounds, num_samples,
@@ -399,7 +401,8 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
         curr_domain_samples = sample_from_cp_domain(dom, num_samples,
                                 euclidean_sample_type=euclidean_sample_type,
                                 integral_sample_type=integral_sample_type,
-                                nn_sample_type=nn_sample_type)
+                                nn_sample_type=nn_sample_type,
+                                discrete_euclidean_sample_type=discrete_euclidean_sample_type)
       else:
         raise ValueError('Unknown domain type %s. Provide sampler.'%(dom.get_type()))
       individual_domain_samples.append(curr_domain_samples)
@@ -411,13 +414,14 @@ def sample_from_config_space(config, num_samples,
                              domain_samplers=None,
                              fidel_space_euclidean_sample_type='rand',
                              fidel_space_integral_sample_type='rand',
-                             domain_euclidean_sample_type='rand',
+                             domain_discrete_euclidean_sample_type='rand',
                              domain_integral_sample_type='rand',
                              domain_nn_sample_type='rand',
+                             domain_euclidean_sample_type='rand',
                              ):
   """ Samples from the Domain and possibly the fidelity space. """
   domain_samples = sample_from_cp_domain(config.domain, num_samples, domain_samplers,
-    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type)
+    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type, domain_discrete_euclidean_sample_type=domain_discrete_euclidean_sample_type)
   if hasattr(config, 'fidel_space'):
     fidel_space_samples = sample_from_cp_domain(config.fidel_space, num_samples,
       fidel_space_samplers, fidel_space_euclidean_sample_type,
