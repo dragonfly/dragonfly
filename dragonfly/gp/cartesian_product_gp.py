@@ -23,6 +23,8 @@ from ..utils.reporters import get_reporter
 # Part 1: Parameters and Arguments
 # ================================
 
+# NOTE: The discrete euclidean domain will use the same parameters as the euclidean domain.
+
 # Domain kernel parameters
 _DFLT_DOMAIN_EUC_KERNEL_TYPE = 'matern'
 _DFLT_DOMAIN_INT_KERNEL_TYPE = 'matern'
