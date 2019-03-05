@@ -47,18 +47,16 @@ except ImportError as e:
 # The progress of optimization will be logged in mlp_experiment_dir_<time>/log where
 # <time> is a time stamp.
 
-DATASET = 'slice'
+# DATASET = 'cifar10';
+# DATASET = 'slice';
 # DATASET = 'indoor'
-# DATASET = 'cifar10'
 
 # Which GPU IDs are available
-# GPU_IDS = [0, 1]
 # GPU_IDS = [0, 3]
-GPU_IDS = [1, 2]
-
-CIFAR_DATA_DIR = 'cifar-10-data'
+# GPU_IDS = [1, 2]
 
 # Config file which specifies the domain
+CIFAR_DATA_DIR = 'cifar-10-data'
 MLP_CONFIG_FILE = 'config_mlp_mf.json'
 CNN_CONFIG_FILE = 'config_cnn_mf.json'
 
@@ -113,13 +111,16 @@ def main():
   worker_manager = RealWorkerManager(GPU_IDS, EXP_DIR)
 
   # Run the optimiser
-  opt_val, opt_nn, _ = bo_from_func_caller(func_caller, worker_manager, BUDGET,
+  opt_val, opt_point, _ = bo_from_func_caller(func_caller, worker_manager, BUDGET,
                                            is_mf=True, reporter=reporter)
+  # Convert to "raw" format
+  raw_opt_point = func_caller.get_raw_domain_point_from_processed(opt_point)
+  opt_nn = raw_opt_point[0] # Because first index in the config file is the neural net.
 
   # Print the optimal value and visualise the best network.
   reporter.writeln('\nOptimum value found: %0.5f'%(opt_val))
   if visualise_nn is not None:
-    visualise_file = os.path.join(EXP_DIR, 'mlp_optimal_network')
+    visualise_file = os.path.join(EXP_DIR, 'optimal_network')
     reporter.writeln('Optimal network visualised in %s.eps.'%(visualise_file))
     visualise_nn(opt_nn, visualise_file)
   else:
