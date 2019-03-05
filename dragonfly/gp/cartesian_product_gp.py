@@ -24,6 +24,7 @@ from ..utils.reporters import get_reporter
 # ================================
 
 # NOTE: The discrete euclidean domain will use the same parameters as the euclidean domain.
+# TODO(kirthevasank) Add more information about this note.
 
 # Domain kernel parameters
 _DFLT_DOMAIN_EUC_KERNEL_TYPE = 'matern'
@@ -188,7 +189,7 @@ def get_default_kernel_type(domain_type):
   """ Returns default kernel type for the domain. """
   if domain_type == 'euclidean':
     return _DFLT_DOMAIN_EUC_KERNEL_TYPE
-  elif domain_type == 'disc_euclidean':
+  elif domain_type == 'discrete_euclidean':
     return _DFLT_DOMAIN_EUC_KERNEL_TYPE
   elif domain_type == 'integral':
     return _DFLT_DOMAIN_INT_KERNEL_TYPE
@@ -621,6 +622,7 @@ def _get_disc_options(dom_prefix, options):
 def _get_kernel_type_from_options(dom_type, dom_prefix, options):
   """ Returns kernel type from options. """
   dom_type_descr_dict = {'euclidean': 'euc',
+                         'discrete_euclidean': 'euc',
                          'integral': 'int',
                          'prod_discrete_numeric': 'disc_num',
                          'prod_discrete': 'disc',
