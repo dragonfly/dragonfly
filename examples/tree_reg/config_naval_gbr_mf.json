@@ -1,0 +1,74 @@
+{
+"name": "naval_gbr_mf",
+
+"domain" : {
+
+  "loss" : {
+    "name":"loss",
+    "type":"discrete",
+    "items":"ls-lad-huber"
+  },
+
+  "log10_learning_rate" : {
+    "name":"log10_learning_rate",
+    "type":"float",
+    "min":-3,
+    "max":1
+  },
+
+  "n_estimators" : {
+    "name":"n_estimators",
+    "type":"int",
+    "min":1,
+    "max":1000
+  },
+  
+  "subsample" : {
+    "name":"subsample",
+    "type":"float",
+    "min":0.1,
+    "max":1.0
+  },
+
+  "criterion" : {
+    "name":"criterion",
+    "type":"discrete",
+    "items":"friedman_mse-mse-mae"
+  },
+  
+  "min_samples_split_frac" : {
+    "name":"min_samples_split_frac",
+    "type":"float",
+    "min":0.001,
+    "max":0.5
+  },
+  
+  "min_samples_leaf_frac" : {
+    "name":"min_samples_leaf_frac",
+    "type":"float",
+    "min":0.001,
+    "max":0.5
+  },
+
+  "max_depth" : {
+    "name":"max_depth",
+    "type":"int",
+    "min":3,
+    "max":20
+  }
+
+ },
+
+"fidel_space": {
+  "log_num_tr_data_to_use": {
+    "name":"log_num_tr_data_to_use",
+    "type":"float",
+    "min":8.0063675676502459,
+    "max":9.1049798563183568
+  }
+ },
+
+"fidel_to_opt":[9.1049798563183568]
+
+}
+

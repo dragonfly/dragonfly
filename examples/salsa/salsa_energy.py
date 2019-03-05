@@ -22,5 +22,5 @@ from salsa_energy_mf import salsa_compute_negative_validation_error, MAX_TR_DATA
 
 def objective(x):
   """ Objective. """
-  return salsa_compute_negative_validation_error(x, MAX_TR_DATA_SIZE)
+  return salsa_compute_negative_validation_error([MAX_TR_DATA_SIZE], x)
 

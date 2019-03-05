@@ -1,0 +1,50 @@
+{
+"name": "news_rfr",
+
+"domain" : {
+
+  "n_estimators" : {
+    "name":"n_estimators",
+    "type":"int",
+    "min":1,
+    "max":1000
+  },
+
+  "criterion" : {
+    "name":"criterion",
+    "type":"discrete",
+    "items":"mse-mae"
+  },
+
+  "max_depth" : {
+    "name":"max_depth",
+    "type":"int",
+    "min":3,
+    "max":20
+  },
+  
+  "min_samples_split_frac" : {
+    "name":"min_samples_split_frac",
+    "type":"float",
+    "min":0.001,
+    "max":0.5
+  },
+  
+  "min_samples_leaf_frac" : {
+    "name":"min_samples_leaf_frac",
+    "type":"float",
+    "min":0.001,
+    "max":0.5
+  },
+  
+  "max_features_frac" : {
+    "name":"max_features_frac",
+    "type":"float",
+    "min":0.001,
+    "max":1.0
+  }
+
+ }
+
+}
+
