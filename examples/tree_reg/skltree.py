@@ -138,3 +138,20 @@ def gbr_train_and_validate(hyperparam_vect, data, num_tr_data_to_use,
   return skltree_train_and_validate_wrapper(method, hyperparam_dict, data,
            num_tr_data_to_use, max_tr_data_size, max_va_data_size, *args, **kwargs)
 
+
+def rfr_train_and_validate(hyperparam_vect, data, num_tr_data_to_use,
+                           max_tr_data_size, max_va_data_size, *args, **kwargs):
+  """ Train and validate using random forest regression.
+      The order of elements in hyperparam_vect should follow config_gbr_mf.json.
+  """
+  method = 'rfr'
+  hyperparam_dict = {'n_estimators':hyperparam_vect[0],
+                     'criterion':hyperparam_vect[1],
+                     'max_depth':hyperparam_vect[2],
+                     'min_samples_split':hyperparam_vect[3],
+                     'min_samples_leaf':hyperparam_vect[4],
+                     'max_features':hyperparam_vect[5],
+                    }
+  return skltree_train_and_validate_wrapper(method, hyperparam_dict, data,
+           num_tr_data_to_use, max_tr_data_size, max_va_data_size, *args, **kwargs)
+
