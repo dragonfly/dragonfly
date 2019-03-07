@@ -414,10 +414,10 @@ def sample_from_config_space(config, num_samples,
                              domain_samplers=None,
                              fidel_space_euclidean_sample_type='rand',
                              fidel_space_integral_sample_type='rand',
-                             domain_discrete_euclidean_sample_type='rand',
+                             domain_euclidean_sample_type='rand',
                              domain_integral_sample_type='rand',
                              domain_nn_sample_type='rand',
-                             domain_euclidean_sample_type='rand',
+                             domain_discrete_euclidean_sample_type='rand',
                              ):
   """ Samples from the Domain and possibly the fidelity space. """
   domain_samples = sample_from_cp_domain(config.domain, num_samples, domain_samplers,
