@@ -12,6 +12,7 @@ build/*
 dist/*
 dragonfly.egg-info/*
 *.so
+*.sw*
 log_dir_file
 results_direct_file
 direct-f2pywrappers.f

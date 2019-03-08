@@ -1,0 +1,19 @@
+site_name: Dragonfly
+repo_url: https://github.com/dragonfly/dragonfly
+docs_dir: docs
+theme: readthedocs
+
+pages:
+- Home: 'index.md'
+- Quick Start:
+  - 'Getting Started': 'getting_started.md'
+  - 'Installation': 'install.md'
+  - 'Usage': 'usage.md'
+- Manual:
+  - 'Documentation' : 'documentation.md'
+- Miscellaneous:
+  - 'FAQ': 'faq.md'
+  - 'References': 'references.md'
+
+markdown_extensions:
+- admonition
