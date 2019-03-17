@@ -15,10 +15,10 @@ The optimisation problem can be specified in
 [JSON](https://en.wikipedia.org/wiki/JSON) (recommended) or
 [protocol buffer](https://en.wikipedia.org/wiki/Protocol_Buffers) format.
 See
-[`examples/synthetic/branin/config.json`](examples/synthetic/branin/config.json) and
-[`examples/synthetic/branin/config.pb`](examples/synthetic/branin/config.pb) for examples.
+[`examples/synthetic/branin/config.json`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/branin/config.json) and
+[`examples/synthetic/branin/config.pb`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/branin/config.pb) for examples.
 Then, specify the optimisation parameters in an options file, in the format shown in
-[`examples/options_example.txt`](examples/options_example.txt).
+[`examples/options_example.txt`](https://github.com/dragonfly/dragonfly/tree/master/examples/options_example.txt).
 We have demonstrated these via some examples below.
 
 We recommend using JSON since we have exhaustively tested JSON format.
@@ -31,7 +31,7 @@ If using protocol buffers, you might need to install this package via
 The first example is on the
 [Branin](https://www.sfu.ca/~ssurjano/branin.html) benchmark for global optimisation,
 which is defined in
-[`examples/synthetic/branin/branin.py`](examples/synthetic/branin/branin.py).
+[`examples/synthetic/branin/branin.py`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/branin/branin.py).
 The branin demo can be run via following commands.
 ```bash
 $ cd examples
@@ -44,7 +44,7 @@ $ dragonfly-script.py --config synthetic/branin/config.pb --options options_file
 **Minimisation**:
 By default, Dragonfly *maximises* functions. To minimise a function, set the
 `max_or_min` flag to `min` in the options file as shown in
-[`examples/options_example_for_minimisation.txt`](https://github.com/dragonfly/dragonfly/tree/master/examples/options_example_for_minimisation.txt)
+[`examples/options_example_for_minimisation.txt`](https://github.com/dragonfly/dragonfly/tree/master/examples/options_files/options_example_for_minimisation.txt)
 For example,
 ```bash
 $ cd examples
@@ -121,9 +121,9 @@ are expensive.
 
 Dragonfly also provides functionality for multi-objective optimisation.
 Some synthetic demos are available in the `multiobjective_xxx` directories in
-[`demos_synthetic`](../demos_synthetic).
+[`demos_synthetic`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic).
 For example, to run the
-[`hartmann`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
+[multi-objective hartmann](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
 demo, simpy run
 ```bash
 $ dragonfly-script.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt

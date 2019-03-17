@@ -80,7 +80,7 @@ $ pip install cython POT
 ```
 
 Below is an architecture search demo on a synthetic function.
-See the [`examples/nas`](examples/nas) directory for demos of NASBOT in using some large
+See the [`examples/nas`](https://github.com/dragonfly/dragonfly/tree/master/examples/nas) directory for demos of NASBOT in using some large
 datasets.
 ```bash
 $ cd examples

@@ -43,7 +43,7 @@ ext1 = Extension(name='dragonfly.utils.direct_fortran.direct',
 
 setup_options = dict(
     name='dragonfly-opt',
-    version="0.0.3",
+    version="0.1.0",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url='https://github.com/dragonfly/dragonfly/',

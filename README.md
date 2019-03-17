@@ -40,9 +40,6 @@ $ sudo apt-get install python-dev python3-dev gfortran # On Ubuntu/Debian
 $ pip install numpy
 $ pip install dragonfly-opt -v
 ```
-If the installation fails or if there are warning messages, see detailed instructions
-[here](https://dragonfly-opt.readthedocs.io/en/master/install/).
-
 
 
 **Testing the Installation**:
@@ -62,6 +59,10 @@ Due to stochasticity in the algorithms, the above values for `min_val`, `min_pt`
 different. If you run it for longer (e.g.
 `min_val, min_pt, history = minimise_function(lambda x: x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 100)`),
 you should get more consistent values for the minimum. 
+
+
+If the installation fails or if there are warning messages, see detailed instructions
+[here](https://dragonfly-opt.readthedocs.io/en/master/install/).
 
 
 &nbsp;
