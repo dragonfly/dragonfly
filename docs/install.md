@@ -93,7 +93,7 @@ $ cd dragonfly/utils/direct_fortran
 $ bash make_direct.sh
 ```
 This should create a file `direct.so` in the 
-[`direct_fortran`](dragonfly/utils/direct_fortran) directory.
+[`direct_fortran`](https://github.com/dragonfly/dragonfly/tree/master/dragonfly/utils/direct_fortran) directory.
 If not,
 you can still use Dragonfly, but it might be slightly slower.
 Alternatively, please refer the steps above to install a Fortran compiler.

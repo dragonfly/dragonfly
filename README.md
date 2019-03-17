@@ -19,6 +19,7 @@ Dragonfly is compatible with Python2 (>= 2.7) and Python3 (>= 3.5) and has been 
 on Linux, macOS, and Windows platforms.
 
 &nbsp;
+
 For documentation, installation, and a getting started guid, please see our
 [readthedocs page](https://dragonfly-opt.readthedocs.io).
 
@@ -26,8 +27,9 @@ For documentation, installation, and a getting started guid, please see our
 
 ## Installation
 
-For detailed instructions on installing Dragonfly and its dependencies, see the
-[documentation](https://dragonfly-opt.readthedocs.io/en/master/install/).
+See 
+[here](https://dragonfly-opt.readthedocs.io/en/master/install/)
+for detailed instructions on installing Dragonfly and its dependencies.
 
 **Quick Installation:**
 If you have done this kind of thing before, you should be able to install
@@ -57,10 +59,9 @@ $ python
 (-0.32122746026750953, array([-0.7129672]))
 ```
 Due to stochasticity in the algorithms, the above values for `min_val`, `min_pt` may be
-different. If you run it for longer (e.g. `min_val, min_pt, history =
-minimise_function(lambda x:
-x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 100)`), you should get more consistent values for
-the minimum. 
+different. If you run it for longer (e.g.
+`min_val, min_pt, history = minimise_function(lambda x: x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 100)`),
+you should get more consistent values for the minimum. 
 
 
 &nbsp;
@@ -74,8 +75,8 @@ or be imported in python code via the `maximise_function` function in the main l
 To help get started, we have provided some examples in the
 [`examples`](examples) directory.
 See our readthedocs getting started pages
-([`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
-[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/))
+([command line](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
+[Python](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/))
 for examples and use cases.
 
 **Command line**:
@@ -116,9 +117,11 @@ for more detailed examples.
 For a comprehensive list of uses cases, including multi-objective optimisation,
 multi-fidelity optimisation, neural architecture search, and other optimisation
 methods (besides Bayesian optimisation), see our readthe docs pages
-([`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
-[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)).
+([command line](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
+[Python](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)).
 
+
+&nbsp;
 
 ### Contributors
 

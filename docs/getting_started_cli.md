@@ -44,7 +44,7 @@ $ dragonfly-script.py --config synthetic/branin/config.pb --options options_file
 **Minimisation**:
 By default, Dragonfly *maximises* functions. To minimise a function, set the
 `max_or_min` flag to `min` in the options file as shown in
-[`examples/options_example_for_minimisation.txt`](https://github.com/dragonfly/dragonfly/examples/options_example_for_minimisation.txt)
+[`examples/options_example_for_minimisation.txt`](https://github.com/dragonfly/dragonfly/tree/master/examples/options_example_for_minimisation.txt)
 For example,
 ```bash
 $ cd examples
@@ -67,9 +67,9 @@ $ dragonfly-script.py --config synthetic/branin/config_mf.json --options options
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
 domain which includes a combination of these variables.
 See other demos on synthetic functions in the
-[`examples/synthetic`](https://github.com/dragonfly/dragonfly/examples/synthetic) directory.
+[`examples/synthetic`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic) directory.
 For example, to run the multi-fidelity
-[`park2_3`](https://github.com/dragonfly/dragonfly/examples/synthetic/park2_3/park2_3_mf.py)
+[`park2_3`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/park2_3/park2_3_mf.py)
 demo, simply run
 ```bash
 $ cd examples
@@ -123,7 +123,7 @@ Dragonfly also provides functionality for multi-objective optimisation.
 Some synthetic demos are available in the `multiobjective_xxx` directories in
 [`demos_synthetic`](../demos_synthetic).
 For example, to run the
-[`hartmann`](https://github.com/dragonfly/dragonfly/examples/synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
+[`hartmann`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
 demo, simpy run
 ```bash
 $ dragonfly-script.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt

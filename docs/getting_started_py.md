@@ -6,11 +6,11 @@ the main library.
 
 
 The main APIs for Dragonfly are declared in
-[`dragonfly/__init__.py`](https://github.com/dragonfly/dragonfly/dragonfly/__init__.py) and defined in the
-[`dragonfly/apis`](https://github.com/dragonfly/dragonfly/dragonfly/apis) directory.
+[`dragonfly/__init__.py`](https://github.com/dragonfly/dragonfly/tree/master/dragonfly/__init__.py) and defined in the
+[`dragonfly/apis`](https://github.com/dragonfly/dragonfly/tree/master/dragonfly/apis) directory.
 For their definitions and arguments, see
-[`dragonfly/apis/opt.py`](https://github.com/dragonfly/dragonfly/dragonfly/apis/opt.py) and
-[`dragonfly/apis/moo.py`](https://github.com/dragonfly/dragonfly/dragonfly/apis/moo.py).
+[`dragonfly/apis/opt.py`](https://github.com/dragonfly/dragonfly/tree/master/dragonfly/apis/opt.py) and
+[`dragonfly/apis/moo.py`](https://github.com/dragonfly/dragonfly/tree/master/dragonfly/apis/moo.py).
 
 
 You can import the main API in python code via,
@@ -35,9 +35,9 @@ and the corresponding optimum point. `history.query_points` contains the points 
 the
 algorithm and `history.query_vals` contains the function values.
 
-[`examples/synthetic/branin/in_code_demo.py`](https://github.com/dragonfly/dragonfly/examples/synthetic/branin/in_code_demo.py)
+[`examples/synthetic/branin/in_code_demo.py`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/branin/in_code_demo.py)
 and
-[`examples/supernova/in_code_demo.py`](https://github.com/dragonfly/dragonfly/examples/supernova/in_code_demo.py)
+[`examples/supernova/in_code_demo.py`](https://github.com/dragonfly/dragonfly/tree/master/examples/supernova/in_code_demo.py)
 demonstrate the use case for the branin and supernova problems respectively.
 To execute these files, simply run
 ```bash
