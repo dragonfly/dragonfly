@@ -6,8 +6,9 @@ theme: readthedocs
 pages:
 - Home: 'index.md'
 - Quick Start:
-  - 'Getting Started': 'getting_started.md'
   - 'Installation': 'install.md'
+  - 'Getting Started - Command Line': 'getting_started_commandline.md'
+  - 'Getting Started - Code': 'getting_started_code.md'
   - 'Usage': 'usage.md'
 - Manual:
   - 'Documentation' : 'documentation.md'

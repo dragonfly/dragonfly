@@ -1,3 +1,4 @@
+### Coming soon
 
 An example of maximum likelihood estimation using data on Luminous Red Galaxies.
 
@@ -10,5 +11,4 @@ Then, run the following commands from this directory.
 ```bash
 $ dragonfly-script.py --config config_lrg.json --options ../options_files/options_example.txt
 ```
-
 

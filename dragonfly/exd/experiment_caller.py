@@ -331,6 +331,10 @@ class MultiFunctionCaller(ExperimentCaller):
       self._has_many_functions = True
       self.num_funcs = len(self.funcs)
       return lambda *_args, **_kwargs: [float(f(*_args, **_kwargs)) for f in self.funcs]
+    elif isinstance(self.funcs, tuple) and len(self.funcs) == 2:
+      self._has_many_functions = True
+      self.num_funcs = self.funcs[1]
+      return lambda *_args, **_kwargs: self.funcs[0](*_args, **_kwargs)
     else:
       self._has_many_functions = False
       return lambda *_args, **_kwargs: float(self.funcs(*_args, **_kwargs))

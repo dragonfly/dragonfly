@@ -3,6 +3,12 @@
   -- kandasamy@cs.cmu.edu
 """
 
+# You should have one of the following two in this file:
+#   1. objectives: A list of functions, each of which corresponds to an objective.
+#   2. A function called compute_objectives which returns the value of all objectives when
+#      called as a list, and an integer called num_objectives which indicates the number
+#      of objectives.
+
 # pylint: disable=invalid-name
 
 import numpy as np
@@ -41,14 +47,12 @@ def currin_exp(x):
 
 
 
-# Define the following
+# Option 1
 objectives = [branin, currin_exp]
 
-def compute_objectives(x):
-  """ Computes the objectives. """
-  return [obj(x) for obj in objectives]
-
-def main(x):
-  """ Main function. """
-  return compute_objectives(x)
+# # Option 2
+# num_objectives = 2
+# def compute_objectives(x):
+#   """ Computes the objectives. """
+#   return [obj(x) for obj in objectives]
 
