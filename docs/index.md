@@ -1,8 +1,9 @@
 <h1>Dragonfly Documentation</h1>
 
 <h3>Quick Start</h3>
-  * [Getting started](getting_started.md)
   * [Installation](install.md)
+  * [Getting started -- Command Line](getting_started_code.md)
+  * [Getting started -- Python](getting_started_py.md)
   * [Usage](usage.md)
 
 <h3>Manual</h3>
