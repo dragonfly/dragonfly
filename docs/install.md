@@ -39,6 +39,8 @@ These packages may already be pre-installed in your system.
 If you are unable to install these packages, then you can still use Dragonfly, but
 it might be slightly slower.  
 
+&nbsp;
+
 You can now install Dragonfly via one of the four steps below.
 
 **1. Installation via pip (recommended):**

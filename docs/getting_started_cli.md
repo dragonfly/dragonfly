@@ -25,6 +25,9 @@ We recommend using JSON since we have exhaustively tested JSON format.
 If using protocol buffers, you might need to install this package via
 `pip install protobuf`.
 
+&nbsp;
+
+**Basic use case**:
 The first example is on the
 [Branin](https://www.sfu.ca/~ssurjano/branin.html) benchmark for global optimisation,
 which is defined in
@@ -32,15 +35,16 @@ which is defined in
 The branin demo can be run via following commands.
 ```bash
 $ cd examples
-$ dragonfly-script.py --config synthetic/branin/config.json --options
-options_files/options_example.txt
-$ dragonfly-script.py --config synthetic/branin/config.pb --options
-options_files/options_example.txt
+$ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example.txt
+$ dragonfly-script.py --config synthetic/branin/config.pb --options options_files/options_example.txt
 ```
-*Minimisation*:
+
+&nbsp;
+
+**Minimisation**:
 By default, Dragonfly *maximises* functions. To minimise a function, set the
 `max_or_min` flag to `min` in the options file as shown in
-[`examples/options_example_for_minimisation.txt`](examples/options_example_for_minimisation.txt)
+[`examples/options_example_for_minimisation.txt`](https://github.com/dragonfly/dragonfly/examples/options_example_for_minimisation.txt)
 For example,
 ```bash
 $ cd examples
@@ -48,33 +52,33 @@ $ dragonfly-script.py --config synthetic/branin/config.json --options
 options_files/options_example_for_minimisation.txt
 ```
 
-*Multi-fidelity Optimisation*:
+&nbsp;
+
+**Multi-fidelity Optimisation**:
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
 $ cd examples
-$ dragonfly-script.py --config synthetic/branin/config_mf.json --options
-options_files/options_example.txt
+$ dragonfly-script.py --config synthetic/branin/config_mf.json --options options_files/options_example.txt
 ```
 
 &nbsp;
 
-*Specifying the Domain*:
+**Specifying the Domain**:
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
 domain which includes a combination of these variables.
 See other demos on synthetic functions in the
-[`examples/synthetic`](examples/synthetic) directory.
+[`examples/synthetic`](https://github.com/dragonfly/dragonfly/examples/synthetic) directory.
 For example, to run the multi-fidelity
-[`park2_3`](examples/synthetic/park2_3/park2_3_mf.py)
+[`park2_3`](https://github.com/dragonfly/dragonfly/examples/synthetic/park2_3/park2_3_mf.py)
 demo, simply run
 ```bash
 $ cd examples
-$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options
-options_files/options_example.txt
+$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options options_files/options_example.txt
 ```
 
 &nbsp;
 
-*Optimisation on a time budget*:
+**Optimisation on a time budget**:
 Dragonfly also allows specifying a time budget for optimisation.
 The next demo is a maximum likelihood problem in computational astrophysics,
 where we wish to estimate cosmological parameters from Type Ia supernova data.
@@ -84,10 +88,8 @@ This uses a time budget of 2 hours.
 
 ```bash
 $ cd examples
-$ dragonfly-script.py --config supernova/config.json --options
-options_files/options_example_realtime.txt
-$ dragonfly-script.py --config supernova/config_mf.json --options
-options_files/options_example_realtime.txt    # For multi-fidelity version
+$ dragonfly-script.py --config supernova/config.json --options options_files/options_example_realtime.txt
+$ dragonfly-script.py --config supernova/config_mf.json --options options_files/options_example_realtime.txt    # For multi-fidelity version
 ```
 
 
@@ -104,10 +106,8 @@ Euclidean domains, and evolutionary algorithms for non-Euclidean domains.
 See example below.
 ```bash
 $ cd examples
-$ dragonfly-script.py --config synthetic/branin/config.json --options
-options_files/options_example_pdoo.txt
-$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options
-options_files/options_example_ea.txt
+$ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example_pdoo.txt
+$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options options_files/options_example_ea.txt
 ```
 You will notice that they run significantly faster than BO.
 However, these methods will perform worse than BO on the supernova problem as evaluations
@@ -123,9 +123,11 @@ Dragonfly also provides functionality for multi-objective optimisation.
 Some synthetic demos are available in the `multiobjective_xxx` directories in
 [`demos_synthetic`](../demos_synthetic).
 For example, to run the
-[`hartmann`](../demos_synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
+[`hartmann`](https://github.com/dragonfly/dragonfly/examples/synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
 demo, simpy run
 ```bash
 $ dragonfly-script.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt
 ```
+
+&nbsp;
 

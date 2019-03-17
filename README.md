@@ -24,7 +24,7 @@ on Linux, macOS, and Windows platforms.
 ## Installation
 
 For detailed instructions on installing Dragonfly and its dependencies, see the
-[documentation](https://dragonfly-opt.readthedocs.io/en/docs/install/).
+[documentation](https://dragonfly-opt.readthedocs.io/en/master/install/).
 
 **Quick Installation:**
 If you have done this kind of thing before, you should be able to install
@@ -36,7 +36,7 @@ $ pip install numpy
 $ pip install dragonfly-opt -v
 ```
 If the installation fails or if there are warning messages, see detailed instructions
-[here](https://dragonfly-opt.readthedocs.io/en/docs/install/).
+[here](https://dragonfly-opt.readthedocs.io/en/master/install/).
 
 
 
@@ -71,10 +71,8 @@ or be imported in python code via the `maximise_function` function in the main l
 To help get started, we have provided some examples in the
 [`examples`](examples) directory.
 See our readthedocs getting started pages
-(
-[`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
-[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)
-)
+([`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
+[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/))
 for examples and use cases.
 
 **Command line**:
@@ -105,13 +103,19 @@ print(max_val, max_pt)
 Here, `func` is the function to be maximised,
 `domain` is the domain over which `func` is to be optimised,
 and `max_capital` is the capital available for optimisation.
+See
+[`examples/synthetic/branin/in_code_demo.py`](examples/synthetic/branin/in_code_demo.py)
+and
+[`examples/supernova/in_code_demo.py`](examples/supernova/in_code_demo.py)
+for more detailed examples.
 
 
-For a comprehensive list of uses case, see our readthe docs pages
-(
-[`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
-[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)
-).
+
+For a comprehensive list of uses cases, including multi-objective optimisation,
+multi-fidelity optimisation, neural architecture search, and other optimisation
+methods (besides Bayesian optimisation), see our readthe docs pages
+([`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
+[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)).
 
 
 ### Contributors
