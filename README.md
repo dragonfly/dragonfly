@@ -18,6 +18,9 @@ multiple functions simultaneously).
 Dragonfly is compatible with Python2 (>= 2.7) and Python3 (>= 3.5) and has been tested
 on Linux, macOS, and Windows platforms.
 
+&nbsp;
+For documentation, installation, and a getting started guid, please see our
+[readthedocs page](https://dragonfly-opt.readthedocs.io).
 
 &nbsp;
 
@@ -83,9 +86,8 @@ $ dragonfly-script.py --config synthetic/branin/config.json --options options_fi
 ```
 
 **In Python code**:
-The main APIs for Dragonfly are declared in
-[`dragonfly/__init__.py`](dragonfly/__init__.py) and defined in the 
-[`dragonfly/apis`](dragonfly/apis) directory.
+The main APIs for Dragonfly are defined in
+[`dragonfly/apis`](dragonfly/apis).
 For their definitions and arguments, see
 [`dragonfly/apis/opt.py`](dragonfly/apis/opt.py) and
 [`dragonfly/apis/moo.py`](dragonfly/apis/moo.py).
