@@ -8,7 +8,7 @@ pages:
 - Quick Start:
   - 'Installation': 'install.md'
   - 'Getting Started - Command Line': 'getting_started_cli.md'
-  - 'Getting Started - Code': 'getting_started_code.md'
+  - 'Getting Started - Code': 'getting_started_py.md'
   - 'Usage': 'usage.md'
 - Manual:
   - 'Documentation' : 'documentation.md'
