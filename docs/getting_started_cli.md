@@ -1,15 +1,12 @@
-# Getting started
+# Getting started in Command Line
 
 Dragonfly can be
 used directly in the command line by calling
-[`dragonfly-script.py`](../bin/dragonfly-script.py)
-or be imported in python code via the `maximise_function` function in the main library.
+[`dragonfly-script.py`](../bin/dragonfly-script.py).
 To help get started, we have provided some demos in the `demos_synthetic` directory.
 If you have pip installed, you will need to clone the repository to access the demos.
 
-**Via command line**:
-
-To use Dragonfly via the command line, we need to specify the optimisation problem (i.e.
+To use Dragonfly, we need to specify the optimisation problem (i.e.
 the function to be maximised and the domain) and the optimisation parameters.
 We have demonstrated these on the
 [`branin`](https://www.sfu.ca/~ssurjano/branin.html) function and a
@@ -79,39 +76,6 @@ $ dragonfly-script.py --config demos_real/face_rec/config.pb --options demos_rea
 
 &nbsp;
 
-**In python code**:
-
-You can import the main API in python code via,
-```python
-from dragonfly import minimise_function, maximise_function
-func = lambda x: lambda x: x ** 4 - x**2 + 0.1 * x
-domain = [[-10, 10]]
-max_capital = 100
-min_val, min_pt, history = minimise_function(func, domain, max_capital)
-...
-print(min_val, min_pt)
-min_val, min_pt, history = maximise_function(lambda x: -func(x), domain, max_capital)
-```
-Here, `func` is the function to be maximised,
-`domain` is the domain over which `func` is to be optimised,
-and `max_capital` is the capital available for optimisation.
-In simple sequential settings, `max_capital` is simply the maximum number of evaluations
-to `func`, but it can also be used to specify an available time budget and other forms
-of resource constraints. The `maximise_function` returns history along with the optimum value
-and the corresponding optimum point. `history.query_points` contains the points queried by the
-algorithm and `history.query_vals` contains the function values.
-
-[`demos_synthetic/branin/in_code_demo.py`](../demos_synthetic/branin/in_code_demo.py) and
-[`demos_real/face_rec/in_code_demo.py`](../demos_real/face_rec/in_code_demo.py)
-demonstrate the use case for the branin function and face recognition demos respectively.
-To execute this file, simply run
-```bash
-$ python demos_synthetic/branin/in_code_demo.py
-$ python demos_real/face_rec/in_code_demo.py
-```
-
-&nbsp;
-
 **Multiobjective optimisation**
 
 Dragonfly also provides functionality for multi-objective optimisation.
@@ -124,15 +88,3 @@ demo, simpy run
 $ dragonfly-script.py --config demos_synthetic/multiobjective_hartmann/config.json --options demos_synthetic/multiobjective_options_example.txt
 ```
 
-Similarly, you can import and run this in python code via,
-```python
-from dragonfly import multiobjective_maximise_functions
-...
-pareto_max_values, pareto_points, history = multiobjective_maximise_functions(funcs, domain, max_capital)
-pareto_min_values, pareto_points, history = multiobjective_minimise_functions(funcs, domain, max_capital)
-```
-Here, `funcs` is a list of functions to be maximised,
-`domain` is the domain  and `max_capital` is the capital available for optimisation.
-`pareto_values` are the
-[Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
-function values and `pareto_points` are the corresponding points in `domain`.

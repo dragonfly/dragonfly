@@ -7,7 +7,7 @@ pages:
 - Home: 'index.md'
 - Quick Start:
   - 'Installation': 'install.md'
-  - 'Getting Started - Command Line': 'getting_started_commandline.md'
+  - 'Getting Started - Command Line': 'getting_started_cli.md'
   - 'Getting Started - Code': 'getting_started_code.md'
   - 'Usage': 'usage.md'
 - Manual:

@@ -26,7 +26,7 @@ on Linux, macOS, and Windows platforms.
 For detailed instructions on installing Dragonfly and its dependencies, see the
 [documentation](https://dragonfly-opt.readthedocs.io/en/docs/install/).
 
-** Quick Installation: **
+**Quick Installation:**
 If you have done this kind of thing before, you should be able to install
 Dragonfly via `pip`.
 
