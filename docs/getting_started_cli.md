@@ -1,78 +1,119 @@
 # Getting started in Command Line
 
+
 Dragonfly can be
 used directly in the command line by calling
-[`dragonfly-script.py`](../bin/dragonfly-script.py).
-To help get started, we have provided some demos in the `demos_synthetic` directory.
-If you have pip installed, you will need to clone the repository to access the demos.
+[`dragonfly-script.py`](bin/dragonfly-script.py)
+or be imported in python code via the `maximise_function` function in the main library.
+To help get started, we have provided some examples in the
+[`examples`](examples) directory.
+*If you have pip installed, you will need to clone the repository to access the demos.*
 
-To use Dragonfly, we need to specify the optimisation problem (i.e.
+To use Dragonfly via the command line, we need to specify the optimisation problem (i.e.
 the function to be maximised and the domain) and the optimisation parameters.
-We have demonstrated these on the
-[`branin`](https://www.sfu.ca/~ssurjano/branin.html) function and a
-[`face recognition`](http://scikit-learn.org/0.15/auto_examples/applications/face_recognition.html)
-example from [`scikit`](http://scikit-learn.org/0.15/index.html) in the [`demos_synthetic`](../demos_synthetic) directory.
-The former is a common benchmark for global optimisation while the latter is a
-model selection problem in machine learning.
-The functions to be maximised in these problems are defined in
-[`demos_synthetic/branin/branin.py`](../demos_synthetic/branin/branin.py) and
-[`demos_real/face_rec/face_rec.py`](../demos_real/face_rec/face_rec.py) respectively.
-The name of this file and the domain should be specified in
+The optimisation problem can be specified in
 [JSON](https://en.wikipedia.org/wiki/JSON) (recommended) or
 [protocol buffer](https://en.wikipedia.org/wiki/Protocol_Buffers) format.
 See
-[`demos_synthetic/branin/config.json`](../demos_synthetic/branin/config.json) and
-[`demos_synthetic/branin/config.pb`](../demos_synthetic/branin/config.pb) for examples.
+[`examples/synthetic/branin/config.json`](examples/synthetic/branin/config.json) and
+[`examples/synthetic/branin/config.pb`](examples/synthetic/branin/config.pb) for examples.
 Then, specify the optimisation parameters in an options file, in the format shown in
-[`demos_synthetic/options_example.txt`](../demos_synthetic/options_example.txt).
+[`examples/options_example.txt`](examples/options_example.txt).
+We have demonstrated these via some examples below.
 
 We recommend using JSON since we have exhaustively tested JSON format.
 If using protocol buffers, you might need to install this package via
 `pip install protobuf`.
 
+The first example is on the
+[Branin](https://www.sfu.ca/~ssurjano/branin.html) benchmark for global optimisation,
+which is defined in
+[`examples/synthetic/branin/branin.py`](examples/synthetic/branin/branin.py).
 The branin demo can be run via following commands.
 ```bash
-$ dragonfly-script.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example.txt
-$ dragonfly-script.py --config demos_synthetic/branin/config.pb --options demos_synthetic/options_example.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config.json --options
+options_files/options_example.txt
+$ dragonfly-script.py --config synthetic/branin/config.pb --options
+options_files/options_example.txt
 ```
+*Minimisation*:
 By default, Dragonfly *maximises* functions. To minimise a function, set the
 `max_or_min` flag to `min` in the options file as shown in
-[`demos_synthetic/options_example_for_minimisation.txt`](../demos_synthetic/options_example_for_minimisation.txt)
+[`examples/options_example_for_minimisation.txt`](examples/options_example_for_minimisation.txt)
 For example,
 ```bash
-$ dragonfly-script.py --config demos_synthetic/branin/config.json --options demos_synthetic/options_example_for_minimisation.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config.json --options
+options_files/options_example_for_minimisation.txt
 ```
 
-
+*Multi-fidelity Optimisation*:
 The multi-fidelity version of the branin demo can be run via following command.
 ```bash
-$ dragonfly-script.py --config demos_synthetic/branin/config_mf.json --options demos_synthetic/options_example.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config_mf.json --options
+options_files/options_example.txt
 ```
 
 &nbsp;
 
+*Specifying the Domain*:
 Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
 domain which includes a combination of these variables.
 See other demos on synthetic functions in the
-[`demos_synthetic`](../demos_synthetic) directory.
-For example, to run the multi-fidelity [`park2_3`](../demos_synthetic/park2_3/park2_3_mf.py)
-demo, simpy run
+[`examples/synthetic`](examples/synthetic) directory.
+For example, to run the multi-fidelity
+[`park2_3`](examples/synthetic/park2_3/park2_3_mf.py)
+demo, simply run
 ```bash
-$ dragonfly-script.py --config demos_synthetic/park2_3/config_mf.json --options demos_synthetic/options_example.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options
+options_files/options_example.txt
+```
+
+&nbsp;
+
+*Optimisation on a time budget*:
+Dragonfly also allows specifying a time budget for optimisation.
+The next demo is a maximum likelihood problem in computational astrophysics,
+where we wish to estimate cosmological parameters from Type Ia supernova data.
+The demos for Bayesian optimisation and multi-fidelity Bayesian optimisation
+can be run via the following commands.
+This uses a time budget of 2 hours.
+
+```bash
+$ cd examples
+$ dragonfly-script.py --config supernova/config.json --options
+options_files/options_example_realtime.txt
+$ dragonfly-script.py --config supernova/config_mf.json --options
+options_files/options_example_realtime.txt    # For multi-fidelity version
 ```
 
 
-The face recognition demo tunes hyper-parameters of a face regognition model.
-It can be run via the following commands.
-You will need to install
-[`scikit-learn`](http://scikit-learn.org), which can be done via
-`pip install scikit-learn`.
-Running this demo the first time will be slow since the dataset needs to be downloaded.
+&nbsp;
 
+
+*Other methods*:
+BO is ideally suited for expensive function evaluations - it aims to find the optimum
+in as few evaluations and invests significant computation to do so.
+This pays dividends if the evaluations are expensive.
+However,
+if your function evaluations are cheap, we recommended using DiRect or PDOO for
+Euclidean domains, and evolutionary algorithms for non-Euclidean domains.
+See example below.
 ```bash
-$ dragonfly-script.py --config demos_real/face_rec/config.json --options demos_real/face_rec/options.txt
-$ dragonfly-script.py --config demos_real/face_rec/config.pb --options demos_real/face_rec/options.txt
+$ cd examples
+$ dragonfly-script.py --config synthetic/branin/config.json --options
+options_files/options_example_pdoo.txt
+$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options
+options_files/options_example_ea.txt
 ```
+You will notice that they run significantly faster than BO.
+However, these methods will perform worse than BO on the supernova problem as evaluations
+are expensive.
+
+
 
 &nbsp;
 

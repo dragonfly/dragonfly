@@ -62,7 +62,7 @@ the minimum.
 
 &nbsp;
 
-## Getting started
+## Quick Start
 
 Dragonfly can be
 used directly in the command line by calling
@@ -70,109 +70,27 @@ used directly in the command line by calling
 or be imported in python code via the `maximise_function` function in the main library.
 To help get started, we have provided some examples in the
 [`examples`](examples) directory.
-*If you have pip installed, you will need to clone the repository to access the demos.*
+See our readthedocs getting started pages
+(
+[`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
+[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)
+)
+for examples and use cases.
 
-**Via command line**:
-
-To use Dragonfly via the command line, we need to specify the optimisation problem (i.e.
-the function to be maximised and the domain) and the optimisation parameters.
-The optimisation problem can be specified in
-[JSON](https://en.wikipedia.org/wiki/JSON) (recommended) or
-[protocol buffer](https://en.wikipedia.org/wiki/Protocol_Buffers) format.
-See
-[`examples/synthetic/branin/config.json`](examples/synthetic/branin/config.json) and
-[`examples/synthetic/branin/config.pb`](examples/synthetic/branin/config.pb) for examples.
-Then, specify the optimisation parameters in an options file, in the format shown in
-[`examples/options_example.txt`](examples/options_example.txt).
-We have demonstrated these via some examples below.
-
-We recommend using JSON since we have exhaustively tested JSON format.
-If using protocol buffers, you might need to install this package via
-`pip install protobuf`.
-
-The first example is on the
-[Branin](https://www.sfu.ca/~ssurjano/branin.html) benchmark for global optimisation,
-which is defined in [`examples/synthetic/branin/branin.py`](examples/synthetic/branin/branin.py).
-The branin demo can be run via following commands.
+**Command line**:
+Below is an example usage in the command line.
 ```bash
 $ cd examples
 $ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example.txt
-$ dragonfly-script.py --config synthetic/branin/config.pb --options options_files/options_example.txt
-```
-*Minimisation*:
-By default, Dragonfly *maximises* functions. To minimise a function, set the
-`max_or_min` flag to `min` in the options file as shown in
-[`examples/options_example_for_minimisation.txt`](examples/options_example_for_minimisation.txt)
-For example,
-```bash
-$ cd examples
-$ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example_for_minimisation.txt
 ```
 
-
-*Multi-fidelity Optimisation*:
-The multi-fidelity version of the branin demo can be run via following command.
-```bash
-$ cd examples
-$ dragonfly-script.py --config synthetic/branin/config_mf.json --options options_files/options_example.txt
-```
-
-Dragonfly can be run on Euclidean, integral, discrete, and discrete numeric domains, or a
-domain which includes a combination of these variables.
-See other demos on synthetic functions in the
-[`examples/synthetic`](examples/synthetic) directory.
-For example, to run the multi-fidelity [`park2_3`](examples/synthetic/park2_3/park2_3_mf.py)
-demo, simply run
-```bash
-$ cd examples
-$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options options_files/options_example.txt
-```
-
-*Optimisation on a time budget*:
-Dragonfly also allows specifying a time budget for optimisation.
-The next demo is a maximum likelihood problem in computational astrophysics,
-where we wish to estimate cosmological parameters from Type Ia supernova data.
-The demos for Bayesian optimisation and multi-fidelity Bayesian optimisation
-can be run via the following commands.
-This uses a time budget of 2 hours.
-
-```bash
-$ cd examples
-$ dragonfly-script.py --config supernova/config.json --options options_files/options_example_realtime.txt
-$ dragonfly-script.py --config supernova/config_mf.json --options options_files/options_example_realtime.txt    # For multi-fidelity version
-```
-
-
-*Other methods*:
-BO is ideally suited for expensive function evaluations - it aims to find the optimum
-in as few evaluations and invests significant computation to do so.
-This pays dividends if the evaluations are expensive.
-However,
-if your function evaluations are cheap, we recommended using DiRect or PDOO for
-Euclidean domains, and evolutionary algorithms for non-Euclidean domains.
-See example below.
-```bash
-$ cd examples
-$ dragonfly-script.py --config synthetic/branin/config.json --options options_files/options_example_pdoo.txt
-$ dragonfly-script.py --config synthetic/park2_3/config_mf.json --options options_files/options_example_ea.txt
-```
-You will notice that they run significantly faster than BO.
-However, these methods will perform worse than BO on the supernova problem as evaluations
-are expensive.
-
-
-&nbsp;
-
-**In python code**:
-
+**In Python code**:
 The main APIs for Dragonfly are declared in
 [`dragonfly/__init__.py`](dragonfly/__init__.py) and defined in the 
 [`dragonfly/apis`](dragonfly/apis) directory.
 For their definitions and arguments, see
 [`dragonfly/apis/opt.py`](dragonfly/apis/opt.py) and
 [`dragonfly/apis/moo.py`](dragonfly/apis/moo.py).
-
-
 You can import the main API in python code via,
 ```python
 from dragonfly import minimise_function, maximise_function
@@ -187,74 +105,14 @@ print(max_val, max_pt)
 Here, `func` is the function to be maximised,
 `domain` is the domain over which `func` is to be optimised,
 and `max_capital` is the capital available for optimisation.
-In simple sequential settings, `max_capital` is simply the maximum number of evaluations
-to `func`, but it can also be used to specify an available time budget and other forms
-of resource constraints. The `maximise_function` returns history along with the optimum value
-and the corresponding optimum point. `history.query_points` contains the points queried by the
-algorithm and `history.query_vals` contains the function values.
-
-[`examples/synthetic/branin/in_code_demo.py`](examples/synthetic/branin/in_code_demo.py) and
-[`examples/supernova/in_code_demo.py`](examples/supernova/in_code_demo.py)
-demonstrate the use case for the branin and supernova problems respectively.
-To execute these files, simply run
-```bash
-$ python examples/synthetic/branin/in_code_demo.py
-$ python examples/supernova/in_code_demo.py
-```
-
-&nbsp;
-
-**Multi-objective optimisation**
-
-Dragonfly also provides functionality for multi-objective optimisation.
-Some synthetic demos are available in the `multiobjective_xxx` directories in
-[`demos_synthetic`](demos_synthetic).
-For example, to run the
-[`hartmann`](examples/synthetic/multiobjective_hartmann/multiobjective_hartmann.py)
-demo, simply run
-```bash
-$ cd examples
-$ dragonfly-script.py --config synthetic/multiobjective_hartmann/config.json --options options_files/options_example_moo.txt
-```
-
-Similarly, you can import and run this in python code via,
-```python
-from dragonfly import multiobjective_maximise_functions, multiobjective_minimise_functions
-...
-pareto_max_values, pareto_points, history = multiobjective_maximise_functions(funcs, domain, max_capital)
-pareto_min_values, pareto_points, history = multiobjective_minimise_functions(funcs, domain, max_capital)
-```
-Here, `funcs` is a list of functions to be maximised,
-`domain` is the domain  and `max_capital` is the capital available for optimisation.
-`pareto_values` are the
-[Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
-function values and `pareto_points` are the corresponding points in `domain`.
-
-&nbsp;
-
-**Neural Architecture Search**
-
-Dragonfly has APIs for defining neural network architectures, defining distances
-between them, and also implements the
-[NASBOT](https://arxiv.org/pdf/1802.07191.pdf) algorithm,
-which uses Bayesian optimisation and optimal transport for neural architecture search.
-You will first need to install the following dependencies.
-Cython will also require
-a C++ library already installed in the system.
-```bash
-$ pip install cython POT
-```
-
-Below is an architecture search demo on a synthetic function.
-See the [`examples/nas`](examples/nas) directory for demos of NASBOT in using some large
-datasets.
-```bash
-$ cd examples
-$ dragonfly-script.py --config synthetic/syn_cnn_1/config.json --options options_files/options_example.txt
-```
 
 
-&nbsp;
+For a comprehensive list of uses case, see our readthe docs pages
+(
+[`command line`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
+[`code`](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)
+).
+
 
 ### Contributors
 

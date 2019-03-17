@@ -41,8 +41,6 @@ it might be slightly slower.
 
 You can now install Dragonfly via one of the four steps below.
 
-&nbsp;
-
 **1. Installation via pip (recommended):**
 Installing dragonfly properly requires that numpy is already installed in the current
 environment. Once that has been done, the library can be installed with pip.
@@ -52,6 +50,9 @@ $ pip install numpy
 $ pip install dragonfly-opt -v
 ```
 
+
+&nbsp;
+
 **2. Installation via source:**
 To install via source, clone the repository and proceed as follows.
 ```bash
@@ -60,6 +61,8 @@ $ cd dragonfly
 $ pip install -r requirements.txt
 $ python setup.py install
 ```
+
+&nbsp;
 
 
 **3. Installing in a Python Virtual Environment:**
@@ -73,6 +76,8 @@ $ source env/bin/activate
 (env)$ pip install numpy
 (env)$ pip install git+https://github.com/dragonfly/dragonfly.git
 ```
+
+&nbsp;
 
 
 **4. Using Dragonfly without Installation:**
@@ -100,6 +105,8 @@ $ PYTHONPATH=$HOME_PATH
 ```
 
 
+&nbsp;
+
 
 **Requirements:**
 Dragonfly requires standard python packages such as `numpy`, `scipy`, `future`, and
@@ -107,6 +114,8 @@ Dragonfly requires standard python packages such as `numpy`, `scipy`, `future`, 
 the above installation procedure(s). You can also manually install them by
 `$ pip install <package-name>`.
 
+
+&nbsp;
 
 
 **Testing the Installation**:
@@ -125,15 +134,15 @@ $ python
 (-0.32122746026750953, array([-0.7129672]))
 ```
 Due to stochasticity in the algorithms, the above values for `min_val`, `min_pt` may be
-different. If you run it for longer (e.g. `min_val, min_pt, history =
-minimise_function(lambda x:
-x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 100)`), you should get more consistent values for
+different. If you run it for longer (e.g.
+`min_val, min_pt, history = minimise_function(lambda x: x ** 4 - x**2 + 0.1 * x, [[-10, 10]], 100)`),
+you should get more consistent values for
 the minimum.
 
 To run all unit tests, run ```bash run_all_tests.sh```. Some of the tests are
 stochastic and could fail occasionally. If this happens, run the same test a few times
 and make sure it is not consistently failing. Running all tests will take a while.
-You can run each unit test individually simply via `python -m unittest
-path.to.test.unittest_xxx`.
+You can run each unit test individually simply via
+`python -m unittest path.to.test.unittest_xxx`.
 
 
