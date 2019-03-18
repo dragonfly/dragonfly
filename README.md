@@ -20,7 +20,7 @@ on Linux, macOS, and Windows platforms.
 
 &nbsp;
 
-For documentation, installation, and a getting started guid, please see our
+For documentation, installation, and a getting started guide, please see our
 [readthedocs page](https://dragonfly-opt.readthedocs.io).
 
 &nbsp;
