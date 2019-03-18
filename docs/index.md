@@ -4,7 +4,7 @@
 
 <h3>Quick Start</h3>
   * [Installation](install.md)
-  * [Getting started -- Command Line](getting_started_code.md)
+  * [Getting started -- Command Line](getting_started_cli.md)
   * [Getting started -- Python](getting_started_py.md)
 
 <h3>Manual</h3>

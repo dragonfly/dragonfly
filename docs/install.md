@@ -128,7 +128,7 @@ If you have installed via source, make sure that you move to a different directo
 $ python
 >>> from dragonfly import minimise_function
 >>> # The first argument below is the function, the second is the domain, and the third is
->>> the budget.
+>>> # the budget.
 >>> min_val, min_pt, history = minimise_function(lambda x: x ** 4 - x**2 + 0.1 * x, [[-10,
 >>> 10]], 10);  
 ...
