@@ -1,5 +1,5 @@
 
-[<img src="https://dragonfly.github.io/images/dragonfly_bigwords.png"/>](.)
+[<img src="https://dragonfly.github.io/images/dragonfly_bigwords.png"/>](https://github.com/dragonfly/dragonfly/)
 
 
 <h3>Quick Start</h3>
