@@ -2,10 +2,6 @@
 
 &nbsp;
 
-p, ul {
-    padding: 0;
-    margin: 0;
-}
 
 ## maximise_function
 ```python
@@ -48,6 +44,8 @@ path_name to a configuration file or has configuration parameters.
 
 
 &nbsp;
+&nbsp;
+
 
 ## minimise_function
 ```python
@@ -64,16 +62,17 @@ Same as `maximise_function` (see above), but now `func` is to be minimised.
 Same as `maximise_function` (see above), but now `opt_val` is the minimum value found during optimisation.
 
 &nbsp;
+&nbsp;
 
 ## maximise_multifidelity_function
 ```python
-maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
-                                fidel_cost_func, max_capital,
-                                capital_type='return_value',
-                                opt_method='bo',
-                                config=None,
-                                options=None,
-                                reporter='default'):
+opt_val, opt_pt, history = maximise_multifidelity_function(func, fidel_space, domain,
+                             fidel_to_opt, fidel_cost_func, max_capital,
+                             capital_type='return_value',
+                             opt_method='bo',
+                             config=None,
+                             options=None,
+                             reporter='default'):
 ```
 Maximises a multi-fidelity function `func` over the domain `domain` and fidelity
 space 'fidel_space'. See the [BOCA paper](https://arxiv.org/pdf/1703.06240.pdf) for more
@@ -122,16 +121,17 @@ path_name to a configuration file or has configuration parameters.
 
 
 &nbsp;
+&nbsp;
 
 ## minimise_multifidelity_function
 ```python
-maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
-                                fidel_cost_func, max_capital,
-                                capital_type='return_value',
-                                opt_method='bo',
-                                config=None,
-                                options=None,
-                                reporter='default'):
+opt_val, opt_pt, history = minimise_multifidelity_function(func, fidel_space, domain,
+                             fidel_to_opt, fidel_cost_func, max_capital,
+                             capital_type='return_value',
+                             opt_method='bo',
+                             config=None,
+                             options=None,
+                             reporter='default'):
 ```
 **Arguments:**  
 Same as `maximise_multifidelity_function` (see above), but now `func` is to be minimised.  
@@ -139,15 +139,17 @@ Same as `maximise_multifidelity_function` (see above), but now `func` is to be m
 Same as `maximise_multifidelity_function` (see above), but now `opt_val` is the minimum value found during optimisation.
 
 &nbsp;
+&nbsp;
 
 ## multiobjective_maximise_function
 ```python
-multiobjective_maximise_functions(funcs, domain, max_capital,
-                                  capital_type='num_evals',
-                                  opt_method='bo',
-                                  config=None,
-                                  options=None,
-                                  reporter='default')
+pareto_values, pareto_points, history = multiobjective_maximise_functions(
+                                          funcs, domain, max_capital,
+                                          capital_type='num_evals',
+                                          opt_method='bo',
+                                          config=None,
+                                          options=None,
+                                          reporter='default')
 ```
 Jointly optimises the functions `funcs` over the domain `domain`.  
 
@@ -188,15 +190,17 @@ path_name to a configuration file or has configuration parameters.
 
 
 &nbsp;
+&nbsp;
 
 ## multiobjective_minimise_function
 ```python
-multiobjective_minimise_functions(funcs, domain, max_capital,
-                                  capital_type='num_evals',
-                                  opt_method='bo',
-                                  config=None,
-                                  options=None,
-                                  reporter='default')
+pareto_values, pareto_points, history = multiobjective_minimise_functions(
+                                          funcs, domain, max_capital,
+                                          capital_type='num_evals',
+                                          opt_method='bo',
+                                          config=None,
+                                          options=None,
+                                          reporter='default')
 ```
 **Arguments:**  
 Same as `multiobjective_maximise_functions` (see above), but now `funcs` are to be minimised.   
@@ -205,23 +209,36 @@ Same as `multiobjective_maximise_functions` (see above), but now `pareto_values`
 
 
 &nbsp;
+&nbsp;
 
 ## maximize_function
 Alternative spelling for `maximise_function`
 
+&nbsp;
+
 ## minimize_function
 Alternative spelling for `minimise_function`
+
+&nbsp;
 
 ## maximize_multifidelity_function
 Alternative spelling for `maximise_function`
 
+&nbsp;
+
 ## minimize_multifidelity_function
 Alternative spelling for `minimise_multifidelity_function`
+
+&nbsp;
 
 ## multiobjective_maximize_functions
 Alternative spelling for `multiobjective_maximise_functions`
 
+&nbsp;
+
 ## multiobjective_minimize_functions
 Alternative spelling for `multiobjective_minimise_functions`
+
+&nbsp;
 
 
