@@ -146,7 +146,19 @@ DOE grant DESC0011114, NSF grant IIS1563887, the DARPA D3M program, and AFRL.
 
 ### Citation
 If you use any part of this code in your work, please cite
-[this manuscript](http://www.cs.cmu.edu/~kkandasa/docs/proposal.pdf).
+[this manuscript](https://128.84.21.199/pdf/1903.06694.pdf).
+
+```
+@article{kandasamy2019tuning,
+    title={Tuning Hyperparameters without Grad Students: Scalable and Robust Bayesian
+Optimisation with Dragonfly},
+    author={Kandasamy, Kirthevasan and Vysyaraju, Karun Raju and Neiswanger,
+    Willie and Paria, Biswajit and Collins, Christopher R. and Schneider, Jeff and
+    Poczos, Barnabas and Xing, Eric P},
+    journal={arXiv preprint arXiv:1903.06694},
+    year={2019}
+  }
+```
 
 ### License
 This software is released under the MIT license. For more details, please refer
