@@ -11,15 +11,23 @@ opt_val, opt_pt, history = maximise_function(func, domain, max_capital,
                                              options=None,
                                              reporter='default')
 ```
+Maximises a function `func` over the domain `domain`.  
 **Arguments:**  
 - `func`: The function to be maximised.  
-- `domain`: The domain over which the function should be maximised, should be an instance of the Domain class in exd/domains.py.  If domain is a list of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`, then we create a Euclidean domain with lower bounds `li` and upper bounds `ui` along each dimension.  
+- `domain`: The domain over which the function should be maximised, should be an instance  of the Domain class in [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).  If domain is a list of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`, then we create a Euclidean domain with lower bounds `li` and upper bounds `ui` along each dimension.  
 - `max_capital`: The maximum capital (time budget or number of evaluations) available for optimisation.  
-- `capital_type`: The type of capital. Should be one of `'return_value'` or `'realtime'`.  Default is return_value which indicates we will use the value returned by fidel_cost_func. If realtime, we will use wall clock time.  
-- `opt_method`: The method used for optimisation. Could be one of bo, rand, ga, ea, direct, or pdoo. Default is bo.  bo: Bayesian optimisation, ea/ga: Evolutionary algorithm, rand: Random search, direct: Dividing Rectangles, pdoo: PDOO. 
-- `config`: Contains configuration parameters that are typically returned by exd.cp_domain_utils.load_config_file. config can be None only if domain is a EuclideanDomain object.  
+- `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
+  `'realtime'`.  Default is `'num_evals'` which indicates the number of evaluations. If
+  `'realtime'`, we will use wall clock time.  
+- `opt_method`: The method used for optimisation. Could be one of `'bo'`, `'rand'`, `'ga'`,
+  `'ea'`, `'direct'`, or `'pdoo'`. Default is `'bo'`.  `'bo'`: Bayesian optimisation,
+ `'ea'`/`'ga'`: Evolutionary algorithm, `'rand'`: Random search, `'direct'`: Dividing Rectangles, `'pdoo'`: PDOO. 
+<li> config: Either a configuration file or or parameters returned by
+             [`exd.cp_domain_utils.load_config_file`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/cp_domain_utils.py). `config` can be `None` only if `domain`
+             is a [`EuclideanDomain`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py) object. </li>
 - `options`: Additional hyper-parameters for optimisation, as a namespace.
-- `reporter`: A stream to print progress made during optimisation, or one of the following strings 'default', `'silent'`. If `'silent'`, then it suppresses all outputs. If `'default'`, writes to stdout.  
+- `reporter`: A stream to print progress made during optimisation, or one of the following
+  strings `'default'`, `'silent'`. If `'silent'`, then it suppresses all outputs. If `'default'`, writes to stdout.  
 **Returns**:  
 - `opt_val`: The maximum value found during the optimisation procedure.  
 - `opt_pt`: The corresponding optimum point.  
@@ -38,7 +46,7 @@ opt_val, opt_pt, history = minimise_function(func, domain, max_capital,
                                              reporter='default')
 ```
 **Arguments:**  
-Same as `maximise_function` (see above), but now `func` is to be minimised.
+Same as `maximise_function` (see above), but now `func` is to be minimised.  
 **Returns**:  
 Same as `maximise_function` (see above), but now `opt_val` is the minimum value found during optimisation.
 
@@ -46,19 +54,64 @@ Same as `maximise_function` (see above), but now `opt_val` is the minimum value 
 
 ## maximise_multifidelity_function
 ```
-maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt, fidel_cost_func, max_capital,
+maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
+                                fidel_cost_func, max_capital,
                                 capital_type='return_value',
                                 opt_method='bo',
                                 config=None,
                                 options=None,
                                 reporter='default'):
 ```
+Maximises a multi-fidelity function 'func' over the domain 'domain' and fidelity
+space 'fidel_space'. See the [BOCA paper](https://arxiv.org/pdf/1703.06240.pdf) for more
+information on multi-fidelity optimisation.  
+**Arguments:**
+<ul>
+  <li> func: The function to be maximised. Takes two arguments `func(z, x)` where `z` is a
+member of the fidelity space and `x` is a member of the domain. </li>
+<li> fidel_space: The fidelity space from which the approximations are obtained.
+                  Should be an instance of the Domain class in [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).
+                  If of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`, then we will
+                  create a Euclidean domain with lower bounds `li` and upper bounds
+                  `ui` along each dimension. </li>
+<li> domain: The domain over which the function should be maximised, should be an
+             instance of the Domain class in [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).
+             If domain is a list of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`,
+             then we will create a Euclidean domain with lower bounds `li` and upper bounds
+             `ui` along each dimension. </li>
+<li> fidel_to_opt: The point at the fidelity space at which we wish to maximise func. </li>
+<li> max_capital: The maximum capital (time budget or number of evaluations) available
+                  for optimisation. </li>
+<li> capital_type: The type of capital. Should be one of 'return_value' or 'realtime'.
+                   Default is `'return_value'` which indicates we will use the value returned
+                   by `fidel_cost_func`. If `'realtime'`, we will use wall clock time. </li>
+<li> opt_method: The method used for optimisation. Could be one of `'bo'` or `'rand'`.
+                 Default is `'bo'`. `'bo'` - Bayesian optimisation, `'rand'` - Random search. </li>
+<li> config: Either a configuration file or or parameters returned by
+             [`exd.cp_domain_utils.load_config_file`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/cp_domain_utils.py). `config` can be `None` only if `domain`
+             is a [`EuclideanDomain`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py) object. </li>
+<li> options: Additional hyper-parameters for optimisation, as a namespace.
+<li> reporter: A stream to print progress made during optimisation, or one of the
+               following strings 'default', 'silent'. If 'silent', then it suppresses
+               all outputs. If 'default', writes to stdout. </li>
+</ul>
+Alternatively, `domain` and `fidelity` space could be None if `config` is either a
+path_name to a configuration file or has configuration parameters.  
+**Returns:**
+<ul>
+<li> opt_val: The maximum value found during the optimisation procdure. </li>
+<li> opt_pt: The corresponding optimum point. </li>
+<li> history: A record of the optimisation procedure which include the point evaluated
+           and the values at each time step. </li>
+</ul>
+
 
 &nbsp;
 
 ## minimise_multifidelity_function
 ```
-maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt, fidel_cost_func, max_capital,
+maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
+                                fidel_cost_func, max_capital,
                                 capital_type='return_value',
                                 opt_method='bo',
                                 config=None,
@@ -66,7 +119,7 @@ maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt, fidel_c
                                 reporter='default'):
 ```
 **Arguments:**  
-Same as `maximise_multifidelity_function` (see above), but now `func` is to be minimised.
+Same as `maximise_multifidelity_function` (see above), but now `func` is to be minimised.  
 **Returns**:  
 Same as `maximise_multifidelity_function` (see above), but now `opt_val` is the minimum value found during optimisation.
 
@@ -95,10 +148,12 @@ multiobjective_minimise_functions(funcs, domain, max_capital,
                                   reporter='default')
 ```
 **Arguments:**  
-Same as `multiobjective_maximise_functions` (see above), but now `funcs` are to be minimised. 
+Same as `multiobjective_maximise_functions` (see above), but now `funcs` are to be minimised.   
 **Returns**:  
 Same as `multiobjective_maximise_functions` (see above), but now `pareto_values` are the Pareto optimal minimum values found during optimisation. 
 
+
+&nbsp;
 
 ## maximize_function
 Alternative spelling for `maximise_function`
@@ -118,26 +173,4 @@ Alternative spelling for `multiobjective_maximise_functions`
 ## multiobjective_minimize_functions
 Alternative spelling for `multiobjective_minimise_functions`
 
-Test list
-- item 1
-- item 2
-* item 3
-* item 4
-+ item 5
-+ item 6
-
-
-Test list 2
-1 item 1
-2 item 2
-3 item 3
-
-
-
-Test list 3
-<ul>
-<li> item 1 </li> 
-<li> item 2 </li>
-<li> item 3 </li>
-</ul>
 
