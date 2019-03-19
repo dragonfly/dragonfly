@@ -21,7 +21,8 @@ on Linux, macOS, and Windows platforms.
 &nbsp;
 
 For documentation, installation, and a getting started guide, please see our
-[readthedocs page](https://dragonfly-opt.readthedocs.io).
+[readthedocs page](https://dragonfly-opt.readthedocs.io). For more details, see
+our [paper](https://arxiv.org/abs/1903.06694).
 
 &nbsp;
 

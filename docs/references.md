@@ -3,6 +3,17 @@
 Work from the following papers has been implemented in Dragonfly.
 
 ```
+@article{kandasamy2019tuning,
+  title={Tuning Hyperparameters without Grad Students: Scalable and Robust Bayesian Optimisation with Dragonfly},
+  author={Kandasamy, Kirthevasan and Vysyaraju, Karun Raju and Neiswanger,
+  Willie and Paria, Biswajit and Collins, Christopher R. and Schneider, Jeff and
+  Poczos, Barnabas and Xing, Eric P},
+  journal={arXiv preprint arXiv:1903.06694},
+  year={2019}
+}
+```
+
+```
 @article{kandasamy2017tuning,
   title={Tuning Hyper-parameters without Grad Students: Scaling up Bandit Optimisation},
   author={Kandasamy, Kirthevasan},
