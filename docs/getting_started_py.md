@@ -1,4 +1,6 @@
-# Getting Started in Python Code
+<span style="font-size:3em">**Getting started in Python Code**</span>
+
+&nbsp;
 
 Dragonfly can be
 imported in python code via the `maximise_function` or `minimise_function` functions in

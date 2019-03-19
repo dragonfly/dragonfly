@@ -1,4 +1,6 @@
-## Installation
+<span style="font-size:3em">**Installation**</span>
+
+&nbsp;
 
 **Set up:**
 We recommend installation via `pip`.
