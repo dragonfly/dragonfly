@@ -150,11 +150,11 @@ If you use any part of this code in your work, please cite
 
 ```
 @article{kandasamy2019tuning,
-    title={Tuning Hyperparameters without Grad Students: Scalable and Robust Bayesian
-Optimisation with Dragonfly},
+    title={{Tuning Hyperparameters without Grad Students: Scalable and Robust Bayesian
+            Optimisation with Dragonfly}},
     author={Kandasamy, Kirthevasan and Vysyaraju, Karun Raju and Neiswanger,
-    Willie and Paria, Biswajit and Collins, Christopher R. and Schneider, Jeff and
-    Poczos, Barnabas and Xing, Eric P},
+            Willie and Paria, Biswajit and Collins, Christopher R. and Schneider, Jeff and
+            Poczos, Barnabas and Xing, Eric P},
     journal={arXiv preprint arXiv:1903.06694},
     year={2019}
   }

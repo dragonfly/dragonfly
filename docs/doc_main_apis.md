@@ -25,10 +25,6 @@ opt_val, opt_pt, history = maximise_function(func, domain, max_capital,
 - `opt_pt`: The corresponding optimum point.  
 - `history`: A record of the optimisation procedure which include the point evaluated and the values at each time step.  
 
-&nbsp;
-
-## maximize_function
-Alternative spelling for `maximise_function`
 
 &nbsp;
 
@@ -44,11 +40,83 @@ opt_val, opt_pt, history = minimise_function(func, domain, max_capital,
 **Arguments:**  
 Same as `maximise_function` (see above), but now `func` is to be minimised.
 **Returns**:  
-Same as `maximise_function` (see above), but now `opt_val` is the minimum value found
-during optimisation.
+Same as `maximise_function` (see above), but now `opt_val` is the minimum value found during optimisation.
+
+&nbsp;
+
+## maximise_multifidelity_function
+```
+maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt, fidel_cost_func, max_capital,
+                                capital_type='return_value',
+                                opt_method='bo',
+                                config=None,
+                                options=None,
+                                reporter='default'):
+```
+
+&nbsp;
+
+## minimise_multifidelity_function
+```
+maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt, fidel_cost_func, max_capital,
+                                capital_type='return_value',
+                                opt_method='bo',
+                                config=None,
+                                options=None,
+                                reporter='default'):
+```
+**Arguments:**  
+Same as `maximise_multifidelity_function` (see above), but now `func` is to be minimised.
+**Returns**:  
+Same as `maximise_multifidelity_function` (see above), but now `opt_val` is the minimum value found during optimisation.
+
+&nbsp;
+
+## multiobjective_maximise_function
+```python
+multiobjective_maximise_functions(funcs, domain, max_capital,
+                                  capital_type='num_evals',
+                                  opt_method='bo',
+                                  config=None,
+                                  options=None,
+                                  reporter='default')
+```
+
+
+&nbsp;
+
+## multiobjective_minimise_function
+```python
+multiobjective_minimise_functions(funcs, domain, max_capital,
+                                  capital_type='num_evals',
+                                  opt_method='bo',
+                                  config=None,
+                                  options=None,
+                                  reporter='default')
+```
+**Arguments:**  
+Same as `multiobjective_maximise_functions` (see above), but now `funcs` are to be minimised. 
+**Returns**:  
+Same as `multiobjective_maximise_functions` (see above), but now `pareto_values` are the Pareto optimal minimum values found during optimisation. 
+
+
+## maximize_function
+Alternative spelling for `maximise_function`
 
 ## minimize_function
-Alternative spelling for `minimize_function`
+Alternative spelling for `minimise_function`
+
+## maximize_multifidelity_function
+Alternative spelling for `maximise_function`
+
+## minimize_multifidelity_function
+Alternative spelling for `minimise_multifidelity_function`
+
+## multiobjective_maximize_functions
+Alternative spelling for `multiobjective_maximise_functions`
+
+## multiobjective_minimize_functions
+Alternative spelling for `multiobjective_minimise_functions`
 
 Test list
 - item 1
@@ -57,4 +125,19 @@ Test list
 * item 4
 + item 5
 + item 6
+
+
+Test list 2
+1 item 1
+2 item 2
+3 item 3
+
+
+
+Test list 3
+<ul>
+<li> item 1 </li> 
+<li> item 2 </li>
+<li> item 3 </li>
+</ul>
 
