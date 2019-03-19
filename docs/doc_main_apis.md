@@ -2,6 +2,11 @@
 
 &nbsp;
 
+ul{
+ margin-top: 1px;
+ margin-bottom: 1px;
+}
+
 ## maximise_function
 ```python
 opt_val, opt_pt, history = maximise_function(func, domain, max_capital,
@@ -13,25 +18,29 @@ opt_val, opt_pt, history = maximise_function(func, domain, max_capital,
 ```
 Maximises a function `func` over the domain `domain`.  
 **Arguments:**  
-- `func`: The function to be maximised.  
-- `domain`: The domain over which the function should be maximised, should be an instance  of the Domain class in [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).  If domain is a list of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`, then we create a Euclidean domain with lower bounds `li` and upper bounds `ui` along each dimension.  
-- `max_capital`: The maximum capital (time budget or number of evaluations) available for optimisation.  
-- `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
+<ul>
+<li> `func`: The function to be maximised.   </li>
+<li> `domain`: The domain over which the function should be maximised, should be an instance  of the Domain class in [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).  If domain is a list of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`, then we create a Euclidean domain with lower bounds `li` and upper bounds `ui` along each dimension.   </li>
+<li> `max_capital`: The maximum capital (time budget or number of evaluations) available for optimisation.   </li>
+ `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
   `'realtime'`.  Default is `'num_evals'` which indicates the number of evaluations. If
-  `'realtime'`, we will use wall clock time.  
-- `opt_method`: The method used for optimisation. Could be one of `'bo'`, `'rand'`, `'ga'`,
+  `'realtime'`, we will use wall clock time.   </li>
+<li> `opt_method`: The method used for optimisation. Could be one of `'bo'`, `'rand'`, `'ga'`,
   `'ea'`, `'direct'`, or `'pdoo'`. Default is `'bo'`.  `'bo'`: Bayesian optimisation,
- `'ea'`/`'ga'`: Evolutionary algorithm, `'rand'`: Random search, `'direct'`: Dividing Rectangles, `'pdoo'`: PDOO. 
+ `'ea'`/`'ga'`: Evolutionary algorithm, `'rand'`: Random search, `'direct'`: Dividing Rectangles, `'pdoo'`: PDOO.  </li>
 <li> config: Either a configuration file or or parameters returned by
              [`exd.cp_domain_utils.load_config_file`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/cp_domain_utils.py). `config` can be `None` only if `domain`
              is a [`EuclideanDomain`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py) object. </li>
-- `options`: Additional hyper-parameters for optimisation, as a namespace.
-- `reporter`: A stream to print progress made during optimisation, or one of the following
-  strings `'default'`, `'silent'`. If `'silent'`, then it suppresses all outputs. If `'default'`, writes to stdout.  
+<li> `options`: Additional hyper-parameters for optimisation, as a namespace. </li>
+<li> `reporter`: A stream to print progress made during optimisation, or one of the following
+  strings `'default'`, `'silent'`. If `'silent'`, then it suppresses all outputs. If `'default'`, writes to stdout.   </li>
+</ul>
 **Returns**:  
-- `opt_val`: The maximum value found during the optimisation procedure.  
-- `opt_pt`: The corresponding optimum point.  
-- `history`: A record of the optimisation procedure which include the point evaluated and the values at each time step.  
+<ul>
+<li> `opt_val`: The maximum value found during the optimisation procedure. </li>
+<li> `opt_pt`: The corresponding optimum point.   </li>
+<li> `history`: A record of the optimisation procedure which include the point evaluated and the values at each time step.   </li>
+</ul>
 
 
 &nbsp;
@@ -139,7 +148,8 @@ multiobjective_maximise_functions(funcs, domain, max_capital,
 Jointly optimises the functions 'funcs' over the domain 'domain'.  
 
 **Arguments:**
-<li> funcs: The functions to be co-optimised (maximised). </li>
+<ul>
+<li> `funcs`: The functions to be jointly maximised. </li>
 <li> `domain`: The domain over which the function should be maximised, should be an
 instance  of the Domain class in
 [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).
@@ -150,7 +160,6 @@ dimension. </li>
 <li> `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
   `'realtime'`.  Default is `'num_evals'` which indicates the number of evaluations. If
   `'realtime'`, we will use wall clock time.   </li>
-
 <li> `'opt_method'`: The method used for optimisation. Could be one of `'bo'` or `'rand'`.
                  Default is `'bo'`. `'bo'`: Bayesian optimisation, `'rand'`: Random search. </li>
 <li> `'config'`: Either a configuration file or or parameters returned by
@@ -160,6 +169,7 @@ dimension. </li>
 <li> `'reporter'`: A stream to print progress made during optimisation, or one of the
                following strings 'default', 'silent'. If 'silent', then it suppresses
                all outputs. If 'default', writes to stdout. </li>
+</ul>
 Alternatively, domain could be None if config is either a path_name to a
 configuration file or has configuration parameters.
 
