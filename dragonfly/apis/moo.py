@@ -33,10 +33,8 @@ def multiobjective_maximise_functions(funcs, domain, max_capital,
       capital_type: The type of capital. Should be one of 'return_value' or 'realtime'.
                     Default is return_value which indicates we will use the value returned
                     by fidel_cost_func. If realtime, we will use wall clock time.
-      opt_method: The method used for optimisation. Could be one of bo, rand, ga, ea,
-                  direct, or pdoo. Default is bo.
-                  bo - Bayesian optimisation, ea/ga: Evolutionary algorithm,
-                  rand - Random search, direct: Dividing Rectangles, pdoo: PDOO
+      opt_method: The method used for optimisation. Could be one of bo or rand.
+                  Default is bo. bo: Bayesian optimisation, rand: Random search.
       config: Contains configuration parameters that are typically returned by
               exd.cp_domain_utils.load_config_file. config can be None only if domain
               is a EuclideanDomain object.
