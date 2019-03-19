@@ -2,9 +2,9 @@
 
 &nbsp;
 
-ul{
- margin-top: 1px;
- margin-bottom: 1px;
+p, ul {
+    padding: 0;
+    margin: 0;
 }
 
 ## maximise_function
@@ -17,12 +17,13 @@ opt_val, opt_pt, history = maximise_function(func, domain, max_capital,
                                              reporter='default')
 ```
 Maximises a function `func` over the domain `domain`.  
+
 **Arguments:**  
 <ul>
 <li> `func`: The function to be maximised.   </li>
 <li> `domain`: The domain over which the function should be maximised, should be an instance  of the Domain class in [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).  If domain is a list of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`, then we create a Euclidean domain with lower bounds `li` and upper bounds `ui` along each dimension.   </li>
 <li> `max_capital`: The maximum capital (time budget or number of evaluations) available for optimisation.   </li>
- `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
+ <li> `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
   `'realtime'`.  Default is `'num_evals'` which indicates the number of evaluations. If
   `'realtime'`, we will use wall clock time.   </li>
 <li> `opt_method`: The method used for optimisation. Could be one of `'bo'`, `'rand'`, `'ga'`,
@@ -35,6 +36,9 @@ Maximises a function `func` over the domain `domain`.
 <li> `reporter`: A stream to print progress made during optimisation, or one of the following
   strings `'default'`, `'silent'`. If `'silent'`, then it suppresses all outputs. If `'default'`, writes to stdout.   </li>
 </ul>
+Alternatively, `domain` and `fidelity` space could be `None` if `config` is either a
+path_name to a configuration file or has configuration parameters.  
+
 **Returns**:  
 <ul>
 <li> `opt_val`: The maximum value found during the optimisation procedure. </li>
@@ -62,7 +66,7 @@ Same as `maximise_function` (see above), but now `opt_val` is the minimum value 
 &nbsp;
 
 ## maximise_multifidelity_function
-```
+```python
 maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
                                 fidel_cost_func, max_capital,
                                 capital_type='return_value',
@@ -71,7 +75,7 @@ maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
                                 options=None,
                                 reporter='default'):
 ```
-Maximises a multi-fidelity function 'func' over the domain 'domain' and fidelity
+Maximises a multi-fidelity function `func` over the domain `domain` and fidelity
 space 'fidel_space'. See the [BOCA paper](https://arxiv.org/pdf/1703.06240.pdf) for more
 information on multi-fidelity optimisation.  
 
@@ -120,7 +124,7 @@ path_name to a configuration file or has configuration parameters.
 &nbsp;
 
 ## minimise_multifidelity_function
-```
+```python
 maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
                                 fidel_cost_func, max_capital,
                                 capital_type='return_value',
@@ -145,7 +149,7 @@ multiobjective_maximise_functions(funcs, domain, max_capital,
                                   options=None,
                                   reporter='default')
 ```
-Jointly optimises the functions 'funcs' over the domain 'domain'.  
+Jointly optimises the functions `funcs` over the domain `domain`.  
 
 **Arguments:**
 <ul>
@@ -170,8 +174,8 @@ dimension. </li>
                following strings 'default', 'silent'. If 'silent', then it suppresses
                all outputs. If 'default', writes to stdout. </li>
 </ul>
-Alternatively, domain could be None if config is either a path_name to a
-configuration file or has configuration parameters.
+Alternatively, `domain` and `fidelity` space could be `None` if `config` is either a
+path_name to a configuration file or has configuration parameters.  
 
 **Returns:**
 <ul>
