@@ -111,7 +111,7 @@ and `max_capital` is the capital available for optimisation.
 See
 [`examples/synthetic/branin/in_code_demo.py`](examples/synthetic/branin/in_code_demo.py)
 and
-[`examples/supernova/in_code_demo.py`](examples/supernova/in_code_demo.py)
+[`examples/tree_reg/in_code_demo.py`](examples/tree_reg/in_code_demo.py)
 for more detailed examples.
 
 
