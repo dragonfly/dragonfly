@@ -20,7 +20,7 @@ on Linux, macOS, and Windows platforms.
 
 &nbsp;
 
-For documentation, installation, and a getting started guide, please see our
+For documentation, installation, and a getting started guide, see our
 [readthedocs page](https://dragonfly-opt.readthedocs.io). For more details, see
 our [paper](https://arxiv.org/abs/1903.06694).
 
@@ -111,7 +111,7 @@ and `max_capital` is the capital available for optimisation.
 See
 [`examples/synthetic/branin/in_code_demo.py`](examples/synthetic/branin/in_code_demo.py)
 and
-[`examples/supernova/in_code_demo.py`](examples/supernova/in_code_demo.py)
+[`examples/tree_reg/in_code_demo.py`](examples/tree_reg/in_code_demo.py)
 for more detailed examples.
 
 
@@ -146,7 +146,7 @@ DOE grant DESC0011114, NSF grant IIS1563887, the DARPA D3M program, and AFRL.
 
 ### Citation
 If you use any part of this code in your work, please cite
-[this manuscript](https://128.84.21.199/pdf/1903.06694.pdf).
+[this manuscript](https://arxiv.org/pdf/1903.06694.pdf).
 
 ```
 @article{kandasamy2019tuning,
