@@ -212,32 +212,32 @@ Same as `multiobjective_maximise_functions` (see above), but now `pareto_values`
 &nbsp;
 
 ## maximize_function
-Alternative spelling for `maximise_function`
+Alternative spelling for `maximise_function`.
 
 &nbsp;
 
 ## minimize_function
-Alternative spelling for `minimise_function`
+Alternative spelling for `minimise_function`.
 
 &nbsp;
 
 ## maximize_multifidelity_function
-Alternative spelling for `maximise_function`
+Alternative spelling for `maximise_function`.
 
 &nbsp;
 
 ## minimize_multifidelity_function
-Alternative spelling for `minimise_multifidelity_function`
+Alternative spelling for `minimise_multifidelity_function`.
 
 &nbsp;
 
 ## multiobjective_maximize_functions
-Alternative spelling for `multiobjective_maximise_functions`
+Alternative spelling for `multiobjective_maximise_functions`.
 
 &nbsp;
 
 ## multiobjective_minimize_functions
-Alternative spelling for `multiobjective_minimise_functions`
+Alternative spelling for `multiobjective_minimise_functions`.
 
 &nbsp;
 

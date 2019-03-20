@@ -226,26 +226,29 @@ def draw_gaussian_samples(num_samples, mu, K):
 
 
 # Executing a Pythong string -------------------------------------------------------
-def evaluate_strings_with_given_variables(_strs_to_execute, _variable_dict=None):
+def evaluate_strings_with_given_variables(strs_to_execute, variable_dict=None):
   """ Executes a list of python strings and returns the results as a list.
       variable_dict is a dictionary mapping strings to values which may be used in
       str_to_execute.
   """
-  if _variable_dict is None:
-    _variable_dict = {}
-  if not isinstance(_strs_to_execute, list):
-    _got_list_of_constraints = False
-    _strs_to_execute = [_strs_to_execute]
+  if variable_dict is None:
+    variable_dict = {}
+  if not isinstance(strs_to_execute, list):
+    got_list_of_constraints = False
+    strs_to_execute = [strs_to_execute]
   else:
-    _got_list_of_constraints = True
+    got_list_of_constraints = True
   # Now set local variables
-  for _key, _value in _variable_dict.items():
-    locals()[_key] = _value
-  _ret = [eval(_elem) for _elem in _strs_to_execute]
-  if _got_list_of_constraints:
-    return _ret
+  for key, value in variable_dict.items():
+    locals()[key] = value
+  ret = []
+  for elem in strs_to_execute:
+    curr_result = eval(elem)
+    ret.append(curr_result)
+  if got_list_of_constraints:
+    return ret
   else:
-    return _ret[0]
+    return ret[0]
 
 # Matrix/Array/List utilities ------------------------------------------------------
 def get_nonzero_indices_in_vector(vec):
