@@ -8,12 +8,6 @@ python:
 env:
   - DIRECT_STATE=-direct OPT_STATE=-optimal
   - DIRECT_STATE=direct OPT_STATE=-optimal
-# addons:
-#  apt:
-#    packages:
-#    - build-essential
-#    - gfortran
-#    - python-dev
 
 osx-setup-steps: &osx-setup-steps
   os: osx
