@@ -33,3 +33,4 @@ on Linux, macOS, and Windows platforms.
 <h3>Miscellaneous</h3>
   * [FAQ](faq.md)
   * [References](references.md)
+  * [Paper](https://arxiv.org/abs/1903.06694)
