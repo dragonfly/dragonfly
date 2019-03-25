@@ -15,14 +15,17 @@ osx-setup-steps: &osx-setup-steps
   before_install:
     - brew update
     - brew outdated pyenv || brew upgrade pyenv
-    - brew install gcc pyenv-virtualenv
+    - if [[ "$DIRECT_STATE" == "direct" ]]; then
+      brew install gcc ;
+      fi
+    - brew install pyenv-virtualenv
+    - eval "$(pyenv init -)"
+    - eval "$(pyenv virtualenv-init -)"
     - pyenv install $PYTHON
     - export PYENV_VERSION=$PYTHON
     - export PATH="/Users/travis/.pyenv/shims:${PATH}"
     - pyenv virtualenv venv
-    - ls
-    - ls venv
-    - source venv/bin/activate
+    - pyenv activate venv
     - python --version
 
 # We have to be explicit with the OSX versions because Python is not supported by default.
