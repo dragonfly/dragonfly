@@ -17,6 +17,7 @@ from ..utils.general_utils import flatten_list_of_objects_and_iterables, \
                                 get_original_order_from_reordered_list, \
                                 transpose_list_of_lists
 from ..utils.oper_utils import random_sample_from_euclidean_domain, \
+                             random_sample_from_discrete_euclidean_domain, \
                              random_sample_from_integral_domain, \
                              random_sample_from_prod_discrete_domain
 
@@ -98,6 +99,8 @@ def load_domain_from_params(domain_params,
   general_discrete_idxs = []
   general_discrete_numeric_items_list = []
   general_discrete_numeric_idxs = []
+  discrete_euclidean_items_list = []
+  discrete_euclidean_idxs = []
   raw_name_ordering = []
   # We will need the following variables for the function caller and the kernel
   index_ordering = [] # keeps track of which index goes where in the domain
@@ -122,6 +125,13 @@ def load_domain_from_params(domain_params,
       else:
         list_of_domains.append(domains.EuclideanDomain(curr_bounds))
         index_ordering.append(idx)
+    elif param['type'] == 'discrete_euclidean':
+        if param['kernel'] == '':
+            discrete_euclidean_items_list.extend(curr_items)
+            discrete_euclidean_idxs.extend(idx)
+        else:
+            list_of_domains.append(domains.DiscreteEuclideanDomain(curr_items))
+            index_ordering.append(idx)
     elif param['type'] == 'int':
       if param['kernel'] == '':
         general_integral_bounds.extend(curr_bounds)
@@ -313,6 +323,7 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
                           euclidean_sample_type='rand',
                           integral_sample_type='rand',
                           nn_sample_type='rand',
+                          discrete_euclidean_sample_type='rand',
                           max_num_retries_for_constraint_satisfaction=10,
                           verbose_constraint_satisfaction=True):
   """ Samples from the CP domain. """
@@ -324,7 +335,7 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
   for _ in range(max_num_retries_for_constraint_satisfaction):
     curr_ret = sample_from_cp_domain_without_constraints(cp_domain, num_samples_to_draw,
                  domain_samplers, euclidean_sample_type, integral_sample_type,
-                 nn_sample_type)
+                 nn_sample_type, discrete_euclidean_sample_type)
     # Check constraints
     if cp_domain.has_constraints():
       constraint_satisfying_ret = [elem for elem in curr_ret if
@@ -358,7 +369,8 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
                                               domain_samplers=None,
                                               euclidean_sample_type='rand',
                                               integral_sample_type='rand',
-                                              nn_sample_type='rand'):
+                                              nn_sample_type='rand',
+                                              discrete_euclidean_sample_type='rand'):
   """ Samples from the CP domain without the constraints. """
   if domain_samplers is None:
     domain_samplers = [None] * cp_domain.num_domains
@@ -370,6 +382,10 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
       if dom.get_type() == 'euclidean':
         curr_domain_samples = random_sample_from_euclidean_domain(dom.bounds, num_samples,
                                                                   euclidean_sample_type)
+      elif dom.get_type() == 'discrete_euclidean':
+        curr_domain_samples = random_sample_from_discrete_euclidean_domain(dom.valid_vectors, num_samples,
+                                                                           discrete_euclidean_sample_type)
+
       elif dom.get_type() == 'integral':
         curr_domain_samples = random_sample_from_integral_domain(dom.bounds, num_samples,
                                                                  integral_sample_type)
@@ -385,7 +401,8 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
         curr_domain_samples = sample_from_cp_domain(dom, num_samples,
                                 euclidean_sample_type=euclidean_sample_type,
                                 integral_sample_type=integral_sample_type,
-                                nn_sample_type=nn_sample_type)
+                                nn_sample_type=nn_sample_type,
+                                discrete_euclidean_sample_type=discrete_euclidean_sample_type)
       else:
         raise ValueError('Unknown domain type %s. Provide sampler.'%(dom.get_type()))
       individual_domain_samples.append(curr_domain_samples)
@@ -400,10 +417,11 @@ def sample_from_config_space(config, num_samples,
                              domain_euclidean_sample_type='rand',
                              domain_integral_sample_type='rand',
                              domain_nn_sample_type='rand',
+                             domain_discrete_euclidean_sample_type='rand',
                              ):
   """ Samples from the Domain and possibly the fidelity space. """
   domain_samples = sample_from_cp_domain(config.domain, num_samples, domain_samplers,
-    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type)
+    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type, domain_discrete_euclidean_sample_type=domain_discrete_euclidean_sample_type)
   if hasattr(config, 'fidel_space'):
     fidel_space_samples = sample_from_cp_domain(config.fidel_space, num_samples,
       fidel_space_samplers, fidel_space_euclidean_sample_type,

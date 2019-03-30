@@ -325,6 +325,14 @@ def random_sample_from_euclidean_domain(bounds, num_samples, sample_type='rand')
     raise ValueError('Unknown sample_type %s.'%(sample_type))
   return list(ret)
 
+def random_sample_from_discrete_euclidean_domain(valid_vectors, num_samples, sample_type='rand'):
+  """ Samples from a Euclidean Domain. """
+  if sample_type == 'rand' or True:
+    ret = valid_vectors[np.random.randint(len(valid_vectors), size=(num_samples, )), :]
+  else:
+    raise ValueError('Unknown sample_type %s.'%(sample_type))
+  return list(ret)
+
 def random_sample_from_integral_domain(bounds, num_samples, sample_type='rand'):
   """ Samples from a Integral Domain. """
   ret = random_sample_from_euclidean_domain(bounds, num_samples, sample_type)

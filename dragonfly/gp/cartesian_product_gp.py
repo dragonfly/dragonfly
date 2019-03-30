@@ -23,6 +23,9 @@ from ..utils.reporters import get_reporter
 # Part 1: Parameters and Arguments
 # ================================
 
+# NOTE: The discrete euclidean domain will use the same parameters as the euclidean domain.
+# TODO(kirthevasank) Add more information about this note.
+
 # Domain kernel parameters
 _DFLT_DOMAIN_EUC_KERNEL_TYPE = 'matern'
 _DFLT_DOMAIN_INT_KERNEL_TYPE = 'matern'
@@ -185,6 +188,8 @@ cartesian_product_mf_gp_args = cartesian_product_gp_args + basic_mf_cart_product
 def get_default_kernel_type(domain_type):
   """ Returns default kernel type for the domain. """
   if domain_type == 'euclidean':
+    return _DFLT_DOMAIN_EUC_KERNEL_TYPE
+  elif domain_type == 'discrete_euclidean':
     return _DFLT_DOMAIN_EUC_KERNEL_TYPE
   elif domain_type == 'integral':
     return _DFLT_DOMAIN_INT_KERNEL_TYPE
@@ -583,6 +588,7 @@ def _get_euc_int_options(dom_type, dom_prefix, options):
   dom_type_code_dic = {'euclidean': 'euc',
                        'integral': 'int',
                        'prod_discrete_numeric': 'disc_num',
+                       'discrete_euclidean': 'euc',
                       }
   def _extract_from_options(dom_type_str, property_str):
     """ Extracts the property from the dom_type. """
@@ -616,6 +622,7 @@ def _get_disc_options(dom_prefix, options):
 def _get_kernel_type_from_options(dom_type, dom_prefix, options):
   """ Returns kernel type from options. """
   dom_type_descr_dict = {'euclidean': 'euc',
+                         'discrete_euclidean': 'euc',
                          'integral': 'int',
                          'prod_discrete_numeric': 'disc_num',
                          'prod_discrete': 'disc',
@@ -821,7 +828,7 @@ def _build_kernel_for_domain(domain, dom_prefix, kernel_scale, gp_cts_hps, gp_ds
       kernel_type = _get_kernel_type_from_options(dom_type, 'dom', options)
     if kernel_type == 'default':
       kernel_type = get_default_kernel_type(dom.get_type())
-    if dom_type in ['euclidean', 'integral', 'prod_discrete_numeric']:
+    if dom_type in ['euclidean', 'integral', 'prod_discrete_numeric', 'discrete_euclidean']:
       curr_kernel_hyperparams = _prep_kernel_hyperparams_for_euc_int_kernels(
                                   kernel_type, dom, dom_prefix, options)
       use_same_bw, _, esp_kernel_type, _ = \
@@ -885,7 +892,7 @@ def _prep_kernel_hyperparams_for_euc_int_kernels(kernel_type, dom, dom_prefix, o
     return euc_int_options
 
   # Call above functions with relevant arguments.
-  if dom.get_type() == 'euclidean':
+  if dom.get_type() in ['euclidean', 'discrete_euclidean']:
     euc_int_options = _get_options_for_domain('euc')
   elif dom.get_type() == 'integral':
     euc_int_options = _get_options_for_domain('int')
