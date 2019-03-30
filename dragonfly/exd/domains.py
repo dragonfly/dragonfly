@@ -144,47 +144,6 @@ class IntegralDomain(Domain):
     return 'Integral: %s'%(_get_bounds_as_str(self.bounds))
 
 
-class DiscreteEuclideanDomain(Domain):
-  """ Domain for Discrete Euclidean spaces. """
-
-  def __init__(self, valid_vectors):
-    """ Constructor. """
-    self.valid_vectors = np.array(valid_vectors)
-    self.diameter = np.linalg.norm(self.valid_vectors.max(0) - self.valid_vectors.min(0))
-    self.dim = valid_vectors.shape[1]
-    self.size = len(valid_vectors)
-    super(DiscreteEuclideanDomain, self).__init__()
-
-  def get_type(self):
-    """ Returns the type of the domain. """
-    return 'discrete_euclidean'
-
-  def get_dim(self):
-    """ Return the dimensions. """
-    return self.dim
-
-  def is_a_member(self, point):
-    """ Returns true if point is in the domain. """
-    # Naively find the nearest point in the domain
-    return cdist([point], self.valid_vectors).min() < 1e-8 * self.diameter
-
-  def members_are_equal(self, point_1, point_2):
-    """ Compares two members and returns True if they are the same. """
-    return self.compute_distance(point_1, point_2) < 1e-8 * self.diameter
-
-  @classmethod
-  def compute_distance(cls, point_1, point_2):
-    """ Computes the distance between point_1 and point_2. """
-    return np.linalg.norm(np.array(point_1) - np.array(point_2))
-
-  def __str__(self):
-    """ Returns a string representation. """
-    base_str = '%s(%d, %d)'%(self.get_type(), self.size, self.dim)
-    if self.size < 4:
-      return '%s: %s'%(base_str, self.valid_vectors)
-    return base_str
-
-
 # Discrete spaces -------------
 class DiscreteDomain(Domain):
   """ A Domain for discrete objects. """
@@ -250,6 +209,44 @@ class DiscreteNumericDomain(DiscreteDomain):
   def is_a_member(self, point):
     """ Returns true if point is in the domain. """
     return discrete_numeric_element_is_in_list(point, self.list_of_items)
+
+
+class DiscreteEuclideanDomain(DiscreteDomain):
+  """ Domain for Discrete Euclidean spaces. """
+
+  def __init__(self, list_of_items):
+    """ Constructor. """
+    list_of_items = np.array(list_of_items)
+    self.dim = list_of_items.shape[1]
+    self.size = len(list_of_items)
+    self.diameter = np.sqrt(self.dim) * (list_of_items.max() - list_of_items.min())
+    super(DiscreteEuclideanDomain, self).__init__(list_of_items)
+
+  def get_type(self):
+    """ Returns the type of the domain. """
+    return 'discrete_euclidean'
+
+  def _get_disc_domain_type(self):
+    """ Prefix for __str__. Can be overridden by a child class. """
+    return "DiscEuc"
+
+  def get_dim(self):
+    """ Return the dimensions. """
+    return self.dim
+
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return np.linalg.norm(np.array(point_1) - np.array(point_2))
+
+  def is_a_member(self, point):
+    """ Returns true if point is in the domain. """
+    # Naively find the nearest point in the domain
+    return cdist([point], self.list_of_items).min() < 1e-8 * self.diameter
+
+  def members_are_equal(self, point_1, point_2):
+    """ Compares two members and returns True if they are the same. """
+    return self.compute_distance(point_1, point_2) < 1e-8 * self.diameter
 
 
 # A product of discrete spaces -----------------------------------------------------

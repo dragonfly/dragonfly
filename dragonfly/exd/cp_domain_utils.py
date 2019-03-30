@@ -45,20 +45,25 @@ def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
 def load_config_file(config_file, *args, **kwargs):
   """ Loads the configuration file. """
   parsed_result = config_parser(config_file)
-  domain_params = parsed_result['domain']
-  domain_constraints = None if not ('domain_constraints' in parsed_result.keys()) \
-                       else parsed_result['domain_constraints']
+  return load_config(parsed_result, config_file, *args, **kwargs)
+
+
+def load_config(config_parameters, config_file=None, *args, **kwargs):
+  """ Loads configuration from parameters. """
+  domain_params = config_parameters['domain']
+  domain_constraints = None if not ('domain_constraints' in config_parameters.keys()) \
+                       else config_parameters['domain_constraints']
   domain_info = Namespace(config_file=config_file)
   domain, domain_orderings = load_domain_from_params(domain_params,
     domain_constraints=domain_constraints, domain_info=domain_info, *args, **kwargs)
-  config = Namespace(name=parsed_result['exp_info']['name'],
+  config = Namespace(name=config_parameters['exp_info']['name'],
                      domain=domain, domain_orderings=domain_orderings)
   # Check the fidelity space
-  if 'fidel_space' in parsed_result.keys():
-    fidel_space_params = parsed_result['fidel_space']
+  if 'fidel_space' in config_parameters.keys():
+    fidel_space_params = config_parameters['fidel_space']
     fidel_space_constraints = None if not ('fidel_space_constraints' in
-                                           parsed_result.keys()) \
-                              else parsed_result['fidel_space_constraints']
+                                           config_parameters.keys()) \
+                              else config_parameters['fidel_space_constraints']
     fidel_space_info = Namespace(config_file=config_file)
     fidel_space, fidel_space_orderings = load_domain_from_params(
       fidel_space_params, domain_constraints=fidel_space_constraints,
@@ -67,7 +72,8 @@ def load_config_file(config_file, *args, **kwargs):
       config.fidel_space = fidel_space
       config.fidel_space_orderings = fidel_space_orderings
       config.raw_fidel_to_opt, config.fidel_to_opt = _process_fidel_to_opt(
-        parsed_result['fidel_to_opt'], fidel_space, fidel_space_orderings, config_file)
+        config_parameters['fidel_to_opt'], fidel_space, fidel_space_orderings,
+        config_file)
   return config
 
 
@@ -126,12 +132,12 @@ def load_domain_from_params(domain_params,
         list_of_domains.append(domains.EuclideanDomain(curr_bounds))
         index_ordering.append(idx)
     elif param['type'] == 'discrete_euclidean':
-        if param['kernel'] == '':
-            discrete_euclidean_items_list.extend(curr_items)
-            discrete_euclidean_idxs.extend(idx)
-        else:
-            list_of_domains.append(domains.DiscreteEuclideanDomain(curr_items))
-            index_ordering.append(idx)
+      if param['kernel'] == '':
+        discrete_euclidean_items_list.extend(curr_items)
+        discrete_euclidean_idxs.extend(idx)
+      else:
+        list_of_domains.append(domains.DiscreteEuclideanDomain(curr_items))
+        index_ordering.append(idx)
     elif param['type'] == 'int':
       if param['kernel'] == '':
         general_integral_bounds.extend(curr_bounds)
@@ -383,9 +389,9 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
         curr_domain_samples = random_sample_from_euclidean_domain(dom.bounds, num_samples,
                                                                   euclidean_sample_type)
       elif dom.get_type() == 'discrete_euclidean':
-        curr_domain_samples = random_sample_from_discrete_euclidean_domain(dom.valid_vectors, num_samples,
-                                                                           discrete_euclidean_sample_type)
-
+        curr_domain_samples = random_sample_from_discrete_euclidean_domain(
+                                dom.list_of_items, num_samples,
+                                discrete_euclidean_sample_type)
       elif dom.get_type() == 'integral':
         curr_domain_samples = random_sample_from_integral_domain(dom.bounds, num_samples,
                                                                  integral_sample_type)
@@ -399,10 +405,10 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
                                                            dom.constraint_checker)
       elif dom.get_type() == 'cartesian_product':
         curr_domain_samples = sample_from_cp_domain(dom, num_samples,
-                                euclidean_sample_type=euclidean_sample_type,
-                                integral_sample_type=integral_sample_type,
-                                nn_sample_type=nn_sample_type,
-                                discrete_euclidean_sample_type=discrete_euclidean_sample_type)
+                    euclidean_sample_type=euclidean_sample_type,
+                    integral_sample_type=integral_sample_type,
+                    nn_sample_type=nn_sample_type,
+                    discrete_euclidean_sample_type=discrete_euclidean_sample_type)
       else:
         raise ValueError('Unknown domain type %s. Provide sampler.'%(dom.get_type()))
       individual_domain_samples.append(curr_domain_samples)
@@ -414,6 +420,7 @@ def sample_from_config_space(config, num_samples,
                              domain_samplers=None,
                              fidel_space_euclidean_sample_type='rand',
                              fidel_space_integral_sample_type='rand',
+                             fidel_space_discrete_euclidean_sample_type='rand',
                              domain_euclidean_sample_type='rand',
                              domain_integral_sample_type='rand',
                              domain_nn_sample_type='rand',
@@ -421,11 +428,12 @@ def sample_from_config_space(config, num_samples,
                              ):
   """ Samples from the Domain and possibly the fidelity space. """
   domain_samples = sample_from_cp_domain(config.domain, num_samples, domain_samplers,
-    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type, domain_discrete_euclidean_sample_type=domain_discrete_euclidean_sample_type)
+    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type,
+    domain_discrete_euclidean_sample_type)
   if hasattr(config, 'fidel_space'):
     fidel_space_samples = sample_from_cp_domain(config.fidel_space, num_samples,
       fidel_space_samplers, fidel_space_euclidean_sample_type,
-      fidel_space_integral_sample_type)
+      fidel_space_integral_sample_type, fidel_space_discrete_euclidean_sample_type)
     return [list(x) for x in zip(fidel_space_samples, domain_samples)]
   else:
     return domain_samples
