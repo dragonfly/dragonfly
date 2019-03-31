@@ -10,6 +10,7 @@
 from __future__ import print_function
 
 from argparse import Namespace
+from copy import deepcopy
 # Local imports
 from . import domains
 from ..parse.config_parser import config_parser
@@ -42,28 +43,69 @@ def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
   return raw_fidel_to_opt, fidel_to_opt
 
 
+def _preprocess_domain_parameters(domain_parameters, var_prefix='var_'):
+  """ Preprocesses domain parameters in a configuration specification. """
+  for idx, var_dict in enumerate(domain_parameters):
+    if not 'name' in var_dict.keys():
+      var_dict['name'] = '%s%02d'%(var_prefix, idx)
+    if not 'dim' in var_dict.keys():
+      var_dict['dim'] = ''
+    if not 'kernel' in var_dict.keys():
+      var_dict['kernel'] = ''
+    if var_dict['type'] in ['float', 'int']:
+      if not ('min' in var_dict.keys() and 'max' in var_dict.keys()):
+        if not 'bounds' in var_dict.keys():
+          raise ValueError('Specify bounds or min and max for Euclidean and Integral ' +
+                           'variables: %s.'%(var_dict))
+        else:
+          var_dict['min'] = var_dict['bounds'][0]
+          var_dict['max'] = var_dict['bounds'][1]
+  print(domain_parameters)
+  return domain_parameters
+
+
+def _preprocess_config_params(config_params):
+  """ Preprocesses configuration parameters. """
+  config_params = deepcopy(config_params)
+  # The name of the experiment
+  if not 'name' in config_params:
+    if 'exp_info' in config_params and 'name' in config_params['exp_info']:
+      config_params['name'] = config_params['exp_info']['name']
+    else:
+      config_params['name'] = 'no_name'
+  # Process the domain variables
+  config_params['domain'] = _preprocess_domain_parameters(config_params['domain'],
+                              var_prefix='domvar_')
+  if 'fidel_space' in config_params:
+    config_params['fidel_space'] = _preprocess_domain_parameters(
+                                     config_params['fidel_space'], var_prefix='fidelvar_')
+  return config_params
+
+
 def load_config_file(config_file, *args, **kwargs):
   """ Loads the configuration file. """
   parsed_result = config_parser(config_file)
+  # If loading from file, no need to pre-process
   return load_config(parsed_result, config_file, *args, **kwargs)
 
 
-def load_config(config_parameters, config_file=None, *args, **kwargs):
+def load_config(config_params, config_file=None, *args, **kwargs):
   """ Loads configuration from parameters. """
-  domain_params = config_parameters['domain']
-  domain_constraints = None if not ('domain_constraints' in config_parameters.keys()) \
-                       else config_parameters['domain_constraints']
+  config_params = _preprocess_config_params(config_params)
+  domain_params = config_params['domain']
+  domain_constraints = None if not ('domain_constraints' in config_params.keys()) \
+                       else config_params['domain_constraints']
   domain_info = Namespace(config_file=config_file)
   domain, domain_orderings = load_domain_from_params(domain_params,
     domain_constraints=domain_constraints, domain_info=domain_info, *args, **kwargs)
-  config = Namespace(name=config_parameters['exp_info']['name'],
+  config = Namespace(name=config_params['name'],
                      domain=domain, domain_orderings=domain_orderings)
   # Check the fidelity space
-  if 'fidel_space' in config_parameters.keys():
-    fidel_space_params = config_parameters['fidel_space']
+  if 'fidel_space' in config_params.keys():
+    fidel_space_params = config_params['fidel_space']
     fidel_space_constraints = None if not ('fidel_space_constraints' in
-                                           config_parameters.keys()) \
-                              else config_parameters['fidel_space_constraints']
+                                           config_params.keys()) \
+                              else config_params['fidel_space_constraints']
     fidel_space_info = Namespace(config_file=config_file)
     fidel_space, fidel_space_orderings = load_domain_from_params(
       fidel_space_params, domain_constraints=fidel_space_constraints,
@@ -72,7 +114,7 @@ def load_config(config_parameters, config_file=None, *args, **kwargs):
       config.fidel_space = fidel_space
       config.fidel_space_orderings = fidel_space_orderings
       config.raw_fidel_to_opt, config.fidel_to_opt = _process_fidel_to_opt(
-        config_parameters['fidel_to_opt'], fidel_space, fidel_space_orderings,
+        config_params['fidel_to_opt'], fidel_space, fidel_space_orderings,
         config_file)
   return config
 
@@ -427,6 +469,7 @@ def sample_from_config_space(config, num_samples,
                              domain_discrete_euclidean_sample_type='rand',
                              ):
   """ Samples from the Domain and possibly the fidelity space. """
+  # pylint: disable=too-many-arguments
   domain_samples = sample_from_cp_domain(config.domain, num_samples, domain_samplers,
     domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type,
     domain_discrete_euclidean_sample_type)

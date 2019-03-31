@@ -354,7 +354,8 @@ class CartesianProductDomain(Domain):
       self.get_raw_point = lambda x: get_raw_point_from_processed_point(x,
                              self, self.domain_info.config_orderings.index_ordering,
                              self.domain_info.config_orderings.dim_ordering)
-      if hasattr(self.domain_info, 'config_file'):
+      if hasattr(self.domain_info, 'config_file') and \
+        self.domain_info.config_file is not None:
         import os
         self.config_file = self.domain_info.config_file
         self.config_file_dir = os.path.dirname(os.path.abspath(os.path.realpath(

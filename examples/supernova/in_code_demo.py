@@ -3,10 +3,9 @@
   -- kandasamy@cs.cmu.edu
 """
 
-from argparse import Namespace
 from dragonfly import load_config, maximise_function
 # From current directory
-from snls import objective
+from snls import objective as snls_objective
 
 
 def main():
@@ -16,11 +15,10 @@ def main():
                  {'name': 'omega_l', 'type': 'float',  'min': 0, 'max': 1}]
   config_params = {'domain': domain_vars}
   config = load_config(config_params)
-  objective = 
   max_capital = 2 * 60 * 60 # Optimisation budget in seconds
 
   # Optimise
-  opt_pt, opt_val, history = maximise_function(objective, config.domain,
+  opt_pt, opt_val, history = maximise_function(snls_objective, config.domain,
                                max_capital, capital_type='realtime', config=config)
 
 
