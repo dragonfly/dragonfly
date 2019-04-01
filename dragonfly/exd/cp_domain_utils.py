@@ -18,9 +18,9 @@ from ..utils.general_utils import flatten_list_of_objects_and_iterables, \
                                 get_original_order_from_reordered_list, \
                                 transpose_list_of_lists
 from ..utils.oper_utils import random_sample_from_euclidean_domain, \
-                             random_sample_from_discrete_euclidean_domain, \
-                             random_sample_from_integral_domain, \
-                             random_sample_from_prod_discrete_domain
+                               random_sample_from_discrete_euclidean_domain, \
+                               random_sample_from_integral_domain, \
+                               random_sample_from_prod_discrete_domain
 
 
 def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
@@ -133,7 +133,6 @@ def load_cp_domain_from_config_file(config_file, *args, **kwargs):
 def load_domain_from_params(domain_params,
       general_euclidean_kernel='', general_integral_kernel='',
       general_discrete_kernel='', general_discrete_numeric_kernel='',
-      general_discrete_euclidean_kernel='',
       domain_constraints=None, domain_info=None):
   """ Loads and creates a cartesian product object from a config_file. """
   # pylint: disable=too-many-branches
@@ -148,8 +147,6 @@ def load_domain_from_params(domain_params,
   general_discrete_idxs = []
   general_discrete_numeric_items_list = []
   general_discrete_numeric_idxs = []
-  general_discrete_euclidean_items_list = []
-  general_discrete_euclidean_idxs = []
   raw_name_ordering = []
   # We will need the following variables for the function caller and the kernel
   index_ordering = [] # keeps track of which index goes where in the domain
@@ -159,7 +156,8 @@ def load_domain_from_params(domain_params,
     if param['type'] in ['float', 'int']:
       bound_dim = 1 if param['dim'] == '' else param['dim']
       curr_bounds = [[param['min'], param['max']]] * bound_dim
-    elif param['type'] in ['discrete', 'discrete_numeric', 'boolean', 'discrete_euclidean']:
+    elif param['type'] in ['discrete', 'discrete_numeric', 'boolean',
+                           'discrete_euclidean']:
       items_dim = 1 if param['dim'] == '' else param['dim']
       if param['type'] == 'boolean':
         param_items = [0, 1]
@@ -173,13 +171,6 @@ def load_domain_from_params(domain_params,
         general_euclidean_idxs.append(idx)
       else:
         list_of_domains.append(domains.EuclideanDomain(curr_bounds))
-        index_ordering.append(idx)
-    elif param['type'] == 'discrete_euclidean':
-      if param['kernel'] == '':
-        general_discrete_euclidean_items_list.append(curr_items)
-        general_discrete_euclidean_idxs.append(idx)
-      else:
-        list_of_domains.append(domains.DiscreteEuclideanDomain(curr_items))
         index_ordering.append(idx)
     elif param['type'] == 'int':
       if param['kernel'] == '':
@@ -202,6 +193,10 @@ def load_domain_from_params(domain_params,
       else:
         list_of_domains.append(domains.ProdDiscreteNumericDomain(curr_items))
         index_ordering.append(idx)
+    elif param['type'] == 'discrete_euclidean':
+      # We will treat the discrete Euclidean space differently
+      list_of_domains.append(domains.DiscreteEuclideanDomain(param_items))
+      index_ordering.append(idx)
     elif param['type'].startswith(('nn', 'cnn', 'mlp')):
       from ..nn.nn_domains import get_nn_domain_from_constraints
       list_of_domains.append(get_nn_domain_from_constraints(param['type'], param))
@@ -222,15 +217,6 @@ def load_domain_from_params(domain_params,
     dim_ordering.append(general_euclidean_dims)
     index_ordering.append(general_euclidean_idxs)
     kernel_ordering.append(general_euclidean_kernel)
-  if len(general_discrete_euclidean_items_list) > 0:
-    list_of_domains.extend([domains.DiscreteEuclideanDomain(x) for x in general_discrete_euclidean_items_list])
-    general_discrete_euclidean_names = [domain_params[idx]['name'] for idx in
-                                        general_discrete_euclidean_idxs]
-    general_discrete_euclidean_dims = [domain_params[idx]['dim'] for idx in general_discrete_euclidean_idxs]
-    name_ordering.append(general_discrete_euclidean_names)
-    dim_ordering.append(general_discrete_euclidean_dims)
-    index_ordering.append(general_discrete_euclidean_idxs)
-    kernel_ordering.append(general_discrete_euclidean_kernel)
   if len(general_integral_bounds) > 0:
     list_of_domains.append(domains.IntegralDomain(general_integral_bounds))
     general_integral_names = [domain_params[idx]['name'] for idx in general_integral_idxs]
@@ -258,6 +244,17 @@ def load_domain_from_params(domain_params,
     dim_ordering.append(general_discrete_numeric_dims)
     index_ordering.append(general_discrete_numeric_idxs)
     kernel_ordering.append(general_discrete_numeric_kernel)
+#   if len(general_discrete_euclidean_items_list) > 0:
+#     list_of_domains.extend([domains.DiscreteEuclideanDomain(x) for x in
+#                             general_discrete_euclidean_items_list])
+#     general_discrete_euclidean_names = [domain_params[idx]['name'] for idx in
+#                                         general_discrete_euclidean_idxs]
+#     general_discrete_euclidean_dims = [domain_params[idx]['dim'] for idx in
+#                                        general_discrete_euclidean_idxs]
+#     name_ordering.append(general_discrete_euclidean_names)
+#     dim_ordering.append(general_discrete_euclidean_dims)
+#     index_ordering.append(general_discrete_euclidean_idxs)
+#     kernel_ordering.append(general_discrete_euclidean_kernel)
   # Arrange all orderings into a namespace
   orderings = Namespace(index_ordering=index_ordering,
                         kernel_ordering=kernel_ordering,
