@@ -110,13 +110,13 @@ Here, `func` is the function to be maximised,
 and `max_capital` is the capital available for optimisation.
 The domain can be specified via a JSON file or in code.
 See
-[`here`](examples/synthetic/branin/in_code_demo.py)
-[`here`](examples/synthetic/hartmann6_4/in_code_demo.py)
-[`here`](examples/synthetic/discrete_euc/in_code_demo_1.py)
-[`here`](examples/synthetic/discrete_euc/in_code_demo_2.py)
-[`here`](examples/tree_reg/in_code_demo.py)
+[here](examples/synthetic/branin/in_code_demo.py),
+[here](examples/synthetic/hartmann6_4/in_code_demo.py),
+[here](examples/synthetic/discrete_euc/in_code_demo_1.py),
+[here](examples/synthetic/discrete_euc/in_code_demo_2.py),
+[here](examples/tree_reg/in_code_demo.py),
 and
-[`here`](examples/nas/demo_nas.py)
+[here](examples/nas/demo_nas.py)
 for more detailed examples.
 
 
