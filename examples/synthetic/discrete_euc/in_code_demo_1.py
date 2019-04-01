@@ -8,14 +8,14 @@ from dragonfly import load_config, maximise_function
 
 def objective(x):
   """ Objective. """
-  return np.linalg.norm(x)
+  return np.linalg.norm(x[0])
 
 
 def main():
   """ Main function. """
-  size = 10
+  size = 1000
   dim = 3
-  disc_euc_items = list(np.random.random(size, dim))
+  disc_euc_items = list(np.random.random((size, dim)))
   domain_vars = [
     {'type': 'discrete_euclidean', 'items': disc_euc_items},
     ]

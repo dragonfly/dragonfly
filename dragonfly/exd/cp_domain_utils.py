@@ -14,7 +14,7 @@ from copy import deepcopy
 # Local imports
 from . import domains
 from ..parse.config_parser import config_parser
-from ..utils.general_utils import flatten_list_of_objects_and_iterables, \
+from ..utils.general_utils import flatten_list_of_objects_and_lists, \
                                 get_original_order_from_reordered_list, \
                                 transpose_list_of_lists
 from ..utils.oper_utils import random_sample_from_euclidean_domain, \
@@ -60,7 +60,6 @@ def _preprocess_domain_parameters(domain_parameters, var_prefix='var_'):
         else:
           var_dict['min'] = var_dict['bounds'][0]
           var_dict['max'] = var_dict['bounds'][1]
-  print(domain_parameters)
   return domain_parameters
 
 
@@ -301,13 +300,13 @@ def get_processed_point_from_raw_point(raw_x, cp_domain, index_ordering, dim_ord
   """ Obtains the processed point from the raw point. """
   if not cp_domain.get_type() == 'cartesian_product':
     packed_x = [raw_x[index_ordering[j]] for j in index_ordering]
-    return flatten_list_of_objects_and_iterables(packed_x)
+    return flatten_list_of_objects_and_lists(packed_x)
   else:
     packed_x = [None] * len(index_ordering)
     for idx, idx_order in enumerate(index_ordering):
       if isinstance(idx_order, list):
         curr_elem = [raw_x[j] for j in idx_order]
-        curr_elem = flatten_list_of_objects_and_iterables(curr_elem)
+        curr_elem = flatten_list_of_objects_and_lists(curr_elem)
         packed_x[idx] = curr_elem
       elif dim_ordering[idx] == '' and (cp_domain.list_of_domains[idx].get_type() in \
                      ['euclidean', 'integral', 'prod_discrete', 'prod_discrete_numeric']):
@@ -330,8 +329,8 @@ def get_raw_point_from_processed_point(proc_x, cp_domain, index_ordering, dim_or
         repacked_x.append(proc_x[idx])
       else:
         repacked_x.append([proc_x[idx]])
-    repacked_x = flatten_list_of_objects_and_iterables(repacked_x)
-  flattened_index_ordering = flatten_list_of_objects_and_iterables(index_ordering)
+    repacked_x = flatten_list_of_objects_and_lists(repacked_x)
+  flattened_index_ordering = flatten_list_of_objects_and_lists(index_ordering)
   x_orig_order = get_original_order_from_reordered_list(repacked_x,
                                                         flattened_index_ordering)
   return x_orig_order
