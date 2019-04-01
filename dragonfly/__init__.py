@@ -20,3 +20,4 @@ from .apis.moo import multiobjective_maximise_functions, \
                       multiobjective_minimise_functions, \
                       multiobjective_maximize_functions, \
                       multiobjective_minimize_functions
+
