@@ -9,36 +9,48 @@ env:
   - DIRECT_STATE=-direct OPT_STATE=-optimal
   - DIRECT_STATE=direct OPT_STATE=-optimal
 
+osx-setup-steps: &osx-setup-steps
+  os: osx
+  language: generic  # 'language: python' is not yet supported on macOS
+  before_install:
+    - brew update
+    - brew outdated pyenv || brew upgrade pyenv
+    - if [[ "$DIRECT_STATE" == "direct" ]]; then
+      brew install gcc ;
+      fi
+    - brew install pyenv-virtualenv
+    - eval "$(pyenv init -)"
+    - eval "$(pyenv virtualenv-init -)"
+    - pyenv install $PYTHON
+    - export PYENV_VERSION=$PYTHON
+    - export PATH="/Users/travis/.pyenv/shims:${PATH}"
+    - pyenv virtualenv venv
+    - pyenv activate venv
+    - python --version
 
 # We have to be explicit with the OSX versions because Python is not supported by default.
 # The Python versions then have to be explicitly labelled with full version numbers because
 # that is what pyenv uses for the installs. The extra "python" label to fix the display in the UI.
 matrix:
   include:
-    - os: osx
-      language: generic
-      python: 2.7
+    - python: 2.7
       env: PYTHON=2.7.12 DIRECT_STATE=direct OPT_STATE=-optimal
-    - os: osx
-      language: generic
-      python: 2.7
+      <<: *osx-setup-steps
+    - python: 2.7
       env: PYTHON=2.7.12 DIRECT_STATE=-direct OPT_STATE=-optimal
-    - os: osx
-      language: generic
-      python: 3.5
+      <<: *osx-setup-steps
+    - python: 3.5
       env: PYTHON=3.5.6 DIRECT_STATE=direct OPT_STATE=-optimal
-    - os: osx
-      language: generic
-      python: 3.5
+      <<: *osx-setup-steps
+    - python: 3.5
       env: PYTHON=3.5.6 DIRECT_STATE=-direct OPT_STATE=-optimal
-    - os: osx
-      language: generic
-      python: 3.6
+      <<: *osx-setup-steps
+    - python: 3.6
       env: PYTHON=3.6.8 DIRECT_STATE=direct OPT_STATE=-optimal
-    - os: osx
-      language: generic
-      python: 3.6
+      <<: *osx-setup-steps
+    - python: 3.6
       env: PYTHON=3.6.8 DIRECT_STATE=-direct OPT_STATE=-optimal
+      <<: *osx-setup-steps
 
 notifications:
   email: false
@@ -55,20 +67,6 @@ cache:
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$DIRECT_STATE" == "direct" ]]; then
     sudo apt-get install -y -qq python-dev gfortran build-essential ;
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    brew update ;
-    brew outdated pyenv || brew upgrade pyenv ;
-    brew install pyenv-virtualenv ;
-    pyenv install $PYTHON ;
-    export PYENV_VERSION=$PYTHON ;
-    export PATH="/Users/travis/.pyenv/shims:${PATH}" ;
-    pyenv-virtualenv venv ;
-    source venv/bin/activate ;
-    python --version ;
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$DIRECT_STATE" == "direct" ]]; then
-    brew install gcc ;
     fi
 
 install:

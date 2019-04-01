@@ -206,14 +206,10 @@ class ExperimentDesigner(object):
       dif = -1 if total_in_progress == 0 else max_idx - min_idx
       return '[min:%d, max:%d, dif:%d, tot:%d]'%(min_idx, max_idx, dif, total_in_progress)
 
-  def _get_multiple_workers_str(self):
+  @classmethod
+  def _get_multiple_workers_str(cls):
     """ Get string if there are multiple workers. """
     return ''
-#     if self.worker_manager.num_workers == 1:
-#       return ''
-#     else:
-#       return 'jobs_by_each_worker=%s, in_progress=%s'%(self._get_jobs_for_each_worker(),
-#                                                   self._get_curr_job_idxs_in_progress())
 
   def _print_header(self):
     """ Print header. """

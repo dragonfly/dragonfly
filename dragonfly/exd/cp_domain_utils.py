@@ -10,15 +10,17 @@
 from __future__ import print_function
 
 from argparse import Namespace
+from copy import deepcopy
 # Local imports
 from . import domains
 from ..parse.config_parser import config_parser
-from ..utils.general_utils import flatten_list_of_objects_and_iterables, \
+from ..utils.general_utils import flatten_list_of_objects_and_lists, \
                                 get_original_order_from_reordered_list, \
                                 transpose_list_of_lists
 from ..utils.oper_utils import random_sample_from_euclidean_domain, \
-                             random_sample_from_integral_domain, \
-                             random_sample_from_prod_discrete_domain
+                               random_sample_from_discrete_euclidean_domain, \
+                               random_sample_from_integral_domain, \
+                               random_sample_from_prod_discrete_domain
 
 
 def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
@@ -41,23 +43,68 @@ def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
   return raw_fidel_to_opt, fidel_to_opt
 
 
+def _preprocess_domain_parameters(domain_parameters, var_prefix='var_'):
+  """ Preprocesses domain parameters in a configuration specification. """
+  for idx, var_dict in enumerate(domain_parameters):
+    if not 'name' in var_dict.keys():
+      var_dict['name'] = '%s%02d'%(var_prefix, idx)
+    if not 'dim' in var_dict.keys():
+      var_dict['dim'] = ''
+    if not 'kernel' in var_dict.keys():
+      var_dict['kernel'] = ''
+    if var_dict['type'] in ['float', 'int']:
+      if not ('min' in var_dict.keys() and 'max' in var_dict.keys()):
+        if not 'bounds' in var_dict.keys():
+          raise ValueError('Specify bounds or min and max for Euclidean and Integral ' +
+                           'variables: %s.'%(var_dict))
+        else:
+          var_dict['min'] = var_dict['bounds'][0]
+          var_dict['max'] = var_dict['bounds'][1]
+  return domain_parameters
+
+
+def _preprocess_config_params(config_params):
+  """ Preprocesses configuration parameters. """
+  config_params = deepcopy(config_params)
+  # The name of the experiment
+  if not 'name' in config_params:
+    if 'exp_info' in config_params and 'name' in config_params['exp_info']:
+      config_params['name'] = config_params['exp_info']['name']
+    else:
+      config_params['name'] = 'no_name'
+  # Process the domain variables
+  config_params['domain'] = _preprocess_domain_parameters(config_params['domain'],
+                              var_prefix='domvar_')
+  if 'fidel_space' in config_params:
+    config_params['fidel_space'] = _preprocess_domain_parameters(
+                                     config_params['fidel_space'], var_prefix='fidelvar_')
+  return config_params
+
+
 def load_config_file(config_file, *args, **kwargs):
   """ Loads the configuration file. """
   parsed_result = config_parser(config_file)
-  domain_params = parsed_result['domain']
-  domain_constraints = None if not ('domain_constraints' in parsed_result.keys()) \
-                       else parsed_result['domain_constraints']
+  # If loading from file, no need to pre-process
+  return load_config(parsed_result, config_file, *args, **kwargs)
+
+
+def load_config(config_params, config_file=None, *args, **kwargs):
+  """ Loads configuration from parameters. """
+  config_params = _preprocess_config_params(config_params)
+  domain_params = config_params['domain']
+  domain_constraints = None if not ('domain_constraints' in config_params.keys()) \
+                       else config_params['domain_constraints']
   domain_info = Namespace(config_file=config_file)
   domain, domain_orderings = load_domain_from_params(domain_params,
     domain_constraints=domain_constraints, domain_info=domain_info, *args, **kwargs)
-  config = Namespace(name=parsed_result['exp_info']['name'],
+  config = Namespace(name=config_params['name'],
                      domain=domain, domain_orderings=domain_orderings)
   # Check the fidelity space
-  if 'fidel_space' in parsed_result.keys():
-    fidel_space_params = parsed_result['fidel_space']
+  if 'fidel_space' in config_params.keys():
+    fidel_space_params = config_params['fidel_space']
     fidel_space_constraints = None if not ('fidel_space_constraints' in
-                                           parsed_result.keys()) \
-                              else parsed_result['fidel_space_constraints']
+                                           config_params.keys()) \
+                              else config_params['fidel_space_constraints']
     fidel_space_info = Namespace(config_file=config_file)
     fidel_space, fidel_space_orderings = load_domain_from_params(
       fidel_space_params, domain_constraints=fidel_space_constraints,
@@ -66,7 +113,8 @@ def load_config_file(config_file, *args, **kwargs):
       config.fidel_space = fidel_space
       config.fidel_space_orderings = fidel_space_orderings
       config.raw_fidel_to_opt, config.fidel_to_opt = _process_fidel_to_opt(
-        parsed_result['fidel_to_opt'], fidel_space, fidel_space_orderings, config_file)
+        config_params['fidel_to_opt'], fidel_space, fidel_space_orderings,
+        config_file)
   return config
 
 
@@ -107,7 +155,8 @@ def load_domain_from_params(domain_params,
     if param['type'] in ['float', 'int']:
       bound_dim = 1 if param['dim'] == '' else param['dim']
       curr_bounds = [[param['min'], param['max']]] * bound_dim
-    elif param['type'] in ['discrete', 'discrete_numeric', 'boolean']:
+    elif param['type'] in ['discrete', 'discrete_numeric', 'boolean',
+                           'discrete_euclidean']:
       items_dim = 1 if param['dim'] == '' else param['dim']
       if param['type'] == 'boolean':
         param_items = [0, 1]
@@ -143,6 +192,10 @@ def load_domain_from_params(domain_params,
       else:
         list_of_domains.append(domains.ProdDiscreteNumericDomain(curr_items))
         index_ordering.append(idx)
+    elif param['type'] == 'discrete_euclidean':
+      # We will treat the discrete Euclidean space differently
+      list_of_domains.append(domains.DiscreteEuclideanDomain(param_items))
+      index_ordering.append(idx)
     elif param['type'].startswith(('nn', 'cnn', 'mlp')):
       from ..nn.nn_domains import get_nn_domain_from_constraints
       list_of_domains.append(get_nn_domain_from_constraints(param['type'], param))
@@ -190,6 +243,17 @@ def load_domain_from_params(domain_params,
     dim_ordering.append(general_discrete_numeric_dims)
     index_ordering.append(general_discrete_numeric_idxs)
     kernel_ordering.append(general_discrete_numeric_kernel)
+#   if len(general_discrete_euclidean_items_list) > 0:
+#     list_of_domains.extend([domains.DiscreteEuclideanDomain(x) for x in
+#                             general_discrete_euclidean_items_list])
+#     general_discrete_euclidean_names = [domain_params[idx]['name'] for idx in
+#                                         general_discrete_euclidean_idxs]
+#     general_discrete_euclidean_dims = [domain_params[idx]['dim'] for idx in
+#                                        general_discrete_euclidean_idxs]
+#     name_ordering.append(general_discrete_euclidean_names)
+#     dim_ordering.append(general_discrete_euclidean_dims)
+#     index_ordering.append(general_discrete_euclidean_idxs)
+#     kernel_ordering.append(general_discrete_euclidean_kernel)
   # Arrange all orderings into a namespace
   orderings = Namespace(index_ordering=index_ordering,
                         kernel_ordering=kernel_ordering,
@@ -236,13 +300,13 @@ def get_processed_point_from_raw_point(raw_x, cp_domain, index_ordering, dim_ord
   """ Obtains the processed point from the raw point. """
   if not cp_domain.get_type() == 'cartesian_product':
     packed_x = [raw_x[index_ordering[j]] for j in index_ordering]
-    return flatten_list_of_objects_and_iterables(packed_x)
+    return flatten_list_of_objects_and_lists(packed_x)
   else:
     packed_x = [None] * len(index_ordering)
     for idx, idx_order in enumerate(index_ordering):
       if isinstance(idx_order, list):
         curr_elem = [raw_x[j] for j in idx_order]
-        curr_elem = flatten_list_of_objects_and_iterables(curr_elem)
+        curr_elem = flatten_list_of_objects_and_lists(curr_elem)
         packed_x[idx] = curr_elem
       elif dim_ordering[idx] == '' and (cp_domain.list_of_domains[idx].get_type() in \
                      ['euclidean', 'integral', 'prod_discrete', 'prod_discrete_numeric']):
@@ -265,8 +329,8 @@ def get_raw_point_from_processed_point(proc_x, cp_domain, index_ordering, dim_or
         repacked_x.append(proc_x[idx])
       else:
         repacked_x.append([proc_x[idx]])
-    repacked_x = flatten_list_of_objects_and_iterables(repacked_x)
-  flattened_index_ordering = flatten_list_of_objects_and_iterables(index_ordering)
+    repacked_x = flatten_list_of_objects_and_lists(repacked_x)
+  flattened_index_ordering = flatten_list_of_objects_and_lists(index_ordering)
   x_orig_order = get_original_order_from_reordered_list(repacked_x,
                                                         flattened_index_ordering)
   return x_orig_order
@@ -313,6 +377,7 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
                           euclidean_sample_type='rand',
                           integral_sample_type='rand',
                           nn_sample_type='rand',
+                          discrete_euclidean_sample_type='rand',
                           max_num_retries_for_constraint_satisfaction=10,
                           verbose_constraint_satisfaction=True):
   """ Samples from the CP domain. """
@@ -324,7 +389,7 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
   for _ in range(max_num_retries_for_constraint_satisfaction):
     curr_ret = sample_from_cp_domain_without_constraints(cp_domain, num_samples_to_draw,
                  domain_samplers, euclidean_sample_type, integral_sample_type,
-                 nn_sample_type)
+                 nn_sample_type, discrete_euclidean_sample_type)
     # Check constraints
     if cp_domain.has_constraints():
       constraint_satisfying_ret = [elem for elem in curr_ret if
@@ -358,7 +423,8 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
                                               domain_samplers=None,
                                               euclidean_sample_type='rand',
                                               integral_sample_type='rand',
-                                              nn_sample_type='rand'):
+                                              nn_sample_type='rand',
+                                              discrete_euclidean_sample_type='rand'):
   """ Samples from the CP domain without the constraints. """
   if domain_samplers is None:
     domain_samplers = [None] * cp_domain.num_domains
@@ -370,6 +436,10 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
       if dom.get_type() == 'euclidean':
         curr_domain_samples = random_sample_from_euclidean_domain(dom.bounds, num_samples,
                                                                   euclidean_sample_type)
+      elif dom.get_type() == 'discrete_euclidean':
+        curr_domain_samples = random_sample_from_discrete_euclidean_domain(
+                                dom.list_of_items, num_samples,
+                                discrete_euclidean_sample_type)
       elif dom.get_type() == 'integral':
         curr_domain_samples = random_sample_from_integral_domain(dom.bounds, num_samples,
                                                                  integral_sample_type)
@@ -383,9 +453,10 @@ def sample_from_cp_domain_without_constraints(cp_domain, num_samples,
                                                            dom.constraint_checker)
       elif dom.get_type() == 'cartesian_product':
         curr_domain_samples = sample_from_cp_domain(dom, num_samples,
-                                euclidean_sample_type=euclidean_sample_type,
-                                integral_sample_type=integral_sample_type,
-                                nn_sample_type=nn_sample_type)
+                    euclidean_sample_type=euclidean_sample_type,
+                    integral_sample_type=integral_sample_type,
+                    nn_sample_type=nn_sample_type,
+                    discrete_euclidean_sample_type=discrete_euclidean_sample_type)
       else:
         raise ValueError('Unknown domain type %s. Provide sampler.'%(dom.get_type()))
       individual_domain_samples.append(curr_domain_samples)
@@ -397,17 +468,21 @@ def sample_from_config_space(config, num_samples,
                              domain_samplers=None,
                              fidel_space_euclidean_sample_type='rand',
                              fidel_space_integral_sample_type='rand',
+                             fidel_space_discrete_euclidean_sample_type='rand',
                              domain_euclidean_sample_type='rand',
                              domain_integral_sample_type='rand',
                              domain_nn_sample_type='rand',
+                             domain_discrete_euclidean_sample_type='rand',
                              ):
   """ Samples from the Domain and possibly the fidelity space. """
+  # pylint: disable=too-many-arguments
   domain_samples = sample_from_cp_domain(config.domain, num_samples, domain_samplers,
-    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type)
+    domain_euclidean_sample_type, domain_integral_sample_type, domain_nn_sample_type,
+    domain_discrete_euclidean_sample_type)
   if hasattr(config, 'fidel_space'):
     fidel_space_samples = sample_from_cp_domain(config.fidel_space, num_samples,
       fidel_space_samplers, fidel_space_euclidean_sample_type,
-      fidel_space_integral_sample_type)
+      fidel_space_integral_sample_type, fidel_space_discrete_euclidean_sample_type)
     return [list(x) for x in zip(fidel_space_samples, domain_samples)]
   else:
     return domain_samples

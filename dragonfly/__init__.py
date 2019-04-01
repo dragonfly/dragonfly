@@ -12,6 +12,7 @@
   -- kandasamy@cs.cmu.edu
 """
 
+# Main APIs
 from .apis.opt import maximise_function, minimise_function, \
                       maximise_multifidelity_function, minimise_multifidelity_function, \
                       maximize_function, minimize_function, \
@@ -20,4 +21,6 @@ from .apis.moo import multiobjective_maximise_functions, \
                       multiobjective_minimise_functions, \
                       multiobjective_maximize_functions, \
                       multiobjective_minimize_functions
+
+from .exd.cp_domain_utils import load_config_file, load_config
 
