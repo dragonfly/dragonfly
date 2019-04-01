@@ -37,15 +37,23 @@ and the corresponding optimum point. `history.query_points` contains the points 
 the
 algorithm and `history.query_vals` contains the function values.
 
-[`examples/synthetic/branin/in_code_demo.py`](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/branin/in_code_demo.py)
+
+The domain can be specified via a JSON file or in code.
+See 
+[`here`](https://github.com/dragonfly/examples/synthetic/branin/in_code_demo.py)
+[`here`](https://github.com/dragonfly/examples/synthetic/hartmann6_4/in_code_demo.py)
+[`here`](https://github.com/dragonfly/examples/synthetic/discrete_euc/in_code_demo_1.py)
+[`here`](https://github.com/dragonfly/examples/synthetic/discrete_euc/in_code_demo_2.py)
+[`here`](https://github.com/dragonfly/examples/tree_reg/in_code_demo.py)
 and
-[`examples/supernova/in_code_demo.py`](https://github.com/dragonfly/dragonfly/tree/master/examples/supernova/in_code_demo.py)
-demonstrate the use case for the branin and supernova problems respectively.
-To execute these files, simply run
+[`here`](https://github.com/dragonfly/examples/nas/demo_nas.py)
+for more detailed examples.
+You can run them via, for example,
 ```bash
 $ python examples/synthetic/branin/in_code_demo.py
-$ python examples/supernova/in_code_demo.py
+$ python examples/tree_reg/in_code_demo.py
 ```
+
 
 &nbsp;
 
