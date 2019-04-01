@@ -40,13 +40,13 @@ algorithm and `history.query_vals` contains the function values.
 
 The domain can be specified via a JSON file or in code.
 See 
-[here](https://github.com/dragonfly/dragonfly/examples/synthetic/branin/in_code_demo.py),
-[here](https://github.com/dragonfly/dragonfly/examples/synthetic/hartmann6_4/in_code_demo.py),
-[here](https://github.com/dragonfly/dragonfly/examples/synthetic/discrete_euc/in_code_demo_1.py),
-[here](https://github.com/dragonfly/dragonfly/examples/synthetic/discrete_euc/in_code_demo_2.py),
-[here](https://github.com/dragonfly/dragonfly/examples/tree_reg/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/branin/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/hartmann6_4/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/discrete_euc/in_code_demo_1.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/discrete_euc/in_code_demo_2.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/tree_reg/in_code_demo.py),
 and
-[here](https://github.com/dragonfly/examples/nas/demo_nas.py)
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/nas/demo_nas.py)
 for more detailed examples.
 You can run them via, for example,
 ```bash
