@@ -8,6 +8,7 @@
 
 import numpy as np
 from numbers import Number
+from scipy.spatial.distance import cdist
 
 class Domain(object):
   """ Domain class. An abstract class which implements domains. """
@@ -210,6 +211,44 @@ class DiscreteNumericDomain(DiscreteDomain):
     return discrete_numeric_element_is_in_list(point, self.list_of_items)
 
 
+class DiscreteEuclideanDomain(DiscreteDomain):
+  """ Domain for Discrete Euclidean spaces. """
+
+  def __init__(self, list_of_items):
+    """ Constructor. """
+    list_of_items = np.array(list_of_items)
+    self.dim = list_of_items.shape[1]
+    self.size = len(list_of_items)
+    self.diameter = np.sqrt(self.dim) * (list_of_items.max() - list_of_items.min())
+    super(DiscreteEuclideanDomain, self).__init__(list_of_items)
+
+  def get_type(self):
+    """ Returns the type of the domain. """
+    return 'discrete_euclidean'
+
+  def _get_disc_domain_type(self):
+    """ Prefix for __str__. Can be overridden by a child class. """
+    return "DiscEuc"
+
+  def get_dim(self):
+    """ Return the dimensions. """
+    return self.dim
+
+  @classmethod
+  def compute_distance(cls, point_1, point_2):
+    """ Computes the distance between point_1 and point_2. """
+    return np.linalg.norm(np.array(point_1) - np.array(point_2))
+
+  def is_a_member(self, point):
+    """ Returns true if point is in the domain. """
+    # Naively find the nearest point in the domain
+    return cdist([point], self.list_of_items).min() < 1e-8 * self.diameter
+
+  def members_are_equal(self, point_1, point_2):
+    """ Compares two members and returns True if they are the same. """
+    return self.compute_distance(point_1, point_2) < 1e-8 * self.diameter
+
+
 # A product of discrete spaces -----------------------------------------------------
 class ProdDiscreteDomain(Domain):
   """ A product of discrete objects. """
@@ -315,7 +354,8 @@ class CartesianProductDomain(Domain):
       self.get_raw_point = lambda x: get_raw_point_from_processed_point(x,
                              self, self.domain_info.config_orderings.index_ordering,
                              self.domain_info.config_orderings.dim_ordering)
-      if hasattr(self.domain_info, 'config_file'):
+      if hasattr(self.domain_info, 'config_file') and \
+        self.domain_info.config_file is not None:
         import os
         self.config_file = self.domain_info.config_file
         self.config_file_dir = os.path.dirname(os.path.abspath(os.path.realpath(

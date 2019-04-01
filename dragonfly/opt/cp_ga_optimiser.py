@@ -6,8 +6,9 @@
 
 # pylint: disable=invalid-name
 
-import numpy as np
 from copy import copy
+import numpy as np
+from scipy.spatial.distance import cdist
 # Local imports
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                             load_cp_domain_from_config_file
@@ -40,6 +41,23 @@ def _return_ndarray_with_type(x, ret):
 def euclidean_gauss_mutation(x, bounds, sigmas=None):
   """ Defines a Euclidean Mutation. """
   ret = _get_gauss_perturbation(x, bounds, sigmas)
+  return _return_ndarray_with_type(x, ret)
+
+def discrete_euclidean_mutation(x, list_of_items, uniform_prob=0.2):
+  """ Makes a change depending on the vector values. """
+  # cdist requires 2d input
+  dists = cdist([x], list_of_items)[0]
+  # Exponentiate and normalise to get the probabilities.
+  unnorm_diff_probs = np.exp(-dists)
+  sample_diff_probs = unnorm_diff_probs / unnorm_diff_probs.sum()
+  # Change the distribution to interplate between it and uniform
+  n = sample_diff_probs.shape[0]
+  unif = np.full(sample_diff_probs.shape, 1. / n)
+  p = (1 - uniform_prob) * sample_diff_probs + uniform_prob * unif
+  # Now draw the samples
+  idxs = np.arange(n)
+  idx = np.random.choice(idxs, p=p)
+  ret = list_of_items[idx]
   return _return_ndarray_with_type(x, ret)
 
 def integral_gauss_mutation(x, bounds, sigmas=None):
@@ -101,6 +119,8 @@ def get_default_mutation_op(dom):
     return lambda x: discrete_numeric_exp_mutation(x, dom.list_of_items)
   elif dom.get_type() == 'prod_discrete_numeric':
     return lambda x: prod_discrete_numeric_exp_mutation(x, dom.list_of_list_of_items)
+  elif dom.get_type() == 'discrete_euclidean':
+    return lambda x: discrete_euclidean_mutation(x, dom.list_of_items)
   elif dom.get_type() == 'neural_network':
     from ..nn.nn_modifiers import get_single_nn_mutation_op
     return get_single_nn_mutation_op(dom, [0.5, 0.25, 0.125, 0.075, 0.05])
