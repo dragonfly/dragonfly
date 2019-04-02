@@ -505,8 +505,9 @@ class GPBandit(BlackboxOptimiser):
       raise NotImplementedError('Not Implemented synchronous mf yet!')
     else:
       next_batch_of_eval_points = select_pt_func(batch_size, self.gp, anc_data)
-      qinfos = [Namespace(point=pt, hp_tune_method=self.gp_processor.hp_tune_method)
-                for pt in next_batch_of_eval_points]
+      qinfos = [Namespace(point=pt,
+                          hp_tune_method=self.gp_processor.hp_tune_method,
+                          curr_acq=curr_acq) for pt in next_batch_of_eval_points]
     return qinfos
 
   def _main_loop_pre_boca(self):
