@@ -174,7 +174,7 @@ class DiscreteDomain(Domain):
   @classmethod
   def compute_distance(cls, point_1, point_2):
     """ Computes the distance between point_1 and point_2. """
-    return float(point_1 == point_2)
+    return float(point_1 != point_2)
 
   def __str__(self):
     """ Returns a string representation. """
@@ -287,7 +287,7 @@ class ProdDiscreteDomain(Domain):
   @classmethod
   def compute_distance(cls, point_1, point_2):
     """ Computes the distance between point_1 and point_2. """
-    return float(sum([elem_1 == elem_2 for (elem_1, elem_2) in zip(point_1, point_2)]))
+    return float(sum([elem_1 != elem_2 for (elem_1, elem_2) in zip(point_1, point_2)]))
 
   def __str__(self):
     """ Returns a string representation. """
