@@ -686,8 +686,9 @@ class EuclideanGPBandit(GPBandit):
         next_batch_of_eval_points = select_pt_func(batch_size, self.gp, anc_data)
       else:
         next_batch_of_eval_points = select_pt_func(batch_size, self.add_gp, anc_data)
-      qinfos = [Namespace(point=pt, hp_tune_method=qinfo_hp_tune_method)
-                for pt in next_batch_of_eval_points]
+      qinfos = [Namespace(point=pt, 
+                          hp_tune_method=qinfo_hp_tune_method,
+                          curr_acq=curr_acq) for pt in next_batch_of_eval_points]
     return qinfos
 
   def _get_initial_qinfos(self, num_init_evals):
