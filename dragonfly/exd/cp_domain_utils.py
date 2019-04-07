@@ -11,6 +11,7 @@ from __future__ import print_function
 
 from argparse import Namespace
 from copy import deepcopy
+import numpy as np
 # Local imports
 from . import domains
 from ..parse.config_parser import config_parser
@@ -45,6 +46,8 @@ def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
 
 def _preprocess_domain_parameters(domain_parameters, var_prefix='var_'):
   """ Preprocesses domain parameters in a configuration specification. """
+  if domain_parameters is None:
+    return domain_parameters
   for idx, var_dict in enumerate(domain_parameters):
     if not 'name' in var_dict.keys():
       var_dict['name'] = '%s%02d'%(var_prefix, idx)
@@ -60,10 +63,30 @@ def _preprocess_domain_parameters(domain_parameters, var_prefix='var_'):
         else:
           var_dict['min'] = var_dict['bounds'][0]
           var_dict['max'] = var_dict['bounds'][1]
+    if var_dict['type'] == 'discrete_numeric':
+      if 'items' not in var_dict.keys():
+        raise ValueError('Specify items for discrete_numeric variables.')
+      if isinstance(var_dict['items'], str):
+        if ':' not in var_dict['items']:
+          _items = [float(x) for x in var_dict['items'].split('-')]
+        else:
+          _range = [float(x) for x in var_dict['items'].split(':')]
+          _items = list(np.arange(_range[0], _range[2], _range[1]))
+        var_dict['items'] = _items
     if var_dict['type'] == 'discrete_euclidean' and var_dict['dim'] != '':
       raise ValueError('dim parameter for Discrete Euclidean vectors should be an empty' +
                        ' string or not specified. Given %s.'%(var_dict['dim']))
   return domain_parameters
+
+
+def _preprocess_domain_constraints(domain_constraints, constraint_prefix):
+  """ Preprocesses domain constraints. """
+  if domain_constraints is None:
+    return domain_constraints
+  for idx, var_dict in enumerate(domain_constraints):
+    if not 'name' in var_dict.keys():
+      var_dict['name'] = '%s%02d'%(constraint_prefix, idx)
+  return domain_constraints
 
 
 def _preprocess_config_params(config_params):
@@ -78,9 +101,16 @@ def _preprocess_config_params(config_params):
   # Process the domain variables
   config_params['domain'] = _preprocess_domain_parameters(config_params['domain'],
                               var_prefix='domvar_')
+  if 'domain_constraints' in config_params:
+    config_params['domain_constraints'] = _preprocess_domain_constraints(
+       config_params['domain_constraints'], 'domconstraint_')
+  # Process fidel space variables
   if 'fidel_space' in config_params:
     config_params['fidel_space'] = _preprocess_domain_parameters(
-                                     config_params['fidel_space'], var_prefix='fidelvar_')
+      config_params['fidel_space'], var_prefix='fidelvar_')
+    if 'fidel_space_constraints' in config_params:
+      config_params['fidel_space_constraints'] = _preprocess_domain_constraints(
+        config_params['fidel_space_constraints'], 'fidelconstraint_')
   return config_params
 
 

@@ -51,6 +51,18 @@
     "kernel":"se"
   }
 
+ },
+
+"domain_constraints": {
+  "dc1" : {
+    "name": "dc1",
+    "constraint": "np.sqrt(rw[0]) + L_Kw[1] <= 0.9"
+  },
+
+  "dc2" : {
+    "name": "dc2",
+    "constraint": "r/100.0 + Hu_Hl[1] < 200"
+  }
  }
 }
 

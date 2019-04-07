@@ -374,28 +374,33 @@ class CartesianProductDomain(Domain):
     self.num_domain_constraints = len(self.domain_constraints)
     # Separate the constraints into different types
     self.eval_as_pyfile_idxs = [idx for idx in range(self.num_domain_constraints) if
-                                isinstance(self.domain_constraints[idx][1], str) and
-                                self.domain_constraints[idx][1].endswith('.py')]
+      isinstance(self.domain_constraints[idx]['constraint'], str) and
+      self.domain_constraints[idx]['constraint'].endswith('.py')]
     self.eval_as_str_idxs = [idx for idx in range(self.num_domain_constraints) if
-                             isinstance(self.domain_constraints[idx][1], str) and
-                             idx not in self.eval_as_pyfile_idxs]
+      isinstance(self.domain_constraints[idx]['constraint'], str) and
+      idx not in self.eval_as_pyfile_idxs]
     self.eval_as_pyfunc_idxs = [idx for idx in range(self.num_domain_constraints) if
-                                hasattr(self.domain_constraints[idx][1], '__call__')]
+      hasattr(self.domain_constraints[idx]['constraint'], '__call__')]
     # Save constraints here
-    self.pyfunc_constraints = [self.domain_constraints[idx][1] for idx
+    self.pyfunc_constraints = [self.domain_constraints[idx]['constraint'] for idx
                               in self.eval_as_pyfunc_idxs]
-    self.str_constraints = [self.domain_constraints[idx][1] for idx in
+    self.str_constraints = [self.domain_constraints[idx]['constraint'] for idx in
                             self.eval_as_str_idxs]
     # pyfile constraints
-    pyfile_modules = [self.domain_constraints[idx][1] for idx
-                      in self.eval_as_pyfile_idxs]
     self.pyfile_constraints = []
-    sys.path.append(self.config_file_dir)
-    for pfm_file_name in pyfile_modules:
-      pfm = pfm_file_name.split('.')[0]
-      constraint_source_module = import_module(pfm, self.config_file_dir)
-      self.pyfile_constraints.append(constraint_source_module.constraint)
-    sys.path.remove(self.config_file_dir)
+    if len(self.eval_as_pyfile_idxs) > 0:
+      if not hasattr(self, 'config_file_dir'):
+        raise ValueError('Constraints can be specified in a python file only when'
+                         ' using a configuration file.')
+      # This is relevant only if the domain is loaded via a configuration file.
+      pyfile_modules = [self.domain_constraints[idx]['constraint'] for idx
+                        in self.eval_as_pyfile_idxs]
+      sys.path.append(self.config_file_dir)
+      for pfm_file_name in pyfile_modules:
+        pfm = pfm_file_name.split('.')[0]
+        constraint_source_module = import_module(pfm, self.config_file_dir)
+        self.pyfile_constraints.append(constraint_source_module.constraint)
+      sys.path.remove(self.config_file_dir)
 
   def get_type(self):
     """ Returns the type of the domain. """
@@ -470,8 +475,8 @@ class CartesianProductDomain(Domain):
     ret1 = 'CartProd(N=%d,d=%d)::[%s]'%(self.num_domains, self.dim,
                                         list_of_domains_str)
     if self.has_constraints():
-      constraints_as_list_of_strs = ['%s: %s'%(elem[0], elem[1]) for elem in
-                                     self.domain_constraints]
+      constraints_as_list_of_strs = ['%s: %s'%(elem['name'], elem['constraint'])
+                                     for elem in self.domain_constraints]
       constraints_as_str = ', '.join(constraints_as_list_of_strs)
       ret2 = ',  Constraints:: %s'%(constraints_as_str)
     else:

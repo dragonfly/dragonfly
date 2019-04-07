@@ -48,22 +48,12 @@ def _load_domain_constraints(domain_constraints):
   # to store any ancillary information. The third item will be a dictionary containing
   # any other information specified in the configuration file.
   for _, constraint_data in domain_constraints.items():
-    curr_constraint_ancillary_info = {}
+    curr_constraint_dict = {}
     for key, val in constraint_data.items():
       key = unicode_to_str(key)
       val = unicode_to_str(val)
-      if key == 'name':
-        curr_constraint_name = val
-      elif key == 'constraint':
-        curr_constraint = val
-      else:
-        curr_constraint_ancillary_info[key] = val
-    curr_constraint_tuple = (curr_constraint_name, curr_constraint,
-                             curr_constraint_ancillary_info)
-    processed_constraints.append(curr_constraint_tuple)
-    del curr_constraint_name
-    del curr_constraint
-    del curr_constraint_ancillary_info
+      curr_constraint_dict[key] = val
+    processed_constraints.append(curr_constraint_dict)
   return processed_constraints
 
 
