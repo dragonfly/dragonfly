@@ -15,6 +15,7 @@ osx-setup-steps: &osx-setup-steps
   before_install:
     - brew update
     - brew outdated pyenv || brew upgrade pyenv
+    - brew install readline openssl xz
     - if [[ "$DIRECT_STATE" == "direct" ]]; then
       brew install gcc ;
       fi
