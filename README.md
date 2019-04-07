@@ -3,6 +3,7 @@
 
 ---
 
+
 Dragonfly is an open source python library for scalable Bayesian optimisation.
 
 Bayesian optimisation is used for optimising black-box functions whose evaluations are
@@ -17,9 +18,6 @@ multiple functions simultaneously).
 
 Dragonfly is compatible with Python2 (>= 2.7) and Python3 (>= 3.5) and has been tested
 on Linux, macOS, and Windows platforms.
-
-&nbsp;
-
 For documentation, installation, and a getting started guide, see our
 [readthedocs page](https://dragonfly-opt.readthedocs.io). For more details, see
 our [paper](https://arxiv.org/abs/1903.06694).
@@ -114,6 +112,9 @@ See
 [here](examples/synthetic/hartmann6_4/in_code_demo.py),
 [here](examples/synthetic/discrete_euc/in_code_demo_1.py),
 [here](examples/synthetic/discrete_euc/in_code_demo_2.py),
+[here](examples/synthetic/hartmann3_constrained/in_code_demo.py),
+[here](examples/synthetic/park1_constrained/in_code_demo.py),
+[here](examples/synthetic/borehole_constrained/in_code_demo.py),
 [here](examples/tree_reg/in_code_demo.py),
 and
 [here](examples/nas/demo_nas.py)

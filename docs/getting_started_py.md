@@ -44,6 +44,9 @@ See
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/hartmann6_4/in_code_demo.py),
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/discrete_euc/in_code_demo_1.py),
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/discrete_euc/in_code_demo_2.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/hartmann3_constrained/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/park1_constrained/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/borehole_constrained/in_code_demo.py),
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/tree_reg/in_code_demo.py),
 and
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/nas/demo_nas.py)
