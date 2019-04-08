@@ -16,7 +16,8 @@ osx-setup-steps: &osx-setup-steps
     - brew update
     - brew outdated pyenv || brew upgrade pyenv
     - brew install readline openssl xz
-    - alias pyenv='CFLAGS="-I$(brew --prefix openssl)/include" LDFLAGS="-L$(brew --prefix openssl)/lib" pyenv'
+    - export CFLAGS="-I$(brew --prefix openssl)/include" \
+    - export LDFLAGS="-L$(brew --prefix openssl)/lib" \
     - if [[ "$DIRECT_STATE" == "direct" ]]; then
       brew install gcc ;
       fi
