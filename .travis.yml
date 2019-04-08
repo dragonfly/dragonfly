@@ -15,6 +15,8 @@ osx-setup-steps: &osx-setup-steps
   before_install:
     - brew update
     - brew outdated pyenv || brew upgrade pyenv
+    - brew unlink pyenv
+    - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/922f1a6709446cb1c6cfb954651275bf4033eef8/Formula/pyenv.rb
     - if [[ "$DIRECT_STATE" == "direct" ]]; then
       brew install gcc ;
       fi
