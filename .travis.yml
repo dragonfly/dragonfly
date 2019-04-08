@@ -14,6 +14,7 @@ osx-setup-steps: &osx-setup-steps
   language: generic  # 'language: python' is not yet supported on macOS
   before_install:
     - brew update
+    - brew unlink pyenv
     - brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/922f1a6709446cb1c6cfb954651275bf4033eef8/Formula/pyenv.rb
     - if [[ "$DIRECT_STATE" == "direct" ]]; then
       brew install gcc ;
