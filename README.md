@@ -3,8 +3,6 @@
 
 ---
 
-[![Build Status](https://travis-ci.org/dragonfly/dragonfly.svg?branch=master)](https://travis-ci.org/dragonfly/dragonfly)
-
 
 Dragonfly is an open source python library for scalable Bayesian optimisation.
 
