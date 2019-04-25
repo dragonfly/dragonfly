@@ -131,10 +131,18 @@ def main():
       raise ValueError('Multi-objective multi-fidelity optimisation has not been ' +
                        'implemented yet.')
     else:
+      # Check format of function caller
+      if hasattr(obj_module, 'objectives'):
+        objectives_to_pass = obj_module.objectives
+        num_objectives = len(objectives_to_pass)
+      else:
+        num_objectives = obj_module.num_objectives
+        objectives_to_pass = (obj_module.compute_objectives, obj_module.num_objectives)
       print('%s %d multiobjective functions on Domain: %s.\n'%(_print_prefix,
-            len(obj_module.objectives), config.domain))
+            num_objectives, config.domain))
+      print(objectives_to_pass)
       pareto_values, pareto_points, history = \
-        call_to_optimise['multi'][options.max_or_min](obj_module.objectives,
+        call_to_optimise['multi'][options.max_or_min](objectives_to_pass,
         domain=None, max_capital=options.max_capital, capital_type=options.capital_type,
         opt_method=options.opt_method, config=config, options=options,
         reporter=options.report_progress)

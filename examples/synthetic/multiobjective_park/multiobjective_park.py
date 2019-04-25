@@ -53,10 +53,11 @@ def park2(x):
   """ Computes park1. """
   return park1_euc(_get_01_coords(x))
 
-# Option 1
+# # Option 1: Define objectives to be a list of the functions
 objectives = [park1, park2]
 
-# Option 2
+# Option 2: Define num_objectives to be the number of objectives and compute_objectives to
+# return a list of values of each function.
 # num_objectives = 2
 # def compute_objectives(x):
 #   """ Computes the objectives. """

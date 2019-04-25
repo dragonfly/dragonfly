@@ -314,11 +314,6 @@ class GPBandit(BlackboxOptimiser):
                                       'post_sample_hps_with_probs']:
       reg_data = self._get_gp_reg_data()
       self._child_set_gp_data(reg_data)
-#     if self.step_idx == self.last_model_build_at or \
-#        self.step_idx == self.last_model_build_at + self.worker_manager.num_workers:
-#       # printing multiple times every model build is a way to check that post_sampling
-#       # is picking different hyperparameters.
-#       self._report_current_gp()
     # We need to do this separately since posterior sampling complicates how we keep
     # track of the GPs.
     if self.step_idx == self.last_model_build_at and \

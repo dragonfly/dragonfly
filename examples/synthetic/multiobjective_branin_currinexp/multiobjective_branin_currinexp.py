@@ -19,7 +19,7 @@ def branin_with_params(x, a, b, c, r, s, t):
   x1 = x[0]
   x2 = x[1]
   neg_ret = float(a * (x2 - b*x1**2 + c*x1 - r)**2 + s*(1-t)*np.cos(x1) + s)
-  return - neg_ret
+  return - float(neg_ret)
 
 def branin(x):
   """ Branin function."""
@@ -38,7 +38,7 @@ def currin_exp_01(x):
   x2 = x[1]
   val_1 = 1 - np.exp(-1/(2 * x2))
   val_2 = (2300*x1**3 + 1900*x1**2 + 2092*x1 + 60) / (100*x1**3 + 500*x1**2 + 4*x1 + 20)
-  return val_1 * val_2
+  return float(val_1 * val_2)
 
 
 def currin_exp(x):
@@ -47,12 +47,13 @@ def currin_exp(x):
 
 
 
-# Option 1
-objectives = [branin, currin_exp]
+# # Option 1: Define objectives to be a list of the functions
+# objectives = [branin, currin_exp]
 
-# # Option 2
-# num_objectives = 2
-# def compute_objectives(x):
-#   """ Computes the objectives. """
-#   return [obj(x) for obj in objectives]
+# Option 2: Define num_objectives to be the number of objectives and compute_objectives to
+# return a list of values of each function.
+num_objectives = 2
+def compute_objectives(x):
+  """ Computes the objectives. """
+  return [branin(x), currin_exp_01(x)]
 

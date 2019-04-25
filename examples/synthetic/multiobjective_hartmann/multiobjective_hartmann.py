@@ -79,13 +79,13 @@ def hartmann6(x):
   return hartmann6_01(_get_01_coords(x))
 
 
-# Define the following
-# Option 1
+# # Option 1: Define objectives to be a list of the functions
 objectives = [hartmann3_by_2_1, hartmann6, hartmann3_by_2_2]
 
-# Option 2
-# num_objectives = 3
+# Option 2: Define num_objectives to be the number of objectives and compute_objectives to
+# return a list of values of each function.
 # def compute_objectives(x):
 #   """ Computes the objectives. """
-#   return [obj(x) for obj in objectives]
+#   return [hartmann3_by_2_1(x), hartmann6(x), hartmann3_by_2_2(x)]
+
 

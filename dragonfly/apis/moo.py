@@ -16,6 +16,11 @@ from ..opt.random_multiobjective_optimiser import \
                                  random_multiobjective_optimisation_from_multi_func_caller
 
 
+_FUNC_FORMAT_ERR_MSG = ('funcs should either be a list of functions or a tuple (F, n) ' +
+                        'where F returns a list of values and n is the number of ' +
+                        'objectives.')
+
+
 def multiobjective_maximise_functions(funcs, domain, max_capital,
                                       capital_type='num_evals', opt_method='bo',
                                       config=None, options=None, reporter='default'):
@@ -51,13 +56,22 @@ def multiobjective_maximise_functions(funcs, domain, max_capital,
                and the values at each time step.
   """
   # Preprocess domain and config arguments
-  raw_funcs = funcs
-  domain, funcs, config, _ = preprocess_arguments(domain, funcs, config)
+  if isinstance(funcs, tuple) and len(funcs) == 2:
+    raw_funcs = funcs[0]
+    domain, _mfc_funcs_arg_0, config, _ = preprocess_arguments(domain, [raw_funcs],
+                                                               config)
+    mfc_funcs_arg = (_mfc_funcs_arg_0[0], funcs[1])
+  elif isinstance(funcs, list):
+    raw_funcs = funcs
+    domain, mfc_funcs_arg, config, _ = preprocess_arguments(domain, funcs, config)
+  else:
+    raise ValueError(_FUNC_FORMAT_ERR_MSG)
   # Load arguments depending on domain type
   if domain.get_type() == 'euclidean':
-    multi_func_caller = EuclideanMultiFunctionCaller(funcs, domain, vectorised=False)
+    multi_func_caller = EuclideanMultiFunctionCaller(mfc_funcs_arg, domain,
+                                                     vectorised=False)
   else:
-    multi_func_caller = CPMultiFunctionCaller(funcs, domain, raw_funcs=raw_funcs,
+    multi_func_caller = CPMultiFunctionCaller(mfc_funcs_arg, domain, raw_funcs=raw_funcs,
                           domain_orderings=config.domain_orderings)
   # load options
   options = load_options_for_method(opt_method, 'moo', domain, capital_type, options)
@@ -93,10 +107,23 @@ def multiobjective_minimise_functions(funcs, *args, **kwargs):
     multiobjective_maximise_functions for a description of the arguments. All arguments
     are the same except for funcs, which should now be minimised.
   """
+  # The following function returns the negative of a single function
   def _get_func_to_max(_func):
     """ Returns a function to be maximised. """
     return lambda x: - _func(x)
-  funcs_to_max = [_get_func_to_max(f) for f in funcs]
+  # The following function returns the negative of multiple functions
+  def _get_funcs_to_max(_funcs):
+    """ Returns funcs to max. """
+    if isinstance(_funcs, tuple) and len(_funcs) == 2:
+      neg_funcs = lambda *args, **kwargs: [-val for val in _funcs[0](*args, **kwargs)]
+      funcs_to_max = (neg_funcs, _funcs[1])
+    elif isinstance(_funcs, list):
+      funcs_to_max = [_get_func_to_max(f) for f in funcs]
+    else:
+      raise ValueError(_FUNC_FORMAT_ERR_MSG)
+    return funcs_to_max
+  # Transform the functions and call the maximiser
+  funcs_to_max = _get_funcs_to_max(funcs)
   pareto_max_values, pareto_points, history = multiobjective_maximise_functions(
                                                 funcs_to_max, *args, **kwargs)
   # Post process history

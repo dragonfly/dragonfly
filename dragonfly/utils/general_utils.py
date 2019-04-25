@@ -170,6 +170,7 @@ def stable_cholesky(M, add_to_diag_till_psd=True):
       small value to the diagonal we can make it psd. This is what this function does.
       Use this iff you know that K should be psd. We do not check for errors.
   """
+  _printed_warning = False
   if M.size == 0:
     return M # if you pass an empty array then just return it.
   try:
@@ -185,19 +186,25 @@ def stable_cholesky(M, add_to_diag_till_psd=True):
     chol_decomp_succ = False
     while not chol_decomp_succ:
       try:
-        L = np.linalg.cholesky(M +
-            ((10**diag_noise_power) * max_M)  * np.eye(M.shape[0]))
+        diag_noise = (10 ** diag_noise_power) * max_M
+        L = np.linalg.cholesky(M + diag_noise * np.eye(M.shape[0]))
         chol_decomp_succ = True
       except np.linalg.linalg.LinAlgError:
-        if diag_noise_power > -9:
-          print('stable_cholesky failed with diag_noise_power=%d.'%(diag_noise_power))
+        if diag_noise_power > -9 and not _printed_warning:
+          from warnings import warn
+          warn(('Could not compute Cholesky decomposition despite adding %0.4f to the '
+                'diagonal. This is likely because the M is not positive semi-definite.')%(
+               (10**diag_noise_power) * max_M))
+          _printed_warning = True
         diag_noise_power += 1
       if diag_noise_power >= 5:
-        print('**************** Cholesky failed: Added diag noise = %e'%(diag_noise))
+        raise ValueError(('Could not compute Cholesky decomposition despite adding' +
+                          ' %0.4f to the diagonal. This is likely because the M is not ' +
+                          'positive semi-definite or has infinities/nans.')%(diag_noise))
   return L
 
 
-# Solving triangular matrices -----------------------
+# Solving triangular matrices ------------------------------------------------------------
 def _solve_triangular_common(A, b, lower):
   """ Solves Ax=b when A is a triangular matrix. """
   if A.size == 0 and b.shape[0] == 0:
