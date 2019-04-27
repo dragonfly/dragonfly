@@ -51,11 +51,6 @@ See
 and
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/nas/demo_nas.py)
 for more detailed examples.
-See
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
-and
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
-for examples in multi-objective optimisation.
 You can run them via, for example,
 ```bash
 $ python examples/synthetic/branin/in_code_demo.py
@@ -79,6 +74,11 @@ Here, `funcs` is a list of functions to be maximised,
 `pareto_values` are the
 [Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
 function values and `pareto_points` are the corresponding points in `domain`.
+See
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+and
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
+for examples.
 
 
 &nbsp;

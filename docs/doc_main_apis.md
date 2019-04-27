@@ -186,8 +186,11 @@ path_name to a configuration file or has configuration parameters.
 <li> `'history'`: A record of the optimisation procedure which include the point evaluated
          and the values at each time step. </li>
 </ul>
-
-
+See
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+and
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
+for examples.
 
 &nbsp;
 &nbsp;
@@ -206,6 +209,12 @@ pareto_values, pareto_points, history = multiobjective_minimise_functions(
 Same as `multiobjective_maximise_functions` (see above), but now `funcs` are to be minimised.   
 **Returns**:  
 Same as `multiobjective_maximise_functions` (see above), but now `pareto_values` are the Pareto optimal minimum values found during optimisation. 
+
+See
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+and
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
+for examples.
 
 
 &nbsp;
