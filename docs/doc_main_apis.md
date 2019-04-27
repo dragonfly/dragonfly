@@ -41,7 +41,17 @@ path_name to a configuration file or has configuration parameters.
 <li> `opt_pt`: The corresponding optimum point.   </li>
 <li> `history`: A record of the optimisation procedure which include the point evaluated and the values at each time step.   </li>
 </ul>
-
+See 
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/branin/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/hartmann6_4/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/discrete_euc/in_code_demo_1.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/discrete_euc/in_code_demo_2.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/hartmann3_constrained/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/park1_constrained/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/borehole_constrained/in_code_demo.py),
+and
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/tree_reg/in_code_demo.py)
+for more detailed examples.
 
 &nbsp;
 &nbsp;
@@ -118,6 +128,15 @@ path_name to a configuration file or has configuration parameters.
 <li> `'history'`: A record of the optimisation procedure which include the point evaluated
            and the values at each time step. </li>
 </ul>
+See 
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/hartmann6_4/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/hartmann3_constrained/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/park1_constrained/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/borehole_constrained/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/tree_reg/in_code_demo.py),
+and
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/nas/demo_nas.py)
+for more detailed examples.
 
 
 &nbsp;
@@ -187,9 +206,9 @@ path_name to a configuration file or has configuration parameters.
          and the values at each time step. </li>
 </ul>
 See
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py)
 and
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py)
 for examples.
 
 &nbsp;
@@ -211,9 +230,9 @@ Same as `multiobjective_maximise_functions` (see above), but now `funcs` are to 
 Same as `multiobjective_maximise_functions` (see above), but now `pareto_values` are the Pareto optimal minimum values found during optimisation. 
 
 See
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py)
 and
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py)
 for examples.
 
 

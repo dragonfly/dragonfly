@@ -75,9 +75,9 @@ Here, `funcs` is a list of functions to be maximised,
 [Pareto optimal](https://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction)
 function values and `pareto_points` are the corresponding points in `domain`.
 See
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py)
 and
-[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py)
 for examples.
 
 
