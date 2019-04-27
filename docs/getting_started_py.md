@@ -53,6 +53,7 @@ and
 for more detailed examples.
 See
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+and
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
 for examples in multi-objective optimisation.
 You can run them via, for example,

@@ -11,9 +11,9 @@ from multiobjective_hartmann import hartmann3_by_2_1, hartmann6, hartmann3_by_2_
 
 def main():
   """ Main function. """
-  # First Specify all parameters.
-  # See examples/synthetic/multiobjective_hartmann/in_code_demo.py for speciying
-  # domain via a JSON file.
+  # First Specify the domain via a JSON configuration file.
+  # See examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py for speciying
+  # domain directly in code without a file.
   config = load_config_file('config.json')
 
   # Specify objectives -- either of the following options could work. Uncomment
