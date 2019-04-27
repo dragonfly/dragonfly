@@ -51,6 +51,10 @@ See
 and
 [here](https://github.com/dragonfly/dragonfly/tree/master/examples/nas/demo_nas.py)
 for more detailed examples.
+See
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+[here](https://github.com/dragonfly/dragonfly/tree/master/examples/synthetic/multiobjective_hartmann/in_code_demo.py),
+for examples in multi-objective optimisation.
 You can run them via, for example,
 ```bash
 $ python examples/synthetic/branin/in_code_demo.py

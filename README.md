@@ -115,6 +115,8 @@ See
 [here](examples/synthetic/hartmann3_constrained/in_code_demo.py),
 [here](examples/synthetic/park1_constrained/in_code_demo.py),
 [here](examples/synthetic/borehole_constrained/in_code_demo.py),
+[here](examples/synthetic/multiobjective_branin_currinexp/in_code_demo.py),
+[here](examples/synthetic/multiobjective_hartmann/in_code_demo.py),
 [here](examples/tree_reg/in_code_demo.py),
 and
 [here](examples/nas/demo_nas.py)
