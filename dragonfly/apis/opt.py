@@ -24,7 +24,7 @@ from ..utils.doo import pdoo_maximise_from_args
 
 def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   fidel_cost_func, max_capital, capital_type='return_value', opt_method='bo',
-  config=None, options=None, reporter='default'):
+  config=None, options=None, reporter='default', num_workers=1):
   # pylint: disable=too-many-arguments
   """
     Maximises a multi-fidelity function 'func' over the domain 'domain' and fidelity
@@ -57,6 +57,7 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
       reporter: A stream to print progress made during optimisation, or one of the
                 following strings 'default', 'silent'. If 'silent', then it suppresses
                 all outputs. If 'default', writes to stdout.
+      num_workers: Integer specifying the number of workers to use for the optimization.
       * Alternatively, domain and fidelity space could be None if config is either a
         path_name to a configuration file or has configuration parameters.
     Returns:
@@ -84,7 +85,7 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   # load options
   options = load_options_for_method(opt_method, 'mfopt', domain, capital_type, options)
   # Create worker manager
-  worker_manager = get_worker_manager_from_capital_type(capital_type)
+  worker_manager = get_worker_manager_from_capital_type(capital_type, num_workers=num_workers)
 
   # Select method here -----------------------------------------------------------
   if opt_method == 'bo':
@@ -124,7 +125,8 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
 
 
 def maximise_function(func, domain, max_capital, capital_type='num_evals',
-                      opt_method='bo', config=None, options=None, reporter='default'):
+                      opt_method='bo', config=None, options=None, reporter='default',
+                      num_workers=1):
   """
     Maximises a function 'func' over the domain 'domain'.
     Inputs:
@@ -150,6 +152,7 @@ def maximise_function(func, domain, max_capital, capital_type='num_evals',
       reporter: A stream to print progress made during optimisation, or one of the
                 following strings 'default', 'silent'. If 'silent', then it suppresses
                 all outputs. If 'default', writes to stdout.
+      num_workers: Integer specifying the number of workers to use for the optimization.
       * Alternatively, domain could be None if config is either a path_name to a
         configuration file or has configuration parameters.
     Returns:
@@ -171,7 +174,7 @@ def maximise_function(func, domain, max_capital, capital_type='num_evals',
   # load options
   options = load_options_for_method(opt_method, 'opt', domain, capital_type, options)
   # Create worker manager and function caller
-  worker_manager = get_worker_manager_from_capital_type(capital_type)
+  worker_manager = get_worker_manager_from_capital_type(capital_type, num_workers=num_workers)
   # Optimise function here -----------------------------------------------------------
   if opt_method == 'bo':
     opt_val, opt_pt, history = gpb_from_func_caller(func_caller, worker_manager,

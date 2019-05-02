@@ -30,17 +30,16 @@ from ..opt.random_multiobjective_optimiser import \
 from ..utils.option_handler import load_options
 
 
-def get_worker_manager_from_capital_type(capital_type, num_workers=1, tmp_dir=None):
+def get_worker_manager_from_capital_type(capital_type, num_workers=1,
+                                         tmp_dir=None, use_synthetic=False):
   """ Get worker manager. """
-  if capital_type in ['return_value', 'num_evals']:
+  if use_synthetic:
     return SyntheticWorkerManager(num_workers=num_workers)
-  elif capital_type == 'realtime':
+  else:
     if tmp_dir is None:
       from datetime import datetime
       tmp_dir = './tmp_%s'%(datetime.now().strftime('%m%d_%H%M%S'))
     return RealWorkerManager(worker_ids=num_workers, tmp_dir=tmp_dir)
-  else:
-    raise ValueError('Unknown Capital Type: %s.'%(capital_type))
 
 
 def _raise_load_options_not_supported_error(method, prob, domain_type, capital_type):
