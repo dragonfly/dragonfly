@@ -130,9 +130,9 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   return opt_val, opt_pt, history
 
 
-def maximise_function(func, domain, max_capital,
+def maximise_function(func, domain, max_capital, opt_method='bo',
                       worker_manager='default', num_workers=1, capital_type='num_evals',
-                      opt_method='bo', config=None, options=None, reporter='default'):
+                      config=None, options=None, reporter='default'):
   """
     Maximises a function 'func' over the domain 'domain'.
     Inputs:
@@ -150,7 +150,7 @@ def maximise_function(func, domain, max_capital,
                   rand - Random search, direct: Dividing Rectangles, pdoo: PDOO
       worker_manager: Should be an instance of WorkerManager (see exd/worker_manager.py)
                       or a string with one of the following values
-                      {'default', 'synthetic', 'multiprocessing', 'schedulint'}.
+                      {'default', 'synthetic', 'multiprocessing', 'scheduling'}.
       num_workers: The number of parallel workers (i.e. number of evaluations to carry
                    out in parallel).
       capital_type: The type of capital. Should be one of 'return_value' or 'realtime'.
