@@ -30,7 +30,7 @@ def park1_euc(x):
   x2 = x[1]
   x3 = x[2]
   x4 = x[3]
-  ret1 = (x1/2) * (np.sqrt(1 + (x2 + x3**2)*x4/(x1**2)) - 1)
+  ret1 = (x1/2) * (np.sqrt(1 + (x2 + x3**2)*x4/(x1**2 + 0.00001)) - 1)
   ret2 = (x1 + 3*x4) * np.exp(1 + np.sin(x3))
   return min(ret1 + ret2, max_val)
 

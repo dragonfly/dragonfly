@@ -19,12 +19,16 @@ Maximises a function `func` over the domain `domain`.
 <li> `func`: The function to be maximised.   </li>
 <li> `domain`: The domain over which the function should be maximised, should be an instance  of the Domain class in [`exd/domains.py`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py).  If domain is a list of the form `[[l1, u1], [l2, u2], ...]` where `li < ui`, then we create a Euclidean domain with lower bounds `li` and upper bounds `ui` along each dimension.   </li>
 <li> `max_capital`: The maximum capital (time budget or number of evaluations) available for optimisation.   </li>
- <li> `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
-  `'realtime'`.  Default is `'num_evals'` which indicates the number of evaluations. If
-  `'realtime'`, we will use wall clock time.   </li>
 <li> `opt_method`: The method used for optimisation. Could be one of `'bo'`, `'rand'`, `'ga'`,
   `'ea'`, `'direct'`, or `'pdoo'`. Default is `'bo'`.  `'bo'`: Bayesian optimisation,
  `'ea'`/`'ga'`: Evolutionary algorithm, `'rand'`: Random search, `'direct'`: Dividing Rectangles, `'pdoo'`: PDOO.  </li>
+<li> `worker_manager`: The type of worker manager. Should be an instance of
+             [`exd.worker_manager.AbstractWorkerManager`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/worker_manager.py) or a string with one of the following values: `'default'`, `'synthetic'`, `'multiprocessing'`, `'scheduling'`. </li>
+<li> `num_workers`: The number of parallel workers (i.e. number of evaluations to carry
+out in parallel). </li>
+<li> `capital_type`: The type of capital. Should be one of `'num_evals'`, `'return_value'` or
+  `'realtime'`.  Default is `'num_evals'` which indicates the number of evaluations. If
+  `'realtime'`, we will use wall clock time.   </li>
 <li> config: Either a configuration file or or parameters returned by
              [`exd.cp_domain_utils.load_config_file`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/cp_domain_utils.py). `config` can be `None` only if `domain`
              is a [`EuclideanDomain`](https://github.com/dragonfly/dragonfly/blob/master/dragonfly/exd/domains.py) object. </li>

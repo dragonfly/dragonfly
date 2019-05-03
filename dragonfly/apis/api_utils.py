@@ -14,7 +14,8 @@ from ..exd.cp_domain_utils import load_config_file, \
                                 get_processed_func_from_raw_func_for_cp_domain_fidelity, \
                                 get_processed_func_from_raw_func_for_cp_domain
 from ..exd.domains import EuclideanDomain
-from ..exd.worker_manager import SyntheticWorkerManager, RealWorkerManager
+from ..exd.worker_manager import MultiProcessingWorkerManager, SyntheticWorkerManager, \
+                                 AbstractWorkerManager
 from ..opt.ga_optimiser import ga_opt_args
 from ..opt.gp_bandit import get_all_euc_gp_bandit_args, \
                             get_all_cp_gp_bandit_args, get_all_mf_euc_gp_bandit_args, \
@@ -30,17 +31,38 @@ from ..opt.random_multiobjective_optimiser import \
 from ..utils.option_handler import load_options
 
 
-def get_worker_manager_from_capital_type(capital_type, num_workers=1, tmp_dir=None):
+def get_worker_manager_from_type(num_workers=1, worker_manager_type='default',
+                                 capital_type=None, tmp_dir=None, *args, **kwargs):
   """ Get worker manager. """
-  if capital_type in ['return_value', 'num_evals']:
-    return SyntheticWorkerManager(num_workers=num_workers)
-  elif capital_type == 'realtime':
+  # If worker_manager_type is already a WorkerManager instance, --------------------------
+  # then simply return this.
+  if isinstance(worker_manager_type, AbstractWorkerManager):
+    return worker_manager_type
+  # Assign worker manager type depending on the capital_type -----------------------------
+  # if worker_manager_type is default
+  if worker_manager_type == 'default':
+    if capital_type in ['return_value', 'num_evals']:
+      _wm_type = 'synthetic'
+    elif capital_type == 'realtime':
+      _wm_type = 'multiprocessing'
+    else:
+      raise ValueError(('If worker_manager_type is default, capital_type should be one ' +
+                        'return_value, num_evals, or multiprocessing. Given : %s.')%(
+                            capital_type))
+  else:
+    _wm_type = worker_manager_type
+  # Now create the worker manager --------------------------------------------------------
+  if _wm_type == 'synthetic':
+    return SyntheticWorkerManager(num_workers=num_workers, *args, **kwargs)
+  elif _wm_type == 'multiprocessing':
     if tmp_dir is None:
       from datetime import datetime
       tmp_dir = './tmp_%s'%(datetime.now().strftime('%m%d_%H%M%S'))
-    return RealWorkerManager(worker_ids=num_workers, tmp_dir=tmp_dir)
+    return MultiProcessingWorkerManager(worker_ids=num_workers, tmp_dir=tmp_dir)
+  elif _wm_type == 'scheduling':
+    raise NotImplementedError('Not Implemented a SchedulingWorkerManager yet!')
   else:
-    raise ValueError('Unknown Capital Type: %s.'%(capital_type))
+    raise ValueError('Unknown worker_manager_type: %s.'%(_wm_type))
 
 
 def _raise_load_options_not_supported_error(method, prob, domain_type, capital_type):

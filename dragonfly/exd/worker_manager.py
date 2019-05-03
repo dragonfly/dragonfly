@@ -27,7 +27,7 @@ from .exd_utils import EVAL_ERROR_CODE
 _TIME_TOL = 1e-5
 
 
-class WorkerManager(object):
+class AbstractWorkerManager(object):
   """ A Base class for a worker manager. """
 
   def __init__(self, worker_ids):
@@ -104,7 +104,7 @@ class WorkerManager(object):
 
 
 # A synthetic worker manager - for simulating multiple workers ---------------------------
-class SyntheticWorkerManager(WorkerManager):
+class SyntheticWorkerManager(AbstractWorkerManager):
   """ A Worker manager for synthetic functions. Mostly to be used in simulations. """
 
   def __init__(self, num_workers, time_distro='caller_eval_cost',
@@ -209,15 +209,15 @@ class SyntheticWorkerManager(WorkerManager):
     return 0.0
 
 
-# Real worker manager - for simulating multiple workers --------------------------------
-class RealWorkerManager(WorkerManager):
-  """ A worker manager for resnet. """
+# A worker manager which spawns a new thread for each process ---------------------------
+class MultiProcessingWorkerManager(AbstractWorkerManager):
+  """ A worker manager which spawns a new thread for each worker. """
   # pylint: disable=attribute-defined-outside-init
 
   def __init__(self, worker_ids, tmp_dir,
                poll_time=0.5, sleep_time_after_new_process=0.5):
     """ Constructor. """
-    super(RealWorkerManager, self).__init__(worker_ids)
+    super(MultiProcessingWorkerManager, self).__init__(worker_ids)
     self.poll_time = poll_time
     self.sleep_time_after_new_process = sleep_time_after_new_process
     self.tmp_dir = tmp_dir
@@ -237,7 +237,6 @@ class RealWorkerManager(WorkerManager):
     # Create file names
     self._result_file_name = 'result.p'
     self._num_file_read_attempts = 10
-#     self._file_read_poll_time = 0.5 # wait for 0.5 seconds
 
   @classmethod
   def _delete_dirs(cls, list_of_dir_names):
@@ -269,29 +268,6 @@ class RealWorkerManager(WorkerManager):
   def _get_result_file_name_for_worker(self, worker_id):
     """ Computes the result file name for the worker. """
     return os.path.join(self.result_dir_names[worker_id], self._result_file_name)
-
-#   def _read_result_from_file(self, result_file_name):
-#     """ Reads the result from the file name. """
-#     #pylint: disable=bare-except
-#     num_attempts = 0
-#     while num_attempts < self._num_file_read_attempts:
-#       try:
-#         file_reader = open(result_file_name, 'r')
-#         read_in = file_reader.read().strip()
-#         try:
-#           # try converting to float. If not successful, it is likely an error string.
-#           read_in = float(read_in)
-#         except:
-#           pass
-#         file_reader.close()
-#         result = read_in
-#         break
-#       except:
-#         print('Encountered error when reading %s. Trying again.'%(result_file_name))
-#         time.sleep(self.poll_time)
-#         file_reader.close()
-#         result = EVAL_ERROR_CODE
-#     return result
 
   def _read_result_from_file(self, result_file_name):
     """ Reads the result from the file name. """
@@ -422,4 +398,8 @@ class RealWorkerManager(WorkerManager):
   def get_poll_time_real(self):
     """ Return 0.0 as the poll time. """
     return self.poll_time
+
+
+# For legacy purposes ----------------------------------------------------------------
+RealWorkerManager = MultiProcessingWorkerManager
 
