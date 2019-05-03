@@ -17,9 +17,13 @@ def main():
   config = load_config(config_params)
   max_capital = 2 * 60 * 60 # Optimisation budget in seconds
 
+  # A parallel set up where we will evaluate the function in three different threads.
+  num_workers = 3
+
   # Optimise
   opt_pt, opt_val, history = maximise_function(snls_objective, config.domain,
-                               max_capital, capital_type='realtime', config=config)
+                                               max_capital, num_workers=num_workers,
+                                               capital_type='realtime', config=config)
 
 
 if __name__ == '__main__':

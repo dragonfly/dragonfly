@@ -15,7 +15,7 @@ import shutil
 from mlp_function_caller import MLPFunctionCaller
 from cnn_function_caller import CNNFunctionCaller
 from dragonfly.opt.gp_bandit import bo_from_func_caller
-from dragonfly.exd.worker_manager import RealWorkerManager
+from dragonfly.exd.worker_manager import MultiProcessingWorkerManager
 from dragonfly.utils.reporters import get_reporter
 # Visualise
 try:
@@ -106,9 +106,9 @@ def main():
     func_caller = MLPFunctionCaller(MLP_CONFIG_FILE, train_params, reporter=reporter,
                                     tmp_dir=TMP_DIR)
   # Obtain a worker manager: A worker manager (defined in opt/worker_manager.py) is used
-  # to manage (possibly) multiple workers. For a RealWorkerManager, the budget should be
-  # given in wall clock seconds.
-  worker_manager = RealWorkerManager(GPU_IDS, EXP_DIR)
+  # to manage (possibly) multiple workers. For a MultiProcessingWorkerManager,
+  # the budget should be given in wall clock seconds.
+  worker_manager = MultiProcessingWorkerManager(GPU_IDS, EXP_DIR)
 
   # Run the optimiser
   opt_val, opt_point, _ = bo_from_func_caller(func_caller, worker_manager, BUDGET,

@@ -9,7 +9,7 @@
 
 # Local
 from .api_utils import preprocess_multifidelity_arguments, preprocess_arguments, \
-                       get_worker_manager_from_capital_type, \
+                       get_worker_manager_from_type, \
                        post_process_history_for_minimisation, \
                        load_options_for_method
 from ..exd.experiment_caller import EuclideanFunctionCaller, CPFunctionCaller
@@ -23,7 +23,8 @@ from ..utils.doo import pdoo_maximise_from_args
 
 
 def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
-  fidel_cost_func, max_capital, capital_type='return_value', opt_method='bo',
+  fidel_cost_func, max_capital, opt_method='bo',
+  worker_manager='default', num_workers=1, capital_type='return_value',
   config=None, options=None, reporter='default'):
   # pylint: disable=too-many-arguments
   """
@@ -45,15 +46,20 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
       fidel_to_opt: The point at the fidelity space at which we wish to maximise func.
       max_capital: The maximum capital (time budget or number of evaluations) available
                    for optimisation.
+      opt_method: The method used for optimisation. Could be one of bo or rand.
+                  Default is bo. bo - Bayesian optimisation, rand - Random search.
+      worker_manager: Should be an instance of WorkerManager (see exd/worker_manager.py)
+                      or a string with one of the following values
+                      {'default', 'synthetic', 'multiprocessing', 'schedulint'}.
+      num_workers: The number of parallel workers (i.e. number of evaluations to carry
+                   out in parallel).
       capital_type: The type of capital. Should be one of 'return_value' or 'realtime'.
                     Default is return_value which indicates we will use the value returned
                     by fidel_cost_func. If realtime, we will use wall clock time.
-      opt_method: The method used for optimisation. Could be one of bo or rand.
-                  Default is bo. bo - Bayesian optimisation, rand - Random search.
       config: Either a configuration file or or parameters returned by
               exd.cp_domain_utils.load_config_file. config can be None only if domain
               is a EuclideanDomain object.
-      options: Additional hyper-parameters for optimisation, as a namespace.
+      options: Additional hyperparameters for optimisation, as a namespace.
       reporter: A stream to print progress made during optimisation, or one of the
                 following strings 'default', 'silent'. If 'silent', then it suppresses
                 all outputs. If 'default', writes to stdout.
@@ -84,7 +90,8 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   # load options
   options = load_options_for_method(opt_method, 'mfopt', domain, capital_type, options)
   # Create worker manager
-  worker_manager = get_worker_manager_from_capital_type(capital_type)
+  worker_manager = get_worker_manager_from_type(num_workers=num_workers,
+                     worker_manager_type=worker_manager, capital_type=capital_type)
 
   # Select method here -----------------------------------------------------------
   if opt_method == 'bo':
@@ -123,7 +130,8 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   return opt_val, opt_pt, history
 
 
-def maximise_function(func, domain, max_capital, capital_type='num_evals',
+def maximise_function(func, domain, max_capital,
+                      worker_manager='default', num_workers=1, capital_type='num_evals',
                       opt_method='bo', config=None, options=None, reporter='default'):
   """
     Maximises a function 'func' over the domain 'domain'.
@@ -136,13 +144,18 @@ def maximise_function(func, domain, max_capital, capital_type='num_evals',
               ui along each dimension.
       max_capital: The maximum capital (time budget or number of evaluations) available
                    for optimisation.
-      capital_type: The type of capital. Should be one of 'return_value' or 'realtime'.
-                    Default is return_value which indicates we will use the value returned
-                    by fidel_cost_func. If realtime, we will use wall clock time.
       opt_method: The method used for optimisation. Could be one of bo, rand, ga, ea,
                   direct, or pdoo. Default is bo.
                   bo - Bayesian optimisation, ea/ga: Evolutionary algorithm,
                   rand - Random search, direct: Dividing Rectangles, pdoo: PDOO
+      worker_manager: Should be an instance of WorkerManager (see exd/worker_manager.py)
+                      or a string with one of the following values
+                      {'default', 'synthetic', 'multiprocessing', 'schedulint'}.
+      num_workers: The number of parallel workers (i.e. number of evaluations to carry
+                   out in parallel).
+      capital_type: The type of capital. Should be one of 'return_value' or 'realtime'.
+                    Default is return_value which indicates we will use the value returned
+                    by fidel_cost_func. If realtime, we will use wall clock time.
       config: Contains configuration parameters that are typically returned by
               exd.cp_domain_utils.load_config_file. config can be None only if domain
               is a EuclideanDomain object.
@@ -171,7 +184,8 @@ def maximise_function(func, domain, max_capital, capital_type='num_evals',
   # load options
   options = load_options_for_method(opt_method, 'opt', domain, capital_type, options)
   # Create worker manager and function caller
-  worker_manager = get_worker_manager_from_capital_type(capital_type)
+  worker_manager = get_worker_manager_from_type(num_workers=num_workers,
+                     worker_manager_type=worker_manager, capital_type=capital_type)
   # Optimise function here -----------------------------------------------------------
   if opt_method == 'bo':
     opt_val, opt_pt, history = gpb_from_func_caller(func_caller, worker_manager,

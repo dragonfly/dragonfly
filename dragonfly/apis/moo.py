@@ -7,7 +7,7 @@
 # pylint: disable=maybe-no-member
 
 
-from .api_utils import preprocess_arguments, get_worker_manager_from_capital_type, \
+from .api_utils import preprocess_arguments, get_worker_manager_from_type, \
                        load_options_for_method
 from ..exd.experiment_caller import EuclideanMultiFunctionCaller, CPMultiFunctionCaller
 from ..exd.cp_domain_utils import get_raw_from_processed_via_config
@@ -21,9 +21,9 @@ _FUNC_FORMAT_ERR_MSG = ('funcs should either be a list of functions or a tuple (
                         'objectives.')
 
 
-def multiobjective_maximise_functions(funcs, domain, max_capital,
-                                      capital_type='num_evals', opt_method='bo',
-                                      config=None, options=None, reporter='default'):
+def multiobjective_maximise_functions(funcs, domain, max_capital, opt_method='bo',
+        worker_manager='default', num_workers=1, capital_type='num_evals',
+        config=None, options=None, reporter='default'):
   """
     Co-optimises the functions 'funcs' over the domain 'domain'.
     Inputs:
@@ -35,11 +35,16 @@ def multiobjective_maximise_functions(funcs, domain, max_capital,
               ui along each dimension.
       max_capital: The maximum capital (time budget or number of evaluations) available
                    for optimisation.
+      opt_method: The method used for optimisation. Could be one of bo or rand.
+                  Default is bo. bo: Bayesian optimisation, rand: Random search.
+      worker_manager: Should be an instance of WorkerManager (see exd/worker_manager.py)
+                      or a string with one of the following values
+                      {'default', 'synthetic', 'multiprocessing', 'schedulint'}.
+      num_workers: The number of parallel workers (i.e. number of evaluations to carry
+                   out in parallel).
       capital_type: The type of capital. Should be one of 'return_value' or 'realtime'.
                     Default is return_value which indicates we will use the value returned
                     by fidel_cost_func. If realtime, we will use wall clock time.
-      opt_method: The method used for optimisation. Could be one of bo or rand.
-                  Default is bo. bo: Bayesian optimisation, rand: Random search.
       config: Contains configuration parameters that are typically returned by
               exd.cp_domain_utils.load_config_file. config can be None only if domain
               is a EuclideanDomain object.
@@ -76,8 +81,8 @@ def multiobjective_maximise_functions(funcs, domain, max_capital,
   # load options
   options = load_options_for_method(opt_method, 'moo', domain, capital_type, options)
   # Create worker manager and function caller
-  worker_manager = get_worker_manager_from_capital_type(capital_type)
-
+  worker_manager = get_worker_manager_from_type(num_workers=num_workers,
+                     worker_manager_type=worker_manager, capital_type=capital_type)
   # Select method here -------------------------------------------------------------------
   if opt_method == 'bo':
     pareto_values, pareto_points, history = multiobjective_gpb_from_multi_func_caller(
