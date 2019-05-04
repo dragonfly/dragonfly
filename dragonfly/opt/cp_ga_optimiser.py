@@ -17,7 +17,6 @@ from ..exd.exd_utils import get_cp_domain_initial_qinfos
 from .ga_optimiser import GAOptimiser, ga_opt_args
 from ..utils.general_utils import project_to_bounds
 from ..utils.option_handler import load_options
-from ..utils.reporters import get_reporter
 
 
 cpga_opt_args = ga_opt_args
@@ -135,9 +134,7 @@ class CPGAOptimiser(GAOptimiser):
   def __init__(self, func_caller, worker_manager, single_mutation_ops=None,
                single_crossover_ops=None, options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      reporter = get_reporter(reporter)
-      options = load_options(cpga_opt_args, reporter=reporter)
+    options = load_options(cpga_opt_args, partial_options=options)
     super(CPGAOptimiser, self).__init__(func_caller, worker_manager,
       mutation_op=self._mutation_op, crossover_op=self._crossover_op,
       options=options, reporter=reporter)
@@ -205,9 +202,7 @@ def cp_ga_optimiser_from_proc_args(func_caller, cp_domain, worker_manager, max_c
   """ A GA optimiser on Cartesian product space from the function caller. """
   if not isinstance(func_caller, ExperimentCaller):
     func_caller = CPFunctionCaller(func_caller, cp_domain, domain_orderings=orderings)
-  if options is None:
-    reporter = get_reporter(reporter)
-    options = load_options(cpga_opt_args, reporter=reporter)
+  options = load_options(cpga_opt_args, partial_options=options)
   options.mode = mode
   from ..exd.worker_manager import RealWorkerManager, SyntheticWorkerManager
   if isinstance(worker_manager, RealWorkerManager):

@@ -437,14 +437,12 @@ class EuclideanMultiObjectiveGPBandit(MultiObjectiveGPBandit):
   def __init__(self, multi_func_caller, worker_manager, is_mf=False,
                options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      reporter = get_reporter(reporter)
-      if is_mf:
-        raise NotImplementedError("MF support for MO not implemented yet")
-        # all_args = get_all_mf_gp_bandit_args_from_gp_args(euclidean_mf_gp_args)
-      else:
-        all_args = get_all_euc_moo_gp_bandit_args()
-      options = load_options(all_args, reporter=reporter)
+    if is_mf:
+      raise NotImplementedError("MF support for MO not implemented yet")
+      # all_args = get_all_mf_gp_bandit_args_from_gp_args(euclidean_mf_gp_args)
+    else:
+      all_args = get_all_euc_moo_gp_bandit_args()
+    options = load_options(all_args, partial_options=options)
     super(EuclideanMultiObjectiveGPBandit, self).__init__(multi_func_caller,
       worker_manager, is_mf=is_mf, options=options, reporter=reporter)
 
@@ -624,13 +622,11 @@ class CPMultiObjectiveGPBandit(MultiObjectiveGPBandit):
   def __init__(self, multi_func_caller, worker_manager, is_mf=False,
                domain_dist_computers=None, options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      reporter = get_reporter(reporter)
-      if is_mf:
-        raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
-      else:
-        all_args = get_all_cp_moo_gp_bandit_args()
-      options = load_options(all_args, reporter)
+    if is_mf:
+      raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
+    else:
+      all_args = get_all_cp_moo_gp_bandit_args()
+    options = load_options(all_args, partial_options=options)
     self.domain_dist_computers = domain_dist_computers
     super(CPMultiObjectiveGPBandit, self).__init__(multi_func_caller, worker_manager,
                                           is_mf=is_mf, options=options, reporter=reporter)
@@ -782,8 +778,7 @@ def multiobjective_gpb_from_multi_func_caller(multi_func_caller, worker_manager,
       raise ValueError('GPBandit not implemented for domain of type %s.'%( \
                        type(multi_func_caller.domain)))
   # Load options
-  if options is None:
-    options = load_options(dflt_list_of_options, reporter=reporter)
+  options = load_options(dflt_list_of_options, partial_options=options)
   if acq is not None:
     options.acq = acq
   if mode is not None:

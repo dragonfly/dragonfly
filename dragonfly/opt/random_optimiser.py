@@ -37,9 +37,7 @@ class RandomOptimiser(BlackboxOptimiser):
   # Constructor.
   def __init__(self, func_caller, worker_manager, options=None, reporter=None):
     """ Constructor. """
-    reporter = get_reporter(reporter)
-    if options is None:
-      options = load_options(random_optimiser_args, reporter=reporter)
+    options = load_options(random_optimiser_args, partial_options=options)
     super(RandomOptimiser, self).__init__(func_caller, worker_manager, model=None,
                                           options=options, reporter=reporter)
 
@@ -227,8 +225,7 @@ def random_optimiser_from_func_caller(func_caller, worker_manager, max_capital,
     raise ValueError('Random optimiser not implemented for domain of type %s.'%(
                      type(func_caller.domain)))
   # Load options and modify where necessary
-  if options is None:
-    options = load_options(dflt_list_of_options)
+  options = load_options(dflt_list_of_options, partial_options=options)
   options.mode = mode
   from ..exd.worker_manager import RealWorkerManager, SyntheticWorkerManager
   if isinstance(worker_manager, RealWorkerManager):
@@ -270,8 +267,7 @@ def mf_random_optimiser_from_func_caller(func_caller, worker_manager, max_capita
                       + 'of types (%s, %s).')%(
                      type(func_caller.domain), type(func_caller.fidel_space)))
   # Load options
-  if options is None:
-    options = load_options(dflt_list_of_options)
+  options = load_options(dflt_list_of_options, partial_options=options)
   options.mode = mode
   # Create optimiser
   optimiser = optimiser_constructor(func_caller, worker_manager, options=options,

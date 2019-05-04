@@ -541,13 +541,11 @@ class EuclideanGPBandit(GPBandit):
   def __init__(self, func_caller, worker_manager, is_mf=False,
                options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      reporter = get_reporter(reporter)
-      if is_mf:
-        all_args = get_all_mf_euc_gp_bandit_args()
-      else:
-        all_args = get_all_euc_gp_bandit_args()
-      options = load_options(all_args, reporter=reporter)
+    if is_mf:
+      all_args = get_all_mf_euc_gp_bandit_args()
+    else:
+      all_args = get_all_euc_gp_bandit_args()
+    options = load_options(all_args, partial_options=options)
     super(EuclideanGPBandit, self).__init__(func_caller, worker_manager, is_mf=is_mf,
                                             options=options, reporter=reporter)
 
@@ -681,7 +679,7 @@ class EuclideanGPBandit(GPBandit):
         next_batch_of_eval_points = select_pt_func(batch_size, self.gp, anc_data)
       else:
         next_batch_of_eval_points = select_pt_func(batch_size, self.add_gp, anc_data)
-      qinfos = [Namespace(point=pt, 
+      qinfos = [Namespace(point=pt,
                           hp_tune_method=qinfo_hp_tune_method,
                           curr_acq=curr_acq) for pt in next_batch_of_eval_points]
     return qinfos
@@ -738,13 +736,12 @@ class CPGPBandit(GPBandit):
   def __init__(self, func_caller, worker_manager, is_mf=False,
                domain_dist_computers=None, options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      reporter = get_reporter(reporter)
-      if is_mf:
-        all_args = get_all_mf_euc_gp_bandit_args()
-      else:
-        all_args = get_all_cp_gp_bandit_args()
-      options = load_options(all_args, reporter)
+    # First load up options
+    if is_mf:
+      all_args = get_all_mf_euc_gp_bandit_args()
+    else:
+      all_args = get_all_cp_gp_bandit_args()
+    options = load_options(all_args, partial_options=options)
     self.domain_dist_computers = domain_dist_computers
     super(CPGPBandit, self).__init__(func_caller, worker_manager, is_mf=is_mf,
                                      options=options, reporter=reporter)

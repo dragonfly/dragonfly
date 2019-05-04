@@ -310,8 +310,7 @@ class GPFitter(object):
     super(GPFitter, self).__init__()
     assert len(X) == len(Y)
     self.reporter = get_reporter(reporter)
-    if isinstance(options, list):
-      options = load_options(options, 'GP', reporter=self.reporter)
+    options = load_options(mandatory_gp_args, partial_options=options)
     self.options = options
     self.X = X
     self.Y = Y
@@ -393,6 +392,7 @@ class GPFitter(object):
 
   def _set_up_mean_and_noise_variance_bounds(self):
     """ Sets up bounds for the mean value and the noise. """
+    # 1. The prior mean for the GP.
     if not (hasattr(self.options, 'mean_func') and self.options.mean_func is not None) \
       and self.options.mean_func_type == 'tune':
       Y_std = np.sqrt(self.Y_var)

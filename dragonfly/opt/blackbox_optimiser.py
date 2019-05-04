@@ -202,8 +202,7 @@ class OptInitialiser(BlackboxOptimiser):
   def __init__(self, func_caller, worker_manager, get_initial_qinfos=None,
                initialisation_capital=None, options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      options = load_options(blackbox_opt_args, reporter=reporter)
+    options = load_options(blackbox_opt_args, partial_options=options)
     super(OptInitialiser, self).__init__(func_caller, worker_manager, model=None,
                                          options=options, reporter=reporter)
     self.options.max_num_steps = 0
