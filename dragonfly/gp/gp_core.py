@@ -241,7 +241,7 @@ class GP(object):
 
   def __str__(self):
     """ Returns a string representation of the GP. """
-    return '%s, eta2=%0.3f (n=%d)'%(self._child_str(), self.noise_var, len(self.Y))
+    return '%s, noise-var=%0.3f (n=%d)'%(self._child_str(), self.noise_var, len(self.Y))
 
   def _child_str(self):
     """ String representation for child GP. """

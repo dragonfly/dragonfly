@@ -94,14 +94,14 @@ def get_cp_domain_initial_fidels(fidel_space, num_samples, fidel_to_opt,
                                  set_to_fidel_to_opt_with_prob,
                                  euclidean_sample_type='latin_hc',
                                  integral_sample_type='latin_hc',
-                                 nn_sample_type='rand'):
+                                 nn_sample_type='rand', *args, **kwargs):
   """ Function to return the initial fidelities for CP Domain. """
   set_to_fidel_to_opt_with_prob = 0.0 if set_to_fidel_to_opt_with_prob is None else \
                                   set_to_fidel_to_opt_with_prob
   init_fidels = sample_from_cp_domain(fidel_space, num_samples,
                               euclidean_sample_type=euclidean_sample_type,
                               integral_sample_type=integral_sample_type,
-                              nn_sample_type=nn_sample_type)
+                              nn_sample_type=nn_sample_type, *args, **kwargs)
   return [_process_fidel_for_initialisation(fidel, fidel_to_opt,
                                             set_to_fidel_to_opt_with_prob)
           for fidel in init_fidels]
@@ -109,8 +109,10 @@ def get_cp_domain_initial_fidels(fidel_space, num_samples, fidel_to_opt,
 
 def get_euclidean_initial_qinfos(domain_init_method, num_samples, domain_bounds,
                                  fidel_init_method=None, fidel_space_bounds=None,
-                                 fidel_to_opt=None, set_to_fidel_to_opt_with_prob=None):
+                                 fidel_to_opt=None, set_to_fidel_to_opt_with_prob=None,
+                                 *args, **kwargs):
   """ Returns the initial points in qinfo Namespaces. """
+  # pylint: disable=unused-argument
   init_points = get_euclidean_initial_points(domain_init_method, num_samples,
                                              domain_bounds)
   if fidel_space_bounds is None:
@@ -129,13 +131,14 @@ def get_cp_domain_initial_qinfos(domain, num_samples, fidel_space=None, fidel_to
                                  dom_nn_sample_type='rand',
                                  fidel_space_euclidean_sample_type='latin_hc',
                                  fidel_space_integral_sample_type='latin_hc',
-                                 fidel_space_nn_sample_type='rand'):
+                                 fidel_space_nn_sample_type='rand',
+                                 *args, **kwargs):
   """ Get initial qinfos in Cartesian product domain. """
   # pylint: disable=too-many-arguments
   ret_dom_pts = sample_from_cp_domain(domain, num_samples,
                                       euclidean_sample_type=dom_euclidean_sample_type,
                                       integral_sample_type=dom_integral_sample_type,
-                                      nn_sample_type=dom_nn_sample_type)
+                                      nn_sample_type=dom_nn_sample_type, *args, **kwargs)
   if fidel_space is None:
     ret_dom_pts = ret_dom_pts[:num_samples]
     return [Namespace(point=x) for x in ret_dom_pts]
@@ -144,7 +147,7 @@ def get_cp_domain_initial_qinfos(domain, num_samples, fidel_space=None, fidel_to
                    set_to_fidel_to_opt_with_prob,
                    euclidean_sample_type=fidel_space_euclidean_sample_type,
                    integral_sample_type=fidel_space_integral_sample_type,
-                   nn_sample_type=fidel_space_nn_sample_type)
+                   nn_sample_type=fidel_space_nn_sample_type, *args, **kwargs)
     return [Namespace(point=ipt, fidel=ifl) for (ipt, ifl) in
             zip(ret_dom_pts, ret_fidels)]
 
@@ -244,7 +247,19 @@ def _rand_maximise_vectorised_objective_in_cp_domain(obj, domain, max_evals,
   """ Maximises a vectorised function in Cartesian product spaces.
       Mostly used for TS style acquisitions in BO.
   """
-  rand_samples = sample_from_cp_domain(domain, int(max_evals))
+  rand_samples = []
+  num_sample_tries = 0
+  while not (len(rand_samples) >= max_evals or
+             (len(rand_samples) > 0 and num_sample_tries >= 5)):
+    rand_samples.extend(sample_from_cp_domain(domain, int(max_evals),
+                                              verbose_constraint_satisfaction=False))
+    num_sample_tries += 1
+    if len(rand_samples) == 0 and num_sample_tries % 10 == 0:
+      from warnings import warn
+      warn(('Sampling from domain failed despite %d attempts -- will ' +
+            'continue trying but consider reparametrising your domain if ' +
+            'this problem persists.')%(num_sample_tries))
+  # Compute objective on sampled points.
   rand_values = [obj(x) for x in rand_samples]
   max_idx = np.argmax(rand_values)
   max_pt = rand_samples[max_idx]

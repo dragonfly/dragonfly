@@ -77,7 +77,7 @@ class EuclideanRandomOptimiser(RandomOptimiser):
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
                                         self.domain.bounds)
@@ -125,7 +125,7 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
              self.domain.bounds, self.options.fidel_init_method, self.fidel_space.bounds,
@@ -151,12 +151,12 @@ class CPRandomOptimiser(RandomOptimiser):
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
                                         dom_euclidean_sample_type='latin_hc',
                                         dom_integral_sample_type='latin_hc',
-                                        dom_nn_sample_type='rand')
+                                        dom_nn_sample_type='rand', *args, **kwargs)
 
 
 class MFCPRandomOptimiser(RandomOptimiser):
@@ -194,7 +194,7 @@ class MFCPRandomOptimiser(RandomOptimiser):
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
              self.fidel_space, self.func_caller.fidel_to_opt,
@@ -204,8 +204,7 @@ class MFCPRandomOptimiser(RandomOptimiser):
              dom_nn_sample_type='rand',
              fidel_space_euclidean_sample_type='latin_hc',
              fidel_space_integral_sample_type='latin_hc',
-             fidel_space_nn_sample_type='rand',
-             )
+             fidel_space_nn_sample_type='rand', *args, **kwargs)
 
 
 # APIs for random optimisation ===========================================================

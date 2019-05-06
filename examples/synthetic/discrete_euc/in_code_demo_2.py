@@ -38,7 +38,7 @@ def main():
   config_params = {'domain': domain_vars}
   config = load_config(config_params)
   max_num_evals = 100
-  opt_pt, opt_val, history = maximise_function(hartmann6_3, config.domain, max_num_evals,
+  opt_val, opt_pt, history = maximise_function(hartmann6_3, config.domain, max_num_evals,
                                                config=config)
   print(opt_pt, opt_val)
 

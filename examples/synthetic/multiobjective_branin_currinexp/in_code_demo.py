@@ -29,7 +29,7 @@ def main():
 
   # Optimise
   max_num_evals = 100 # Optimisation budget (max number of evaluations)
-  pareto_opt_pts, pareto_opt_vals, history = multiobjective_maximise_functions(
+  pareto_opt_vals, pareto_opt_pts, history = multiobjective_maximise_functions(
                                                moo_objectives, config.domain,
                                                max_num_evals, config=config)
   print(pareto_opt_pts)

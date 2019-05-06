@@ -15,10 +15,10 @@ from prior_means import conductivity_prior_mean_3d, conductivity_prior_mean_5d, 
 
 
 # choose problem
-PROBLEM = '3d'      # Optimisation problem with 3 variables
+# PROBLEM = '3d'      # Optimisation problem with 3 variables
 # PROBLEM = '3d_mf'   # Optimisation problem with 3 variables and 1 fidelity variable
 # PROBLEM = '3d_euc'  # Optimisation problem with 3 variables all of which are continuous
-# PROBLEM = '5d'      # Optimisation problem with 5 variables
+PROBLEM = '5d'      # Optimisation problem with 5 variables
 
 USE_CONDUCTIVITY_PRIOR_MEAN = True
 # USE_CONDUCTIVITY_PRIOR_MEAN = False
@@ -50,11 +50,11 @@ def main():
   # information can be incorporated into the model.
   if USE_CONDUCTIVITY_PRIOR_MEAN:
     if PROBLEM in ['3d', '3d_euc']:
-      options.gpb_prior_mean_unproc = conductivity_prior_mean_3d
+      options.gp_prior_mean = conductivity_prior_mean_3d
     elif PROBLEM == '3d_mf':
-      options.gpb_prior_mean_unproc = conductivity_prior_mean_3d_mf
+      options.gp_prior_mean = conductivity_prior_mean_3d_mf
     elif PROBLEM == '5d':
-      options.gpb_prior_mean_unproc = conductivity_prior_mean_5d
+      options.gp_prior_mean = conductivity_prior_mean_5d
     # The _unproc indicates that the mean function is "unprocessed". Dragonfly converts
     # the domain specified given in the configuration to an internal order which may
     # have reordered the variables. The _unproc tells that the function
@@ -63,15 +63,15 @@ def main():
   # Optimise
   max_capital = 60
   if PROBLEM in ['3d', '3d_euc', '5d']:
-    opt_pt, opt_val, history = maximise_function(objective, config.domain, max_capital,
+    opt_val, opt_pt, history = maximise_function(objective, config.domain, max_capital,
                                                  config=config, options=options)
   else:
-    opt_pt, opt_val, history = maximise_multifidelity_function(objective,
+    opt_val, opt_pt, history = maximise_multifidelity_function(objective,
                                  config.fidel_space, config.domain, config.fidel_to_opt,
                                  mf_cost, max_capital, config=config, options=options)
 
-  print(opt_pt)
-  print(opt_val)
+  print('opt_pt: %s'%(str(opt_pt)))
+  print('opt_val: %s'%(str(opt_val)))
 
 
 if __name__ == '__main__':

@@ -267,6 +267,7 @@ class ExperimentDesigner(object):
       # Send out the initial queries to the worker manager
       if self.init_capital is not None:
         initial_qinfos_w_init_capital = []
+        _num_tries_for_init_pool_sampling = 0
         while True:
           if len(initial_qinfos_w_init_capital) == 0:
             if self.options.capital_type == 'return_value':
@@ -274,7 +275,16 @@ class ExperimentDesigner(object):
             else:
               num_initial_queries_w_init_capital = int(2 * self.init_capital)
             initial_qinfos_w_init_capital = \
-              get_initial_qinfos(num_initial_queries_w_init_capital)
+              get_initial_qinfos(num_initial_queries_w_init_capital,
+                                 verbose_constraint_satisfaction=False)
+          if len(initial_qinfos_w_init_capital) == 0:
+            _num_tries_for_init_pool_sampling += 1
+            if _num_tries_for_init_pool_sampling % 10 == 0:
+              from warnings import warn
+              warn(('Sampling an initial pool failed despite %d attempts -- will ' +
+                    'continue trying but consider reparametrising your domain if ' +
+                    'this problem persists.')%(_num_tries_for_init_pool_sampling))
+            continue
           qinfo = initial_qinfos_w_init_capital.pop(0)
           self.step_idx += 1
           self._wait_for_a_free_worker()
@@ -289,7 +299,8 @@ class ExperimentDesigner(object):
         num_init_evals = int(self.options.num_init_evals)
         if num_init_evals > 0:
           num_init_evals = max(self.num_workers, num_init_evals)
-          init_qinfos = get_initial_qinfos(num_init_evals)
+          init_qinfos = get_initial_qinfos(num_init_evals,
+                                           verbose_constraint_satisfaction=False)
           for qinfo in init_qinfos:
             self.step_idx += 1
             self._wait_for_a_free_worker()
@@ -299,7 +310,7 @@ class ExperimentDesigner(object):
     """ Handles pre-evaluations. """
     raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns the initial qinfos. Can be overridden by a child class. """
     # pylint: disable=unused-argument
     # pylint: disable=no-self-use

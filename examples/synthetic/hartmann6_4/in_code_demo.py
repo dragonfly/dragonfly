@@ -32,7 +32,7 @@ def main():
                    'fidel_to_opt': fidel_to_opt}
   config = load_config(config_params)
   # Optimise
-  mf_opt_pt, mf_opt_val, history = maximise_multifidelity_function(mf_objective,
+  mf_opt_val, mf_opt_pt, history = maximise_multifidelity_function(mf_objective,
                                      config.fidel_space, config.domain,
                                      config.fidel_to_opt, mf_cost, 
                                      max_mf_capital, config=config)
@@ -43,7 +43,7 @@ def main():
   config = load_config(config_params)
   max_capital = 100 # Optimisation budget (max number of evaluations)
   # Optimise
-  opt_pt, opt_val, history = maximise_function(objective, config.domain,
+  opt_val, opt_pt, history = maximise_function(objective, config.domain,
                                                max_num_evals, config=config)
   print(opt_pt, opt_val)
 

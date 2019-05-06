@@ -51,11 +51,11 @@ def main():
   log_stream = open(LOG_FILE, 'w')
   # Call the optimiser
   if IS_MF:
-    opt_pt, opt_val, history = minimise_multifidelity_function(objective_to_min,
+    opt_val, opt_pt, history = minimise_multifidelity_function(objective_to_min,
       config.fidel_space, config.domain, config.fidel_to_opt, fidel_cost_func,
       MAX_CAPITAL, capital_type='realtime', config=config, reporter=log_stream)
   else:
-    opt_pt, opt_val, history = minimise_function(objective_to_min, config.domain,
+    opt_val, opt_pt, history = minimise_function(objective_to_min, config.domain,
       MAX_CAPITAL, capital_type='realtime', config=config, reporter=log_stream)
   # Print out result
   log_stream.close()

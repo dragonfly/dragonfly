@@ -314,29 +314,29 @@ def preprocess_options_for_gp_bandits(options, config, prob, converted_cp_to_euc
     return gpb_prior_mean
 
   # 1. Prior mean for single objective ===================================================
-  if hasattr(options, 'gpb_prior_mean_unproc'):
+  if hasattr(options, 'gp_prior_mean'):
     prior_mean_given = options.gpb_prior_mean if hasattr(options, 'gpb_prior_mean') \
                        else None
     options.gpb_prior_mean = _get_gpb_prior_mean_from_unproc(
-                               options.gpb_prior_mean_unproc, prior_mean_given,
+                               options.gp_prior_mean, prior_mean_given,
                                config, prob, converted_cp_to_euclidean)
   # 2. A custom kernel for single objective ==============================================
   if hasattr(options, 'gpb_prior_kernel_unproc') and \
      options.gpb_prior_kernel_unproc is not None:
     raise NotImplementedError('Not Implemented custom kernels yet!')
   # 3. Prior mean for multi-objective ====================================================
-  if hasattr(options, 'moo_gpb_prior_means_unproc') and \
-    options.moo_gpb_prior_means_unproc is not None:
-    if not hasattr(options.moo_gpb_prior_means_unproc, '__iter__'):
-      raise ValueError('moo_gpb_prior_means_unproc should be a list or tuple of ' +
+  if hasattr(options, 'gps_prior_means') and \
+    options.gps_prior_means is not None:
+    if not hasattr(options.gps_prior_means, '__iter__'):
+      raise ValueError('gps_prior_means should be a list or tuple of ' +
                        'callable objects!')
     moo_prior_means_given = options.moo_gpb_prior_means \
                               if hasattr(options, 'moo_gpb_prior_means') else None
     if moo_prior_means_given is None:
-      moo_prior_means_given = [None] * len(options.moo_gpb_prior_means_unproc)
+      moo_prior_means_given = [None] * len(options.gps_prior_means)
     options.moo_gpb_prior_means = []
     for (prior_mean_unproc_given, prior_mean_given) in \
-      zip(options.moo_gpb_prior_means_unproc, moo_prior_means_given):
+      zip(options.gps_prior_means, moo_prior_means_given):
       options.moo_gpb_prior_means.append(
         _get_gpb_prior_mean_from_unproc(prior_mean_unproc_given, prior_mean_given,
                                         config, prob, converted_cp_to_euclidean))

@@ -694,7 +694,7 @@ class EuclideanGPBandit(GPBandit):
                           curr_acq=curr_acq) for pt in next_batch_of_eval_points]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     if self.is_an_mf_method():
       return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals, \
@@ -891,7 +891,7 @@ class CPGPBandit(GPBandit):
       # Build the posterior
       self.gp.build_posterior()
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     if self.is_an_mf_method():
       return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
@@ -902,12 +902,12 @@ class CPGPBandit(GPBandit):
         dom_nn_sample_type='rand',
         fidel_space_euclidean_sample_type='latin_hc',
         fidel_space_integral_sample_type='latin_hc',
-        fidel_space_nn_sample_type='rand')
+        fidel_space_nn_sample_type='rand', *args, **kwargs)
     else:
       return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
                                           dom_euclidean_sample_type='latin_hc',
                                           dom_integral_sample_type='latin_hc',
-                                          dom_nn_sample_type='rand')
+                                          dom_nn_sample_type='rand', *args, **kwargs)
 
   def _get_mf_gp_fitter(self, reg_data, use_additive=False):
     """ Returns the Multi-fidelity GP Fitter. Can be overridded by a child class. """

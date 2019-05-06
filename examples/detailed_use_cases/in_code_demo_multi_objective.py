@@ -15,9 +15,9 @@ from prior_means import conductivity_prior_mean_3d, conductivity_prior_mean_5d, 
 
 
 # choose problem
-PROBLEM = '3d'
+# PROBLEM = '3d'
 # PROBLEM = '3d_euc'
-# PROBLEM = '5d'
+PROBLEM = '5d'
 
 # chooser dict
 _CHOOSER_DICT = {
@@ -48,9 +48,9 @@ def main():
   # information can be incorporated into the model.
   if USE_CONDUCTIVITY_PRIOR_MEAN:
     if PROBLEM in ['3d', '3d_euc']:
-      options.moo_gpb_prior_means_unproc = (conductivity_prior_mean_3d, None)
+      options.gps_prior_means = (conductivity_prior_mean_3d, None)
     elif PROBLEM == '5d':
-      options.moo_gpb_prior_means_unproc = (conductivity_prior_mean_5d, None)
+      options.gps_prior_means = (conductivity_prior_mean_5d, None)
     # The _unproc indicates that the mean function is "unprocessed". Dragonfly converts
     # the domain specified given in the configuration to an internal order which may
     # have reordered the variables. The _unproc tells that the function
@@ -58,8 +58,11 @@ def main():
 
   # Optimise
   max_num_evals = 60
-  pareto_opt_pts, pareto_opt_vals, history = multiobjective_maximise_functions(
-    moo_objectives, config.domain, max_num_evals, config=config, options=options)
+  opt_method = 'bo'
+#   opt_method = 'rand'
+  pareto_opt_vals, pareto_opt_pts, history = multiobjective_maximise_functions(
+    moo_objectives, config.domain, max_num_evals, config=config, options=options,
+    opt_method=opt_method)
   print(pareto_opt_pts)
   print(pareto_opt_vals)
 
