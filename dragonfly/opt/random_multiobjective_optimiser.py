@@ -75,7 +75,7 @@ class EuclideanRandomMultiObjectiveOptimiser(RandomMultiObjectiveOptimiser):
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
                                         self.domain.bounds)
