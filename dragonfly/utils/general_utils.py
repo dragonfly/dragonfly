@@ -370,7 +370,7 @@ def get_exp_probs_from_fitness(fitness_vals, scaling_param=None, scaling_const=N
   fitness_vals = np.array(fitness_vals)
   if scaling_param is None:
     scaling_const = scaling_const if scaling_const is not None else 0.5
-    scaling_param = scaling_const * fitness_vals.std()
+    scaling_param = scaling_const * (fitness_vals.std() + 0.0001)
   mean_param = fitness_vals.mean()
   exp_probs = np.exp((fitness_vals - mean_param)/scaling_param)
   return exp_probs/exp_probs.sum()

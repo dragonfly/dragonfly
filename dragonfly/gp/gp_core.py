@@ -43,6 +43,9 @@ mandatory_gp_args = [ \
   get_option_specs('handle_non_psd_kernels', False, 'guaranteed_psd',
                    'How to handle kernels that are non-psd.'),
   # The mean and noise variance of the GP
+  get_option_specs('mean_func', False, None,
+                   ('The mean function. If not None, will use this instead of the' +
+                    'other options below')),
   get_option_specs('mean_func_type', False, 'tune',
                    ('Specify the type of mean function. Should be mean, median, const ',
                     'zero, or tune. If const, specifcy value in mean-func-const.')),

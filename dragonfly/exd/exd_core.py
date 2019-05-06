@@ -213,7 +213,7 @@ class ExperimentDesigner(object):
 
   def _print_header(self):
     """ Print header. """
-    header_str = 'Legend: <iteration_number> (<num_successful_queries>) ' + \
+    header_str = 'Legend: <iteration_number> (<num_successful_queries>, ' + \
                  '<fraction_of_capital_spent>):: '
     child_header_str = self._get_exd_child_header_str()
     self.reporter.writeln(header_str + child_header_str)

@@ -9,6 +9,7 @@
 
 
 from argparse import Namespace
+import numpy as np
 # Local imports
 from ..exd.cp_domain_utils import load_config_file, \
                                 get_processed_func_from_raw_func_for_cp_domain_fidelity, \
@@ -258,4 +259,73 @@ def post_process_history_for_minimisation(history):
   history.curr_opt_vals = [-cov for cov in history.curr_opt_vals]
   history.curr_true_opt_vals = [-cov for cov in history.curr_true_opt_vals]
   return history
+
+
+def preprocess_options_for_gp_bandits(options, config, prob, converted_cp_to_euclidean):
+  """ Preprocesses the options for GP Bandits. """
+  # pylint: disable=too-many-branches
+  # pylint: disable=too-many-locals
+  options = Namespace(**vars(options)) # Make a new copy
+  # Define some internal functions which we will need ====================================
+  def _get_ret_func_from_proc_func_for_conv_euc_domains_mf(_proc_func):
+    """ Get function to return. """
+    return lambda z, x: _proc_func([z], [x])
+  def _get_ret_func_from_proc_func_for_conv_euc_domains(_proc_func):
+    """ Get function to return. """
+    return lambda x: _proc_func([x])
+  # 1. Prior mean for single objective ===================================================
+  if hasattr(options, 'gpb_prior_mean_unproc') and \
+     options.gpb_prior_mean_unproc is not None:
+    if hasattr(options, 'gpb_prior_mean') and \
+       options.gpb_prior_mean is not None:
+      # Then nothing to do here. Just use the given gpb_prior_mean and ignore
+      # the unprocessed version.
+      pass
+    else:
+      # Non-multi-fidelity version
+      if prob == 'opt':
+        if config.domain.get_type() == 'euclidean' and not converted_cp_to_euclidean:
+          # If a Euclidean domain was specified originally, just use unproc version.
+          gpb_prior_mean_single = options.gpb_prior_mean_unproc
+        else:
+          # Convert to the normalised representation
+          gpb_pmf = get_processed_func_from_raw_func_for_cp_domain(
+                      options.gpb_prior_mean_unproc, config.domain,
+                      config.domain_orderings.index_ordering,
+                      config.domain_orderings.dim_ordering)
+          if config.domain.get_type() == 'euclidean' and converted_cp_to_euclidean:
+            gpb_prior_mean_single = \
+              _get_ret_func_from_proc_func_for_conv_euc_domains(gpb_pmf)
+          else:
+            gpb_prior_mean_single = gpb_pmf
+        gpb_prior_mean = \
+          lambda X, *args, **kwargs: np.array([gpb_prior_mean_single(x, *args, **kwargs)
+                                               for x in X])
+      # Multi-fidelity version
+      if prob == 'mfopt':
+        if config.fidel_space.get_type() == 'euclidean' \
+          and config.domain.get_type() == 'euclidean' and not converted_cp_to_euclidean:
+          gpb_prior_mean_single = options.gpb_prior_mean_unproc
+        else:
+          gpb_pmf = get_processed_func_from_raw_func_for_cp_domain_fidelity(
+                      options.gpb_prior_mean_unproc, config)
+          if config.fidel_space.get_type() == 'euclidean' \
+            and config.domain.get_type() == 'euclidean' and converted_cp_to_euclidean:
+            gpb_prior_mean_single = \
+              _get_ret_func_from_proc_func_for_conv_euc_domains_mf(gpb_pmf)
+          else:
+            gpb_prior_mean_single = gpb_pmf
+        gpb_prior_mean = \
+          lambda ZX, *args, **kwargs: np.array(
+            [gpb_prior_mean_single(z, x, *args, **kwargs) for (z, x) in ZX])
+      # Finally set this in options - but make the mean function vectorised
+      options.gpb_prior_mean = gpb_prior_mean
+  # 2. A custom kernel for single objective ==============================================
+  if hasattr(options, 'gpb_prior_kernel_unproc') and \
+     options.gpb_prior_kernel_unproc is not None:
+    raise NotImplementedError('Not Implemented custom kernels yet!')
+  # Return options =======================================================================
+  print(options.gpb_prior_mean)
+  print(options.gpb_prior_mean_unproc)
+  return options
 

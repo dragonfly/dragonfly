@@ -1,0 +1,39 @@
+{
+"name": "opj_3d",
+
+"domain" : {
+
+  "LiNO3_vol" : {
+    "name":"LiNO3_vol",
+    "type":"discrete_numeric",
+    "items":"0:0.25:7.25"
+  },
+
+  "Li2SO4_vol" : {
+    "name":"Li2SO4_vol",
+    "type":"discrete_numeric",
+    "items":"0:0.25:7.25"
+  },
+
+  "NaClO4_vol" : {
+  "name":"NaClO4_vol",
+  "type":"discrete_numeric",
+  "items":"0:0.25:7.25"
+  }
+
+ },
+
+ "domain_constraints":{
+
+  "constraint_1":{
+    "name":"max_volume",
+    "constraint":"LiNO3_vol + Li2SO4_vol + NaClO4_vol <= 7"
+  },
+
+  "constraint_2":{
+    "name":"min_volume",
+    "constraint":"LiNO3_vol + Li2SO4_vol + NaClO4_vol >= 0.25"
+  }
+
+ }
+}

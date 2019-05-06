@@ -47,6 +47,9 @@ multiobjective_gp_bandit_args = [
     'A weight sampler for moors.'),
   get_option_specs('moors_reference_point', False, None, \
     'Reference point for MOORS.'),
+  # Prior mean functions
+  get_option_specs('moo_gpb_prior_mean_funcs', False, None, \
+    'Prior GP mean functions for Multi-objective GP bandits.'),
 ]
 
 

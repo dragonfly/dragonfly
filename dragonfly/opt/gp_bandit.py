@@ -68,6 +68,9 @@ gp_bandit_args = [ \
   # For multi-fidelity BO
   get_option_specs('mf_strategy', False, 'boca',
                    'Which multi-fidelity strategy to use. Should be one of {boca}.'),
+  # Mean of the GP
+  get_option_specs('gpb_prior_mean', False, None,
+                   'The prior mean of the GP for the model.'),
   # The following are perhaps not so important. Some have not been implemented yet.
   get_option_specs('shrink_kernel_with_time', False, 0,
                    'If True, shrinks the kernel with time so that we don\'t get stuck.'),
@@ -390,6 +393,13 @@ class GPBandit(BlackboxOptimiser):
     """ Returns the NOn-Multi-fidelity GP Fitter. Can be overridded by a child class. """
     raise NotImplementedError('Implement in a Child class.')
 
+  def _get_options_for_gp_fitter(self, *args, **kwargs):
+    """ Returns options for the GP Fitter. """
+    # pylint: disable=unused-argument
+    gpf_options = Namespace(**vars(self.options))
+    gpf_options.mean_func = gpf_options.gpb_prior_mean
+    return gpf_options
+
   def _build_new_gp(self):
     """ Builds a GP with the data in history and stores in self.gp. """
     if hasattr(self.func_caller, 'init_gp') and self.func_caller.init_gp is not None:
@@ -551,7 +561,7 @@ class EuclideanGPBandit(GPBandit):
 
   def _get_mf_gp_fitter(self, reg_data, use_additive=False):
     """ Returns the Multi-fidelity GP Fitter. Can be overridded by a child class. """
-    options = Namespace(**vars(self.options))
+    options = self._get_options_for_gp_fitter()
     if use_additive:
       options.domain_use_additive_gp = use_additive
     if use_additive and options.domain_kernel_type == 'esp':
@@ -561,7 +571,7 @@ class EuclideanGPBandit(GPBandit):
 
   def _get_non_mf_gp_fitter(self, reg_data, use_additive=False):
     """ Returns the NOn-Multi-fidelity GP Fitter. Can be overridded by a child class. """
-    options = Namespace(**vars(self.options))
+    options = self._get_options_for_gp_fitter()
     if use_additive:
       options.use_additive_gp = use_additive
     if use_additive and options.kernel_type == 'esp':
@@ -902,6 +912,7 @@ class CPGPBandit(GPBandit):
   def _get_mf_gp_fitter(self, reg_data, use_additive=False):
     """ Returns the Multi-fidelity GP Fitter. Can be overridded by a child class. """
     # We are not maintaining a list of distances for the domain or the fidelity space.
+    gpf_options = self._get_options_for_gp_fitter()
     fs_orderings = self.func_caller.fidel_space_orderings
     return CPMFGPFitter(reg_data[0], reg_data[1], reg_data[2], config=None,
              fidel_space=self.func_caller.fidel_space,
@@ -912,15 +923,16 @@ class CPGPBandit(GPBandit):
              domain_lists_of_dists=self.domain_lists_of_dists,
              fidel_space_dist_computers=None,
              domain_dist_computers=self.domain_dist_computers,
-             options=self.options, reporter=self.reporter)
+             options=gpf_options, reporter=self.reporter)
 
   def _get_non_mf_gp_fitter(self, reg_data, use_additive=False):
     """ Returns the NOn-Multi-fidelity GP Fitter. Can be overridded by a child class. """
+    gpf_options = self._get_options_for_gp_fitter()
     return CPGPFitter(reg_data[0], reg_data[1], self.func_caller.domain,
              domain_kernel_ordering=self.func_caller.domain_orderings.kernel_ordering,
              domain_lists_of_dists=self.domain_lists_of_dists,
              domain_dist_computers=self.domain_dist_computers,
-             options=self.options, reporter=self.reporter)
+             options=gpf_options, reporter=self.reporter)
 
 
 # APIs for Euclidean GP Bandit optimisation. ---------------------------------------------
