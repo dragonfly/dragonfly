@@ -32,7 +32,7 @@
  "domain_constraints":{
   "constraint_1":{
     "name":"max_volume",
-    "constraint":"Na2SO4_vol + NaNO3_vol + LiNO3_vol + Li2SO4_vol + NaClO4_vol <= 7"
+    "constraint":"Na2SO4_vol + NaNO3_vol + LiNO3_vol + Li2SO4_vol + NaClO4_vol <= 7.0"
   },
   "constraint_2":{
     "name":"min_volume",

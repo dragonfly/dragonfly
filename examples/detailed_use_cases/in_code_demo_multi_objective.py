@@ -15,9 +15,9 @@ from prior_means import conductivity_prior_mean_3d, conductivity_prior_mean_5d, 
 
 
 # choose problem
-PROBLEM = '3d'
+# PROBLEM = '3d'
 # PROBLEM = '3d_euc'
-# PROBLEM = '5d'
+PROBLEM = '5d'
 
 # chooser dict
 _CHOOSER_DICT = {
