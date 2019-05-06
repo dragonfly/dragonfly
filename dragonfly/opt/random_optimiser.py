@@ -204,8 +204,7 @@ class MFCPRandomOptimiser(RandomOptimiser):
              dom_nn_sample_type='rand',
              fidel_space_euclidean_sample_type='latin_hc',
              fidel_space_integral_sample_type='latin_hc',
-             fidel_space_nn_sample_type='rand', *args, **kwargs,
-             )
+             fidel_space_nn_sample_type='rand', *args, **kwargs)
 
 
 # APIs for random optimisation ===========================================================
