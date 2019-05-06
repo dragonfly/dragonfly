@@ -6,21 +6,21 @@
   "LiNO3_vol" : {
     "name":"LiNO3_vol",
     "type":"float",
-    "items":0,
+    "min":0,
     "max":7
   },
 
   "Li2SO4_vol" : {
     "name":"Li2SO4_vol",
     "type":"float",
-    "items":0,
+    "min":0,
     "max":7
   },
 
   "NaClO4_vol" : {
     "name":"NaClO4_vol",
     "type":"float",
-    "items":0,
+    "min":0,
     "max":7
   }
 

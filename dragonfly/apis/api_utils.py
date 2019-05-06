@@ -282,22 +282,17 @@ def preprocess_options_for_gp_bandits(options, config, prob, converted_cp_to_euc
       # the unprocessed version.
       pass
     else:
-      # Non-multi-fidelity version
+      # Non multi-fidelity version
       if prob == 'opt':
         if config.domain.get_type() == 'euclidean' and not converted_cp_to_euclidean:
           # If a Euclidean domain was specified originally, just use unproc version.
           gpb_prior_mean_single = options.gpb_prior_mean_unproc
         else:
           # Convert to the normalised representation
-          gpb_pmf = get_processed_func_from_raw_func_for_cp_domain(
-                      options.gpb_prior_mean_unproc, config.domain,
-                      config.domain_orderings.index_ordering,
-                      config.domain_orderings.dim_ordering)
-          if config.domain.get_type() == 'euclidean' and converted_cp_to_euclidean:
-            gpb_prior_mean_single = \
-              _get_ret_func_from_proc_func_for_conv_euc_domains(gpb_pmf)
-          else:
-            gpb_prior_mean_single = gpb_pmf
+          gpb_prior_mean_single = get_processed_func_from_raw_func_for_cp_domain(
+                                    options.gpb_prior_mean_unproc, config.domain,
+                                    config.domain_orderings.index_ordering,
+                                    config.domain_orderings.dim_ordering)
         gpb_prior_mean = \
           lambda X, *args, **kwargs: np.array([gpb_prior_mean_single(x, *args, **kwargs)
                                                for x in X])
@@ -307,14 +302,8 @@ def preprocess_options_for_gp_bandits(options, config, prob, converted_cp_to_euc
           and config.domain.get_type() == 'euclidean' and not converted_cp_to_euclidean:
           gpb_prior_mean_single = options.gpb_prior_mean_unproc
         else:
-          gpb_pmf = get_processed_func_from_raw_func_for_cp_domain_fidelity(
-                      options.gpb_prior_mean_unproc, config)
-          if config.fidel_space.get_type() == 'euclidean' \
-            and config.domain.get_type() == 'euclidean' and converted_cp_to_euclidean:
-            gpb_prior_mean_single = \
-              _get_ret_func_from_proc_func_for_conv_euc_domains_mf(gpb_pmf)
-          else:
-            gpb_prior_mean_single = gpb_pmf
+          gpb_prior_mean_single = get_processed_func_from_raw_func_for_cp_domain_fidelity(
+                                    options.gpb_prior_mean_unproc, config)
         gpb_prior_mean = \
           lambda ZX, *args, **kwargs: np.array(
             [gpb_prior_mean_single(z, x, *args, **kwargs) for (z, x) in ZX])
@@ -325,7 +314,5 @@ def preprocess_options_for_gp_bandits(options, config, prob, converted_cp_to_euc
      options.gpb_prior_kernel_unproc is not None:
     raise NotImplementedError('Not Implemented custom kernels yet!')
   # Return options =======================================================================
-  print(options.gpb_prior_mean)
-  print(options.gpb_prior_mean_unproc)
   return options
 

@@ -15,9 +15,10 @@ from prior_means import conductivity_prior_mean_3d, conductivity_prior_mean_5d, 
 
 
 # choose problem
-# PROBLEM = '3d'
-PROBLEM = '3d_mf'
-# PROBLEM = '5d'
+# PROBLEM = '3d'      # Optimisation problem with 3 variables
+# PROBLEM = '3d_mf'   # Optimisation problem with 3 variables and 1 fidelity variable
+# PROBLEM = '3d_euc'  # Optimisation problem with 3 variables all of which are continuous
+PROBLEM = '5d'      # Optimisation problem with 5 variables
 
 USE_CONDUCTIVITY_PRIOR_MEAN = True
 # USE_CONDUCTIVITY_PRIOR_MEAN = False
@@ -25,6 +26,7 @@ USE_CONDUCTIVITY_PRIOR_MEAN = True
 # chooser dict
 _CHOOSER_DICT = {
   '3d': (obj_3d.objective, 'config_3d.json', None),
+  '3d_euc': (obj_3d.objective, 'config_3d_cts.json', None),
   '3d_mf': (obj_3d_mf.objective, 'config_3d_mf.json', obj_3d_mf.cost),
   '5d': (obj_5d.objective, 'config_5d.json', None),
   }
@@ -47,7 +49,7 @@ def main():
   # on the rough behaviour of the function to be optimised, this is one way that
   # information can be incorporated into the model.
   if USE_CONDUCTIVITY_PRIOR_MEAN:
-    if PROBLEM == '3d':
+    if PROBLEM in ['3d', '3d_euc']:
       options.gpb_prior_mean_unproc = conductivity_prior_mean_3d
     elif PROBLEM == '3d_mf':
       options.gpb_prior_mean_unproc = conductivity_prior_mean_3d_mf
@@ -60,7 +62,7 @@ def main():
 
   # Optimise
   max_capital = 60
-  if PROBLEM in ['3d', '5d']:
+  if PROBLEM in ['3d', '3d_euc', '5d']:
     opt_pt, opt_val, history = maximise_function(objective, config.domain, max_capital,
                                                  config=config, options=options)
   else:
