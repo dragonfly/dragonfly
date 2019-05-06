@@ -230,7 +230,7 @@ class CPGP(gp_core.GP):
   def _child_str(self):
     """ String representation of the GP. """
     if len(self.X) > 0:
-      mean_str = 'mu=%0.4f, '%(self.mean_func([self.X[0]])[0])
+      mean_str = 'mu[#0]=%0.4f, '%(self.mean_func([self.X[0]])[0])
     else:
       mean_str = ''
     return mean_str + str(self.kernel)
@@ -361,8 +361,7 @@ class CPGPFitter(gp_core.GPFitter):
         domain_dist_computers[idx]
     # Create reporter and options
     reporter = get_reporter(reporter)
-    if options is None:
-      options = load_options(cartesian_product_gp_args, 'CPGP', reporter=reporter)
+    options = load_options(cartesian_product_gp_args, partial_options=options)
     # Call super constructor
     super(CPGPFitter, self).__init__(X, Y, options, reporter)
 
@@ -405,8 +404,7 @@ class CPMFGPFitter(mf_gp.MFGPFitter):
     # pylint: disable=too-many-arguments
     # Load options
     reporter = get_reporter(reporter)
-    if options is None:
-      options = load_options(cartesian_product_mf_gp_args)
+    options = load_options(cartesian_product_mf_gp_args, partial_options=options)
     # Read from config
     if config is not None:
       if isinstance(config, str):

@@ -1,0 +1,28 @@
+{
+"name": "obj_3d",
+
+"domain" : {
+
+  "LiNO3_vol" : {
+    "name":"LiNO3_vol",
+    "type":"float",
+    "min":0,
+    "max":7
+  },
+
+  "Li2SO4_vol" : {
+    "name":"Li2SO4_vol",
+    "type":"float",
+    "min":0,
+    "max":7
+  },
+
+  "NaClO4_vol" : {
+    "name":"NaClO4_vol",
+    "type":"float",
+    "min":0,
+    "max":7
+  }
+
+ }
+}

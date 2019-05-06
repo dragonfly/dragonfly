@@ -47,6 +47,9 @@ multiobjective_gp_bandit_args = [
     'A weight sampler for moors.'),
   get_option_specs('moors_reference_point', False, None, \
     'Reference point for MOORS.'),
+  # Prior mean functions
+  get_option_specs('moo_gpb_prior_means', False, None, \
+    'Prior GP mean functions for Multi-objective GP bandits.'),
 ]
 
 
@@ -261,20 +264,32 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
     else:
       return reg_X, [y[obj_ind] for y in reg_Y]
 
-  def _get_gp_fitter(self, reg_data, use_additive=False):
+  def _get_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns a GP Fitter. """
     if self.is_an_mf_method():
       raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
     else:
-      return self._get_non_mf_gp_fitter(reg_data, use_additive)
+      return self._get_non_mf_gp_fitter(gp_idx, use_additive)
 
-  def _get_mf_gp_fitter(self, reg_data, use_additive=False):
+  def _get_mf_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns the Multi-fidelity GP Fitter. Can be overridded by a child class. """
     raise NotImplementedError('Implement in a Child class.')
 
-  def _get_non_mf_gp_fitter(self, reg_data, use_additive=False):
+  def _get_non_mf_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns the NOn-Multi-fidelity GP Fitter. Can be overridded by a child class. """
     raise NotImplementedError('Implement in a Child class.')
+
+  def _get_options_for_gp_fitter(self, gp_idx, *args, **kwargs):
+    """ Returns options for the GP Fitter. """
+    # pylint: disable=unused-argument
+    gpf_options = Namespace(**vars(self.options))
+    if not hasattr(self.options, 'moo_gpb_prior_means') or \
+      self.options.moo_gpb_prior_means is None:
+      mean_func = None
+    else:
+      mean_func = self.options.moo_gpb_prior_means[gp_idx]
+    gpf_options.mean_func = mean_func
+    return gpf_options
 
   def _build_new_gps(self):
     """ Builds a GP with the data in history and stores in self.gp. """
@@ -288,8 +303,7 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
       # Invoke the GP fitter.
       self.gp_processors = []
       for i in range(self.multi_func_caller.num_funcs):
-        reg_data = self._get_moo_gp_reg_data(i)
-        gp_fitter = self._get_gp_fitter(reg_data)
+        gp_fitter = self._get_gp_fitter(i)
         # Fits gp and adds it to gp_processor
         gp_fitter.fit_gp_for_gp_bandit(self.options.build_new_model_every)
         gp_processor = Namespace()
@@ -437,25 +451,24 @@ class EuclideanMultiObjectiveGPBandit(MultiObjectiveGPBandit):
   def __init__(self, multi_func_caller, worker_manager, is_mf=False,
                options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      reporter = get_reporter(reporter)
-      if is_mf:
-        raise NotImplementedError("MF support for MO not implemented yet")
-        # all_args = get_all_mf_gp_bandit_args_from_gp_args(euclidean_mf_gp_args)
-      else:
-        all_args = get_all_euc_moo_gp_bandit_args()
-      options = load_options(all_args, reporter=reporter)
+    if is_mf:
+      raise NotImplementedError("MF support for MO not implemented yet")
+      # all_args = get_all_mf_gp_bandit_args_from_gp_args(euclidean_mf_gp_args)
+    else:
+      all_args = get_all_euc_moo_gp_bandit_args()
+    options = load_options(all_args, partial_options=options)
     super(EuclideanMultiObjectiveGPBandit, self).__init__(multi_func_caller,
       worker_manager, is_mf=is_mf, options=options, reporter=reporter)
 
-  def _get_mf_gp_fitter(self, reg_data, use_additive=False):
+  def _get_mf_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns the Multi-fidelity GP Fitter. Can be overridded by a child class. """
     raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
 
-  def _get_non_mf_gp_fitter(self, reg_data, use_additive=False):
+  def _get_non_mf_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns the NOn-Multi-fidelity GP Fitter. Can be overridded by a child class. """
     # pylint: disable=no-member
-    options = Namespace(**vars(self.options))
+    options = self._get_options_for_gp_fitter(gp_idx)
+    reg_data = self._get_moo_gp_reg_data(gp_idx)
     if use_additive:
       options.use_additive_gp = use_additive
     if use_additive and options.kernel_type == 'esp':
@@ -480,8 +493,7 @@ class EuclideanMultiObjectiveGPBandit(MultiObjectiveGPBandit):
     if self.req_add_gp:
       self.add_gp_processors = []
       for i in range(self.multi_func_caller.num_funcs):
-        reg_data = self._get_moo_gp_reg_data(i)
-        add_gp_fitter = self._get_gp_fitter(reg_data, use_additive=True)
+        add_gp_fitter = self._get_gp_fitter(i, use_additive=True)
         # Fits gp and adds it to add_gp_processor
         add_gp_fitter.fit_gp_for_gp_bandit(self.options.build_new_model_every)
         add_gp_processor = Namespace()
@@ -624,13 +636,11 @@ class CPMultiObjectiveGPBandit(MultiObjectiveGPBandit):
   def __init__(self, multi_func_caller, worker_manager, is_mf=False,
                domain_dist_computers=None, options=None, reporter=None):
     """ Constructor. """
-    if options is None:
-      reporter = get_reporter(reporter)
-      if is_mf:
-        raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
-      else:
-        all_args = get_all_cp_moo_gp_bandit_args()
-      options = load_options(all_args, reporter)
+    if is_mf:
+      raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
+    else:
+      all_args = get_all_cp_moo_gp_bandit_args()
+    options = load_options(all_args, partial_options=options)
     self.domain_dist_computers = domain_dist_computers
     super(CPMultiObjectiveGPBandit, self).__init__(multi_func_caller, worker_manager,
                                           is_mf=is_mf, options=options, reporter=reporter)
@@ -666,17 +676,19 @@ class CPMultiObjectiveGPBandit(MultiObjectiveGPBandit):
         self.kernel_params_for_each_domain[idx]['otmann_dist_type'] = \
           self.options.otmann_dist_type
 
-  def _get_mf_gp_fitter(self, reg_data, use_additive=False):
+  def _get_mf_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns the Multi-fidelity GP Fitter. Can be overridded by a child class. """
     raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
 
-  def _get_non_mf_gp_fitter(self, reg_data, use_additive=False):
+  def _get_non_mf_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns the NOn-Multi-fidelity GP Fitter. Can be overridded by a child class. """
+    options = self._get_options_for_gp_fitter(gp_idx)
+    reg_data = self._get_moo_gp_reg_data(gp_idx)
     return CPGPFitter(reg_data[0], reg_data[1], self.func_caller.domain,
              domain_kernel_ordering=self.func_caller.domain_orderings.kernel_ordering,
              domain_lists_of_dists=self.domain_lists_of_dists,
              domain_dist_computers=self.domain_dist_computers,
-             options=self.options, reporter=self.reporter)
+             options=options, reporter=self.reporter)
 
   def _get_initial_qinfos(self, num_init_evals):
     """ Returns initial qinfos. """
@@ -782,8 +794,7 @@ def multiobjective_gpb_from_multi_func_caller(multi_func_caller, worker_manager,
       raise ValueError('GPBandit not implemented for domain of type %s.'%( \
                        type(multi_func_caller.domain)))
   # Load options
-  if options is None:
-    options = load_options(dflt_list_of_options, reporter=reporter)
+  options = load_options(dflt_list_of_options, partial_options=options)
   if acq is not None:
     options.acq = acq
   if mode is not None:

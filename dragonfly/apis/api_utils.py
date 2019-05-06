@@ -9,6 +9,7 @@
 
 
 from argparse import Namespace
+import numpy as np
 # Local imports
 from ..exd.cp_domain_utils import load_config_file, \
                                 get_processed_func_from_raw_func_for_cp_domain_fidelity, \
@@ -28,6 +29,7 @@ from ..opt.multiobjective_gp_bandit import get_all_euc_moo_gp_bandit_args, \
 from ..opt.random_multiobjective_optimiser import \
               euclidean_random_multiobjective_optimiser_args, \
               cp_random_multiobjective_optimiser_args
+from ..utils.general_utils import map_to_bounds
 from ..utils.option_handler import load_options
 
 
@@ -258,4 +260,90 @@ def post_process_history_for_minimisation(history):
   history.curr_opt_vals = [-cov for cov in history.curr_opt_vals]
   history.curr_true_opt_vals = [-cov for cov in history.curr_true_opt_vals]
   return history
+
+
+def preprocess_options_for_gp_bandits(options, config, prob, converted_cp_to_euclidean):
+  """ Preprocesses the options for GP Bandits. """
+  # pylint: disable=too-many-branches
+  # pylint: disable=too-many-locals
+  options = Namespace(**vars(options)) # Make a new copy
+  # We will call this internal function repeatedly below =================================
+  def _get_gpb_prior_mean_from_unproc(prior_mean_unproc_given, prior_mean_given,
+        config, prob, converted_cp_to_euclidean):
+    """ Return the prior mean for a single point from arguments. """
+    if prior_mean_given is not None:
+      gpb_prior_mean = prior_mean_given # If the processed version is given, use that.
+    elif prior_mean_unproc_given is None:
+      gpb_prior_mean = None
+    elif prob in ['opt', 'moo']:
+      if config.domain.get_type() == 'euclidean' and not converted_cp_to_euclidean:
+        # In this case, both the processed and unprocessed versions are the same!
+        gpb_prior_mean_single = prior_mean_unproc_given
+      else:
+        gpb_pms = get_processed_func_from_raw_func_for_cp_domain(
+                       prior_mean_unproc_given, config.domain,
+                       config.domain_orderings.index_ordering,
+                       config.domain_orderings.dim_ordering)
+        if config.domain.get_type() == 'euclidean' and converted_cp_to_euclidean:
+          # TODO (KK): this is a bit of a clumsy fix. Check if this can be neatened.
+          gpb_prior_mean_single = lambda x, *args, **kwargs: gpb_pms(
+              map_to_bounds(x, config.domain.bounds), *args, **kwargs)
+        else:
+          gpb_prior_mean_single = gpb_pms
+      gpb_prior_mean = lambda X, *args, **kwargs: np.array(
+        [gpb_prior_mean_single(x, *args, **kwargs) for x in X])
+    elif prob in ['mfopt', 'mfmoo']:
+      if config.fidel_space.get_type() == 'euclidean' \
+        and config.domain.get_type() == 'euclidean' and not converted_cp_to_euclidean:
+        # In this case, both the processed and unprocessed versions are the same!
+        gpb_prior_mean_mf_single = prior_mean_unproc_given
+      else:
+        gpb_pmmfs = get_processed_func_from_raw_func_for_cp_domain_fidelity(
+                        prior_mean_unproc_given, config)
+        if config.domain.get_type() == 'euclidean' and converted_cp_to_euclidean:
+          gpb_prior_mean_mf_single = lambda z, x, *args, **kwargs: gpb_pmmfs(
+              map_to_bounds(z, config.fidel_space.bounds),
+              map_to_bounds(x, config.domain.bounds),
+              *args, **kwargs)
+        else:
+          gpb_prior_mean_mf_single = gpb_pmmfs
+      gpb_prior_mean = lambda ZX, *args, **kwargs: np.array(
+        [gpb_prior_mean_mf_single(z, x, *args, **kwargs) for (z, x) in ZX])
+    else:
+      raise ValueError('Unrecognised problem type (prob): %s.'%(prob))
+    return gpb_prior_mean
+
+  # 1. Prior mean for single objective ===================================================
+  if hasattr(options, 'gpb_prior_mean_unproc'):
+    prior_mean_given = options.gpb_prior_mean if hasattr(options, 'gpb_prior_mean') \
+                       else None
+    options.gpb_prior_mean = _get_gpb_prior_mean_from_unproc(
+                               options.gpb_prior_mean_unproc, prior_mean_given,
+                               config, prob, converted_cp_to_euclidean)
+  # 2. A custom kernel for single objective ==============================================
+  if hasattr(options, 'gpb_prior_kernel_unproc') and \
+     options.gpb_prior_kernel_unproc is not None:
+    raise NotImplementedError('Not Implemented custom kernels yet!')
+  # 3. Prior mean for multi-objective ====================================================
+  if hasattr(options, 'moo_gpb_prior_means_unproc') and \
+    options.moo_gpb_prior_means_unproc is not None:
+    if not hasattr(options.moo_gpb_prior_means_unproc, '__iter__'):
+      raise ValueError('moo_gpb_prior_means_unproc should be a list or tuple of ' +
+                       'callable objects!')
+    moo_prior_means_given = options.moo_gpb_prior_means \
+                              if hasattr(options, 'moo_gpb_prior_means') else None
+    if moo_prior_means_given is None:
+      moo_prior_means_given = [None] * len(options.moo_gpb_prior_means_unproc)
+    options.moo_gpb_prior_means = []
+    for (prior_mean_unproc_given, prior_mean_given) in \
+      zip(options.moo_gpb_prior_means_unproc, moo_prior_means_given):
+      options.moo_gpb_prior_means.append(
+        _get_gpb_prior_mean_from_unproc(prior_mean_unproc_given, prior_mean_given,
+                                        config, prob, converted_cp_to_euclidean))
+  # 4. Custom kernel for multi objective =================================================
+  if hasattr(options, 'moo_gpb_prior_kernels_unproc') and \
+     options.moo_gpb_prior_kernels_unproc is not None:
+    raise NotImplementedError('Not Implemented custom kernels yet!')
+  # Return options =======================================================================
+  return options
 

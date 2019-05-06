@@ -48,7 +48,8 @@ def _print_options(ondp, desc, reporter):
     reporter.writeln('  %s %s %s'%(key.ljust(30), is_changed_str, str(value[1])))
 
 
-def load_options(list_of_options, descr='Algorithm', reporter=None, cmd_line=False):
+def load_options(list_of_options, descr='Algorithm', reporter=None, cmd_line=False,
+                 partial_options=None):
   """ Given a list of options, this reads them from the command line and returns
       a namespace with the values.
   """
@@ -71,5 +72,14 @@ def load_options(list_of_options, descr='Algorithm', reporter=None, cmd_line=Fal
   for key in opt_names_default_parsed:
     opt_names_default_parsed[key][1] = getattr(args, key)
   _print_options(opt_names_default_parsed, descr, reporter)
+  # Now override with what is available in partial options
+  if partial_options is not None:
+    if isinstance(partial_options, dict):
+      partial_options_dict = partial_options
+    else:
+      partial_options_dict = vars(partial_options)
+    # Now override
+    for key, val in partial_options_dict.items():
+      setattr(args, key, val)
   return args
 

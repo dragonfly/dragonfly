@@ -7,8 +7,10 @@
 # pylint: disable=maybe-no-member
 
 
-from .api_utils import preprocess_arguments, get_worker_manager_from_type, \
-                       load_options_for_method
+from .api_utils import get_worker_manager_from_type, \
+                       load_options_for_method, \
+                       preprocess_arguments, \
+                       preprocess_options_for_gp_bandits
 from ..exd.experiment_caller import EuclideanMultiFunctionCaller, CPMultiFunctionCaller
 from ..exd.cp_domain_utils import get_raw_from_processed_via_config
 from ..opt.multiobjective_gp_bandit import multiobjective_gpb_from_multi_func_caller
@@ -63,12 +65,13 @@ def multiobjective_maximise_functions(funcs, domain, max_capital, opt_method='bo
   # Preprocess domain and config arguments
   if isinstance(funcs, tuple) and len(funcs) == 2:
     raw_funcs = funcs[0]
-    domain, _mfc_funcs_arg_0, config, _ = preprocess_arguments(domain, [raw_funcs],
-                                                               config)
+    domain, _mfc_funcs_arg_0, config, converted_cp_to_euclidean = \
+        preprocess_arguments(domain, [raw_funcs], config)
     mfc_funcs_arg = (_mfc_funcs_arg_0[0], funcs[1])
   elif isinstance(funcs, list):
     raw_funcs = funcs
-    domain, mfc_funcs_arg, config, _ = preprocess_arguments(domain, funcs, config)
+    domain, mfc_funcs_arg, config, converted_cp_to_euclidean = \
+        preprocess_arguments(domain, funcs, config)
   else:
     raise ValueError(_FUNC_FORMAT_ERR_MSG)
   # Load arguments depending on domain type
@@ -85,6 +88,8 @@ def multiobjective_maximise_functions(funcs, domain, max_capital, opt_method='bo
                      worker_manager_type=worker_manager, capital_type=capital_type)
   # Select method here -------------------------------------------------------------------
   if opt_method == 'bo':
+    options = preprocess_options_for_gp_bandits(options, config, 'moo',
+                                                converted_cp_to_euclidean)
     pareto_values, pareto_points, history = multiobjective_gpb_from_multi_func_caller(
                                         multi_func_caller, worker_manager, max_capital,
                                         is_mf=False, options=options, reporter=reporter)

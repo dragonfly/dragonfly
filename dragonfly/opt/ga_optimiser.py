@@ -40,9 +40,7 @@ class GAOptimiser(BlackboxOptimiser):
       For other arguments, see BlackboxOptimiser
     """
     # TODO: implement cross-over operation
-    if options is None:
-      reporter = get_reporter(reporter)
-      options = load_options(ga_opt_args, reporter=reporter)
+    options = load_options(ga_opt_args, partial_options=options)
     super(GAOptimiser, self).__init__(func_caller, worker_manager, model=None,
                                       options=options, reporter=reporter)
     self.mutation_op = mutation_op
@@ -181,10 +179,8 @@ def ga_optimise_from_args(func_caller, worker_manager, max_capital, mode, mutati
                           is_rand=False, crossover_op=None, options=None,
                           reporter='default'):
   """ GA optimisation from args. """
-  if options is None:
-    reporter = get_reporter(reporter)
-    options = load_options(ga_opt_args, reporter=reporter)
-    options.mode = mode
+  options = load_options(ga_opt_args, partial_options=options)
+  options.mode = mode
   optimiser_class = GARandOptimiser if is_rand else GAOptimiser
   return (optimiser_class(func_caller, worker_manager, mutation_op, crossover_op,
                           options, reporter)).optimise(max_capital)

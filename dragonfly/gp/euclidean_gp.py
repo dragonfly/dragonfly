@@ -21,7 +21,7 @@ from ..utils.option_handler import get_option_specs, load_options
 from ..utils.oper_utils import random_sample_from_discrete_domain
 from ..utils.reporters import get_reporter
 
-_DFLT_KERNEL_TYPE = 'se'
+_DFLT_KERNEL_TYPE = 'matern'
 
 # Some basic parameters for Euclidean GPs.
 basic_euc_gp_args = [ \
@@ -36,7 +36,7 @@ se_gp_args = [ \
   ]
 # Parameters for the matern kernel
 matern_gp_args = [ \
-  get_option_specs('matern_nu', False, -1.0, \
+  get_option_specs('matern_nu', False, 2.5, \
     ('Specify the nu value for the matern kernel. If negative, will fit.')),
                  ]
 # Parameters for the Polynomial kernel.
@@ -210,8 +210,7 @@ class EuclideanGPFitter(gp_core.GPFitter):
     """ Constructor. """
     self.dim = len(X[0])
     reporter = get_reporter(reporter)
-    if options is None:
-      options = load_options(euclidean_gp_args, 'EuclideanGPFitter', reporter=reporter)
+    options = load_options(euclidean_gp_args, partial_options=options)
     super(EuclideanGPFitter, self).__init__(X, Y, options, reporter)
 
   def _child_set_up(self):
@@ -423,8 +422,7 @@ class EuclideanMFGPFitter(mf_gp.MFGPFitter):
   def __init__(self, ZZ, XX, YY, options=None, reporter=None):
     """ Constructor. options should either be a Namespace, a list or None. """
     reporter = get_reporter(reporter)
-    if options is None:
-      options = load_options(euclidean_mf_gp_args, 'MF-GP', reporter)
+    options = load_options(euclidean_mf_gp_args, partial_options=options)
     self.fidel_dim = len(ZZ[0])
     self.domain_dim = len(XX[0])
     self.input_dim = self.fidel_dim + self.domain_dim
