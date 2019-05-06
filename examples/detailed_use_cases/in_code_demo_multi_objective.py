@@ -48,9 +48,9 @@ def main():
   # information can be incorporated into the model.
   if USE_CONDUCTIVITY_PRIOR_MEAN:
     if PROBLEM in ['3d', '3d_euc']:
-      options.moo_gpb_prior_means_unproc = (conductivity_prior_mean_3d, None)
+      options.gps_prior_means = (conductivity_prior_mean_3d, None)
     elif PROBLEM == '5d':
-      options.moo_gpb_prior_means_unproc = (conductivity_prior_mean_5d, None)
+      options.gps_prior_means = (conductivity_prior_mean_5d, None)
     # The _unproc indicates that the mean function is "unprocessed". Dragonfly converts
     # the domain specified given in the configuration to an internal order which may
     # have reordered the variables. The _unproc tells that the function
