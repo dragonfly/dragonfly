@@ -115,8 +115,8 @@ class NNGPFitter(gp_core.GPFitter):
     self.tp_comp = tp_comp
     # get options
     reporter = get_reporter(reporter)
-    if options is None:
-      options = load_options(nn_gp_args, 'NNGPFitter', reporter=reporter)
+    options = load_options(nn_gp_args, 'NNGPFitter', reporter=reporter,
+                           partial_options=options)
     super(NNGPFitter, self).__init__(X, Y, options, reporter, *args, **kwargs)
 
   def _child_set_up(self):

@@ -9,7 +9,7 @@ from __future__ import division
 
 # Local imports
 from . import kernel as gp_kernel
-from .gp_core import GP, GPFitter
+from .gp_core import GP, GPFitter, mandatory_gp_args
 from ..utils.option_handler import load_options
 from ..utils.reporters import get_reporter
 from ..utils.ancillary_utils import get_list_of_floats_as_str
@@ -139,8 +139,7 @@ class MFGPFitter(GPFitter):
   def __init__(self, ZZ, XX, YY, options=None, reporter=None):
     """ Constructor. """
     reporter = get_reporter(reporter)
-    if isinstance(options, list):
-      options = load_options(options, 'MFGP', reporter=self.reporter)
+    options = load_options(mandatory_gp_args, partial_options=options)
     self.ZZ = ZZ
     self.XX = XX
     self.YY = YY

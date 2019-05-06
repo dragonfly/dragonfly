@@ -8,10 +8,12 @@
 # pylint: disable=no-member
 
 # Local
-from .api_utils import preprocess_multifidelity_arguments, preprocess_arguments, \
-                       get_worker_manager_from_type, \
+from .api_utils import get_worker_manager_from_type, \
+                       load_options_for_method, \
                        post_process_history_for_minimisation, \
-                       load_options_for_method
+                       preprocess_arguments, \
+                       preprocess_multifidelity_arguments, \
+                       preprocess_options_for_gp_bandits
 from ..exd.experiment_caller import EuclideanFunctionCaller, CPFunctionCaller
 from ..exd.cp_domain_utils import get_raw_from_processed_via_config
 from ..opt.cp_ga_optimiser import cp_ga_optimiser_from_proc_args
@@ -73,7 +75,8 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   """
   # Preprocess domain and config arguments
   raw_func = func
-  fidel_space, domain, preproc_func_list, fidel_cost_func, fidel_to_opt, config, _ = \
+  (fidel_space, domain, preproc_func_list, fidel_cost_func, fidel_to_opt, config,
+   converted_cp_to_euclidean) = \
     preprocess_multifidelity_arguments(fidel_space, domain, [func], fidel_cost_func,
                                        fidel_to_opt, config)
   func = preproc_func_list[0]
@@ -95,6 +98,8 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
 
   # Select method here -----------------------------------------------------------
   if opt_method == 'bo':
+    options = preprocess_options_for_gp_bandits(options, config, 'mfopt',
+                                                converted_cp_to_euclidean)
     opt_val, opt_pt, history = gpb_from_func_caller(func_caller, worker_manager,
                                        max_capital, is_mf=True, options=options,
                                        reporter=reporter)
@@ -173,7 +178,8 @@ def maximise_function(func, domain, max_capital, opt_method='bo',
   """
   # Preprocess domain and config arguments
   raw_func = func
-  domain, preproc_func_list, config, _ = preprocess_arguments(domain, [func], config)
+  domain, preproc_func_list, config, converted_cp_to_euclidean = \
+    preprocess_arguments(domain, [func], config)
   func = preproc_func_list[0]
   # Load arguments depending on domain type
   if domain.get_type() == 'euclidean':
@@ -188,6 +194,8 @@ def maximise_function(func, domain, max_capital, opt_method='bo',
                      worker_manager_type=worker_manager, capital_type=capital_type)
   # Optimise function here -----------------------------------------------------------
   if opt_method == 'bo':
+    options = preprocess_options_for_gp_bandits(options, config, 'opt',
+                                                converted_cp_to_euclidean)
     opt_val, opt_pt, history = gpb_from_func_caller(func_caller, worker_manager,
       max_capital, is_mf=False, options=options, reporter=reporter)
   elif opt_method in ['ga', 'ea']:

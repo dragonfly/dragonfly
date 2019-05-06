@@ -22,8 +22,13 @@ def main():
   config_params = {'domain': domain_vars}
   config = load_config(config_params)
   max_num_evals = 100
+
+  # specify optimisation method
+#   opt_method = 'bo' # Bayesian optimisation
+  opt_method = 'ea' # evolutionary algorithm
+#   opt_method = 'rand' # random search
   opt_pt, opt_val, history = maximise_function(objective, config.domain, max_num_evals,
-                                               config=config)
+                                               config=config, opt_method=opt_method)
   print(opt_pt, opt_val)
 
 
