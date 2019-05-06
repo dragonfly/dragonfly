@@ -27,7 +27,7 @@ def main():
 #   opt_method = 'bo' # Bayesian optimisation
   opt_method = 'ea' # evolutionary algorithm
 #   opt_method = 'rand' # random search
-  opt_pt, opt_val, history = maximise_function(objective, config.domain, max_num_evals,
+  opt_val, opt_pt, history = maximise_function(objective, config.domain, max_num_evals,
                                                config=config, opt_method=opt_method)
   print(opt_pt, opt_val)
 

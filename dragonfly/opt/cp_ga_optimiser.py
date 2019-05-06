@@ -186,12 +186,12 @@ class CPGAOptimiser(GAOptimiser):
     raise NotImplementedError('Not implemented cross over operation yet.')
 
   # Define a function to obtain the initial qinfos =======================================
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Gets num_init_evals initial points. """
     return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
                                         dom_euclidean_sample_type='latin_hc',
                                         dom_integral_sample_type='latin_hc',
-                                        dom_nn_sample_type='rand')
+                                        dom_nn_sample_type='rand', *args, **kwargs)
 
 
 # APIs =================================================================================

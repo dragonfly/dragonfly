@@ -26,7 +26,7 @@ def main():
   # Optimise without multi-fidelity
   config_params = {'domain': domain_vars}
   config = load_config(config_params)
-  opt_pt, opt_val, history = maximise_function(snls_objective, config.domain,
+  opt_val, opt_pt, history = maximise_function(snls_objective, config.domain,
                                                max_capital, num_workers=num_workers,
                                                capital_type='realtime', config=config)
   print(opt_pt, opt_val)
@@ -36,7 +36,7 @@ def main():
                    'fidel_to_opt': fidel_to_opt}
   config = load_config(config_params)
   # Optimise
-  mf_opt_pt, mf_opt_val, history = maximise_multifidelity_function(snls_mf_objective,
+  mf_opt_val, mf_opt_pt, history = maximise_multifidelity_function(snls_mf_objective,
                                      config.fidel_space, config.domain,
                                      config.fidel_to_opt, snls_mf_cost,
                                      max_capital, config=config)

@@ -100,12 +100,12 @@ class CPRandomMultiObjectiveOptimiser(RandomMultiObjectiveOptimiser):
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
                                         dom_euclidean_sample_type='latin_hc',
                                         dom_integral_sample_type='latin_hc',
-                                        dom_nn_sample_type='rand')
+                                        dom_nn_sample_type='rand', *args, **kwargs)
 
 
 # APIs -----------------------------------------------------------------------------------

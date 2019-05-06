@@ -584,7 +584,7 @@ class EuclideanMultiObjectiveGPBandit(MultiObjectiveGPBandit):
                 for pt in next_batch_of_eval_points]
     return qinfos
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     if self.is_an_mf_method():
       return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals, \
@@ -690,7 +690,7 @@ class CPMultiObjectiveGPBandit(MultiObjectiveGPBandit):
              domain_dist_computers=self.domain_dist_computers,
              options=options, reporter=self.reporter)
 
-  def _get_initial_qinfos(self, num_init_evals):
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     if self.is_an_mf_method():
       return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
@@ -701,12 +701,12 @@ class CPMultiObjectiveGPBandit(MultiObjectiveGPBandit):
         dom_nn_sample_type='rand',
         fidel_space_euclidean_sample_type='latin_hc',
         fidel_space_integral_sample_type='latin_hc',
-        fidel_space_nn_sample_type='rand')
+        fidel_space_nn_sample_type='rand', *args, **kwargs)
     else:
       return get_cp_domain_initial_qinfos(self.domain, num_init_evals,
                                           dom_euclidean_sample_type='latin_hc',
                                           dom_integral_sample_type='latin_hc',
-                                          dom_nn_sample_type='rand')
+                                          dom_nn_sample_type='rand', *args, **kwargs)
 
   # Set up for acquisition optimisation --------------------------------------------
   def _domain_specific_acq_opt_set_up(self):

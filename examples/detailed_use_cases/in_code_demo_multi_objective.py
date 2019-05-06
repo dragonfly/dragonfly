@@ -58,8 +58,11 @@ def main():
 
   # Optimise
   max_num_evals = 60
-  pareto_opt_pts, pareto_opt_vals, history = multiobjective_maximise_functions(
-    moo_objectives, config.domain, max_num_evals, config=config, options=options)
+  opt_method = 'bo'
+#   opt_method = 'rand'
+  pareto_opt_vals, pareto_opt_pts, history = multiobjective_maximise_functions(
+    moo_objectives, config.domain, max_num_evals, config=config, options=options,
+    opt_method=opt_method)
   print(pareto_opt_pts)
   print(pareto_opt_vals)
 

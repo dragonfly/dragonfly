@@ -12,6 +12,7 @@ from __future__ import print_function
 from argparse import Namespace
 from copy import deepcopy
 import numpy as np
+from warnings import warn
 # Local imports
 from . import domains
 from ..parse.config_parser import config_parser
@@ -29,7 +30,6 @@ def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
   """ Processes and returns fidel_to_opt. """
   if raw_fidel_to_opt is None:
     fidel_to_opt = None
-    from warnings import warn
     warn('fidel_to_opt is None for %s.'%(config_file))
   else:
     try:
@@ -46,6 +46,7 @@ def _process_fidel_to_opt(raw_fidel_to_opt, fidel_space, fidel_space_orderings,
 
 def _preprocess_domain_parameters(domain_parameters, var_prefix='var_'):
   """ Preprocesses domain parameters in a configuration specification. """
+  # pylint: disable=too-many-branches
   if domain_parameters is None:
     return domain_parameters
   for idx, var_dict in enumerate(domain_parameters):
@@ -424,22 +425,23 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
     if len(ret) >= num_samples:
       ret = ret[:num_samples]
       break
+    num_samples_to_draw = 2 * max_num_retries_for_constraint_satisfaction
   # Check if the number of samples is too small and print a warning accordingly.
   if len(ret) < num_samples and verbose_constraint_satisfaction:
     if len(ret) == 0:
-      Warning(('sample_from_cp_domain obtained 0 samples (%d requested) despite %d ' +
-       'tries. This is most likely because your constraints specify a set of measure 0.' +
-       'Consider parametrising your domain differently.')%(
-       num_samples, max_num_retries_for_constraint_satisfaction))
+      warn(('sample_from_cp_domain obtained 0 samples (%d requested) despite %d ' +
+        'tries. This is most likely because your constraints specify a set of measure ' +
+        '0. Consider parametrising your domain differently.')%(
+        num_samples, max_num_retries_for_constraint_satisfaction))
     elif len(ret)/float(num_samples) < 0.25:
-      Warning(('sample_from_cp_domain obtained %d samples (%d requested) despite %d ' +
-       'tries. This is because your constraints specify a very small subset of the '
-       'original domain. Consider parametrising your domain differently.')%(
-       len(ret), num_samples, max_num_retries_for_constraint_satisfaction))
+      warn(('sample_from_cp_domain obtained %d samples (%d requested) despite %d ' +
+        'tries. This is because your constraints specify a very small subset of the '
+        'original domain. Consider parametrising your domain differently.')%(
+        len(ret), num_samples, max_num_retries_for_constraint_satisfaction))
     else:
-      Warning(('sample_from_cp_domain was only able to obtain %d samples (%d requested)' +
-       ' despite %d tries. Try increasing max_num_retries_for_constraint_satisfaction.')%(
-       len(ret), num_samples, max_num_retries_for_constraint_satisfaction))
+      warn(('sample_from_cp_domain was only able to obtain %d samples (%d requested) ' +
+        'despite %d tries. Try increasing max_num_retries_for_constraint_satisfaction.')%(
+        len(ret), num_samples, max_num_retries_for_constraint_satisfaction))
   return ret
 
 
