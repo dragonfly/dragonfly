@@ -230,7 +230,7 @@ class CPGP(gp_core.GP):
   def _child_str(self):
     """ String representation of the GP. """
     if len(self.X) > 0:
-      mean_str = 'mu=%0.4f, '%(self.mean_func([self.X[0]])[0])
+      mean_str = 'mu[#0]=%0.4f, '%(self.mean_func([self.X[0]])[0])
     else:
       mean_str = ''
     return mean_str + str(self.kernel)

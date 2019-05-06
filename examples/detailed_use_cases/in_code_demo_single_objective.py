@@ -15,10 +15,10 @@ from prior_means import conductivity_prior_mean_3d, conductivity_prior_mean_5d, 
 
 
 # choose problem
-# PROBLEM = '3d'      # Optimisation problem with 3 variables
+PROBLEM = '3d'      # Optimisation problem with 3 variables
 # PROBLEM = '3d_mf'   # Optimisation problem with 3 variables and 1 fidelity variable
 # PROBLEM = '3d_euc'  # Optimisation problem with 3 variables all of which are continuous
-PROBLEM = '5d'      # Optimisation problem with 5 variables
+# PROBLEM = '5d'      # Optimisation problem with 5 variables
 
 USE_CONDUCTIVITY_PRIOR_MEAN = True
 # USE_CONDUCTIVITY_PRIOR_MEAN = False
@@ -41,7 +41,7 @@ def main():
   # Specify options
   options = Namespace(
     build_new_model_every=5, # update the model every 5 iterations
-    report_results_every=4, # report progress every 6 iterations
+    report_results_every=4, # report progress every 4 iterations
     report_model_on_each_build=True, # report model when you build it.
     )
 
