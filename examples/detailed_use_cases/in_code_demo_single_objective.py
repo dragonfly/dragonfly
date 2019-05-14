@@ -23,6 +23,9 @@ PROBLEM = '5d'      # Optimisation problem with 5 variables
 USE_CONDUCTIVITY_PRIOR_MEAN = True
 # USE_CONDUCTIVITY_PRIOR_MEAN = False
 
+# SAVE_AND_LOAD_PROGRESS = True
+SAVE_AND_LOAD_PROGRESS = False
+
 # chooser dict
 _CHOOSER_DICT = {
   '3d': (obj_3d.objective, 'config_3d.json', None),
@@ -59,6 +62,9 @@ def main():
     # the domain specified given in the configuration to an internal order which may
     # have reordered the variables. The _unproc tells that the function
     # should be called in the original format.
+
+  if SAVE_AND_LOAD_PROGRESS:
+    options.progress_load_from_and_save_to = 'progress.p'
 
   # Optimise
   max_capital = 60
