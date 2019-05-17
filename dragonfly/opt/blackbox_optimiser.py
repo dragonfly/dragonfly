@@ -175,9 +175,9 @@ class BlackboxOptimiser(ExperimentDesigner):
       self.prev_eval_points.append(qinfo.point)
       self.prev_eval_vals.append(qinfo.val)
       if hasattr(qinfo, 'true_val'):
-        self.prev_eval_vals.append(qinfo.true_val)
+        self.prev_eval_true_vals.append(qinfo.true_val)
       else:
-        self.prev_eval_vals.append(-np.inf)
+        self.prev_eval_true_vals.append(-np.inf)
       ret += 1
     return ret
 
@@ -188,10 +188,10 @@ class BlackboxOptimiser(ExperimentDesigner):
     query_vals = loaded_data_from_file['vals']
     assert num_pts_in_file == len(query_vals)
     if 'true_vals' in loaded_data_from_file:
-      query_true_vals = loaded_data_from_file['query_true_vals']
+      query_true_vals = loaded_data_from_file['true_vals']
       assert num_pts_in_file == len(query_vals)
     else:
-      query_true_vals = query_vals
+      query_true_vals = [-np.inf] * len(query_vals)
     # Multi-fidelity
     if self.func_caller.is_mf():
       if 'query_fidels' in loaded_data_from_file:
@@ -212,12 +212,14 @@ class BlackboxOptimiser(ExperimentDesigner):
         self._update_opt_point_and_val(qinfo)
       self.prev_eval_points.append(qinfo.point)
       self.prev_eval_vals.append(qinfo.val)
+      self.prev_eval_true_vals.append(qinfo.true_val)
     return num_pts_in_file
 
   def _exd_child_get_data_to_save(self):
     """ Return data to save. """
     ret = {'points': self.prev_eval_points + self.history.query_points,
-           'vals': self.prev_eval_vals + self.history.query_vals}
+           'vals': self.prev_eval_vals + self.history.query_vals,
+           'true_vals': self.prev_eval_true_vals + self.history.query_true_vals}
     if self.func_caller.is_mf():
       ret['fidels'] = self.prev_eval_fidels + self.history.query_fidels
     num_data_saved = len(ret['points'])

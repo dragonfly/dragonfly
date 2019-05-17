@@ -28,7 +28,7 @@ mf_euclidean_random_optimiser_args = euclidean_random_optimiser_args + mf_exd_ar
 mf_cp_random_optimiser_args = cp_random_optimiser_args + mf_exd_args
 
 
-def _sample_from_domain_wrapper(num_pts, domain, reporter):
+def random_sample_from_cp_domain_wrapper(num_pts, domain, reporter):
   """ A wrapper to sample from a domain. """
   ret = []
   num_pts_to_request = num_pts
@@ -166,7 +166,8 @@ class CPRandomOptimiser(RandomOptimiser):
 
   def _determine_next_query(self):
     """ Determines the next query. """
-    qinfo = Namespace(point=_sample_from_domain_wrapper(1, self.domain, self.reporter)[0])
+    qinfo = Namespace(
+      point=random_sample_from_cp_domain_wrapper(1, self.domain, self.reporter)[0])
     return qinfo
 
   def _determine_next_batch_of_queries(self, batch_size):
@@ -206,10 +207,11 @@ class MFCPRandomOptimiser(RandomOptimiser):
       if np.random.random() <= self.call_fidel_to_opt_prob:
         return self.func_caller.fidel_to_opt
       else:
-        return _sample_from_domain_wrapper(1, self.fidel_space, self.reporter)[0]
+        return random_sample_from_cp_domain_wrapper(1, self.fidel_space, self.reporter)[0]
     # Create and return qinfo
-    qinfo = Namespace(point=_sample_from_domain_wrapper(1, self.domain, self.reporter)[0],
-                      fidel=_get_next_fidel())
+    qinfo = Namespace(
+      point=random_sample_from_cp_domain_wrapper(1, self.domain, self.reporter)[0],
+      fidel=_get_next_fidel())
     return qinfo
 
   def _determine_next_batch_of_queries(self, batch_size):

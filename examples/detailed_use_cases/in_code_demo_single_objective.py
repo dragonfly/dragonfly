@@ -42,8 +42,8 @@ def main():
   config = load_config_file(config_file)
 
   # Specify optimisation method -----------------------------------------------------
-  opt_method = 'bo'
-#   opt_method = 'ga'
+#   opt_method = 'bo'
+  opt_method = 'ga'
 #   opt_method = 'rand'
 
   # Specify options
@@ -78,7 +78,7 @@ def main():
   #   - progress_report_on_each_save: reports that the progress was saved (default True)
   if SAVE_AND_LOAD_PROGRESS:
     options.progress_load_from_and_save_to = 'progress.p'
-    options.progress_save_every = 10
+    options.progress_save_every = 5
     # progress_load_from and progress_load_from_and_save_to can be a list of file names
     # in which case we will load from all the files.
     # e.g options.progress_load_from_and_save_to = ['progress1.p', 'progress2.p']
