@@ -107,7 +107,7 @@ class GAOptimiser(BlackboxOptimiser):
                        'operator despite %d tries with up to %d candidates.')%(num_tries,
                        num_mutations_to_try)
           self.reporter.writeln(error_msg)
-        if num_tries == 35:
+        if num_tries >= 51:
           error_msg = ('Could not generate any points in domain from given mutation ' +
             'operator despite %d tries with up to %d candidates. Quitting now.')%(
             num_tries, num_mutations_to_try)

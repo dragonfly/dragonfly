@@ -8,6 +8,7 @@ from __future__ import division
 # pylint: disable=invalid-name
 
 
+from argparse import Namespace
 import numpy as np
 # Local imports
 from ..exd.exd_core import ExperimentDesigner, exd_core_args
@@ -67,10 +68,10 @@ class BlackboxOptimiser(ExperimentDesigner):
     self.to_copy_from_qinfo_to_history['val'] = 'query_vals'
     self.to_copy_from_qinfo_to_history['true_val'] = 'query_true_vals'
     # Set up previous evaluations
-    self.history.prev_eval_points = []
-    self.history.prev_eval_vals = []
     self.prev_eval_vals = []
     self.prev_eval_true_vals = []
+    self.history.prev_eval_vals = self.prev_eval_vals
+    self.history.prev_eval_true_vals = self.prev_eval_true_vals
 
   def _opt_method_set_up(self):
     """ Any set up for the specific optimisation method. """
@@ -159,8 +160,9 @@ class BlackboxOptimiser(ExperimentDesigner):
     #pylint: disable=no-self-use
     return ''
 
-  def _exd_child_handle_prev_evals(self):
-    """ Handles pre-evaluations. """
+  def _exd_child_handle_prev_evals_in_options(self):
+    """ Handles prev_evaluations. """
+    ret = 0
     for qinfo in self.options.prev_evaluations.qinfos:
       if self.func_caller.is_mf():
         eval_fidel = qinfo.fidel if hasattr(qinfo, 'fidel') else \
@@ -172,8 +174,54 @@ class BlackboxOptimiser(ExperimentDesigner):
         self._update_opt_point_and_val(qinfo)
       self.prev_eval_points.append(qinfo.point)
       self.prev_eval_vals.append(qinfo.val)
-    self.history.prev_eval_points = self.prev_eval_points
-    self.history.prev_eval_vals = self.prev_eval_vals
+      if hasattr(qinfo, 'true_val'):
+        self.prev_eval_vals.append(qinfo.true_val)
+      else:
+        self.prev_eval_vals.append(-np.inf)
+      ret += 1
+    return ret
+
+  def _child_handle_data_loaded_from_file(self, loaded_data_from_file):
+    """ Handles evaluations from file. """
+    query_points = loaded_data_from_file['points']
+    num_pts_in_file = len(query_points)
+    query_vals = loaded_data_from_file['vals']
+    assert num_pts_in_file == len(query_vals)
+    if 'true_vals' in loaded_data_from_file:
+      query_true_vals = loaded_data_from_file['query_true_vals']
+      assert num_pts_in_file == len(query_vals)
+    else:
+      query_true_vals = query_vals
+    # Multi-fidelity
+    if self.func_caller.is_mf():
+      if 'query_fidels' in loaded_data_from_file:
+        query_fidels = loaded_data_from_file['fidels']
+        assert len(query_fidels) == num_pts_in_file
+      else:
+        query_fidels = [self.func_caller.fidel_to_opt] * len(query_points)
+    # Now Iterate through each point
+    for idx, (pt, val, true_val) in \
+      enumerate(zip(query_points, query_vals, query_true_vals)):
+      qinfo = Namespace(point=pt, val=val, true_val=true_val)
+      if self.func_caller.is_mf():
+        qinfo.fidel = query_fidels[idx]
+        query_is_at_fidel_to_opt = self.func_caller.is_fidel_to_opt(qinfo.fidel)
+        self._update_opt_point_and_val(qinfo, query_is_at_fidel_to_opt)
+        self.prev_eval_fidels.append(qinfo.fidel)
+      else:
+        self._update_opt_point_and_val(qinfo)
+      self.prev_eval_points.append(qinfo.point)
+      self.prev_eval_vals.append(qinfo.val)
+    return num_pts_in_file
+
+  def _exd_child_get_data_to_save(self):
+    """ Return data to save. """
+    ret = {'points': self.prev_eval_points + self.history.query_points,
+           'vals': self.prev_eval_vals + self.history.query_vals}
+    if self.func_caller.is_mf():
+      ret['fidels'] = self.prev_eval_fidels + self.history.query_fidels
+    num_data_saved = len(ret['points'])
+    return ret, num_data_saved
 
   def _child_run_experiments_initialise(self):
     """ Handles any initialisation before running experiments. """

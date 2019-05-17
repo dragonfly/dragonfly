@@ -9,7 +9,9 @@
 from argparse import Namespace
 import numpy as np
 # Local imports
-from .cp_domain_utils import sample_from_cp_domain
+from .cp_domain_utils import get_processed_from_raw_via_config, \
+                             get_raw_from_processed_via_config, \
+                             sample_from_cp_domain
 from ..utils.general_utils import map_to_bounds, flatten_list_of_lists
 from ..utils.oper_utils import direct_ft_maximise, latin_hc_sampling, pdoo_maximise, \
                                random_maximise
@@ -338,7 +340,7 @@ def maximise_with_method_on_cp_domain(method, obj, domain, max_evals,
 
 
 # Miscellaneous
-# ======================================================================
+# ===============================================================================
 def get_unique_list_of_option_args(all_args):
   """ Returns a unique list of option args. """
   ret = []
@@ -348,4 +350,35 @@ def get_unique_list_of_option_args(all_args):
       ret.append(arg)
       ret_names.append(arg['name'])
   return ret
+
+# For saving and loading data ---------------------------------------------------
+def preprocess_loaded_data_for_domain(loaded_data, experiment_caller):
+  """ Preprocesses loaded data. """
+  if hasattr(experiment_caller, 'config') and experiment_caller.config is not None:
+    config = experiment_caller.config
+    if ('config_points' in loaded_data) and (not 'points' in loaded_data):
+      loaded_data['points'] = [get_processed_from_raw_via_config(cpt, config) for cpt in
+                               loaded_data['config_points']]
+    if ('config_fidels' in loaded_data) and (not 'fidels' in loaded_data):
+      loaded_data['fidels'] = [get_processed_from_raw_via_config(cf, config) for cf in
+                               loaded_data['config_fidels']]
+  return loaded_data
+
+def postprocess_data_to_save_for_domain(data_to_save, experiment_caller):
+  """ Post process loaded data. """
+  if hasattr(experiment_caller, 'config') and experiment_caller.config is not None:
+    config = experiment_caller.config
+    if 'points' in data_to_save:
+      try:
+        data_to_save['config_points'] = [get_raw_from_processed_via_config(pt, config)
+                                        for pt in data_to_save['points']]
+      except:
+        pass
+    if 'fidels' in data_to_save:
+      try:
+        data_to_save['config_fidels'] = [get_raw_from_processed_via_config(fidel, config)
+                                        for pt in data_to_save['fidels']]
+      except:
+        pass
+  return data_to_save
 

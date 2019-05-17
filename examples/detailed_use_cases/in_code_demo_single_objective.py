@@ -23,8 +23,8 @@ PROBLEM = '5d'      # Optimisation problem with 5 variables
 USE_CONDUCTIVITY_PRIOR_MEAN = True
 # USE_CONDUCTIVITY_PRIOR_MEAN = False
 
-# SAVE_AND_LOAD_PROGRESS = True
-SAVE_AND_LOAD_PROGRESS = False
+SAVE_AND_LOAD_PROGRESS = True
+# SAVE_AND_LOAD_PROGRESS = False
 
 # chooser dict
 _CHOOSER_DICT = {
@@ -41,6 +41,11 @@ def main():
   objective, config_file, mf_cost = _CHOOSER_DICT[PROBLEM]
   config = load_config_file(config_file)
 
+  # Specify optimisation method -----------------------------------------------------
+  opt_method = 'bo'
+#   opt_method = 'ga'
+#   opt_method = 'rand'
+
   # Specify options
   options = Namespace(
     build_new_model_every=5, # update the model every 5 iterations
@@ -48,6 +53,7 @@ def main():
     report_model_on_each_build=True, # report model when you build it.
     )
 
+  # Specifying GP priors -------------------------------------------------------------
   # Dragonfly allows specifying a mean for the GP prior - if there is prior knowledge
   # on the rough behaviour of the function to be optimised, this is one way that
   # information can be incorporated into the model.
@@ -63,18 +69,30 @@ def main():
     # have reordered the variables. The _unproc tells that the function
     # should be called in the original format.
 
+  # Saving and loading data ----------------------------------------------------------
+  # You can save and load progress in Dragonfly. This allows you to resume an
+  # optimisation routine if it crashes from where we left off.
+  # Other related options include:
+  #   - progress_load_from: loads progress from this file but does not save it.
+  #   - progress_save_to: loads progress from this file but does not save it.
+  #   - progress_report_on_each_save: reports that the progress was saved (default True)
   if SAVE_AND_LOAD_PROGRESS:
     options.progress_load_from_and_save_to = 'progress.p'
+    options.progress_save_every = 10
+    # progress_load_from and progress_load_from_and_save_to can be a list of file names
+    # in which case we will load from all the files.
+    # e.g options.progress_load_from_and_save_to = ['progress1.p', 'progress2.p']
 
   # Optimise
   max_capital = 60
   if PROBLEM in ['3d', '3d_euc', '5d']:
     opt_val, opt_pt, history = maximise_function(objective, config.domain, max_capital,
-                                                 config=config, options=options)
+                                 opt_method=opt_method, config=config, options=options)
   else:
     opt_val, opt_pt, history = maximise_multifidelity_function(objective,
                                  config.fidel_space, config.domain, config.fidel_to_opt,
-                                 mf_cost, max_capital, config=config, options=options)
+                                 mf_cost, max_capital, opt_method=opt_method,
+                                 config=config, options=options)
 
   print('opt_pt: %s'%(str(opt_pt)))
   print('opt_val: %s'%(str(opt_val)))

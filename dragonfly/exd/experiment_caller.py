@@ -43,11 +43,13 @@ class ExperimentCaller(object):
   # Methods needed for construction and set up ------------------------------------------
   def __init__(self, experiment, domain, descr='',
                noise_type='no_noise', noise_scale=None,
-               fidel_space=None, fidel_cost_func=None, fidel_to_opt=None):
+               fidel_space=None, fidel_cost_func=None, fidel_to_opt=None,
+               config=None):
     """ Constructor. """
     self.experiment = experiment
     self.domain = domain
     self.descr = descr
+    self.config = config
     self._set_up_noise(noise_type, noise_scale)
     self._mf_set_up(fidel_space, fidel_cost_func, fidel_to_opt)
 
@@ -310,7 +312,8 @@ class MultiFunctionCaller(ExperimentCaller):
   def __init__(self, funcs, domain, descr='',
                argmax=None, maxval=None, argmin=None, minval=None,
                noise_type='no_noise', noise_scale=None,
-               fidel_space=None, fidel_cost_func=None, fidel_to_opt=None):
+               fidel_space=None, fidel_cost_func=None, fidel_to_opt=None,
+               *args, **kwargs):
     """ Constructor. """
     self.funcs = funcs
     self.argmax = argmax
@@ -320,7 +323,8 @@ class MultiFunctionCaller(ExperimentCaller):
     experiment_caller = self._get_experiment_caller()
     super(MultiFunctionCaller, self).__init__(experiment_caller, domain, descr,
       noise_type=noise_type, noise_scale=noise_scale,
-      fidel_space=fidel_space, fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt)
+      fidel_space=fidel_space, fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt,
+      *args, **kwargs)
 
   def _get_experiment_caller(self):
     """ Returns the experiment caller. If funcs is a list, then the function caller
@@ -369,7 +373,8 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
                to_normalise_domain=True,
                raw_argmax=None, maxval=None, raw_argmin=None, minval=None,
                noise_type='no_noise', noise_scale=None,
-               raw_fidel_space=None, fidel_cost_func=None, raw_fidel_to_opt=None):
+               raw_fidel_space=None, fidel_cost_func=None, raw_fidel_to_opt=None,
+               *args, **kwargs):
     """ Constructor. """
     # pylint: disable=too-many-arguments
     # Prelims
@@ -404,7 +409,7 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
                  descr=descr, argmax=argmax, maxval=maxval, argmin=argmin, minval=minval,
                  noise_type=noise_type, noise_scale=noise_scale,
                  fidel_space=fidel_space, fidel_cost_func=fidel_cost_func,
-                 fidel_to_opt=fidel_to_opt)
+                 fidel_to_opt=fidel_to_opt, *args, **kwargs)
 
   def is_fidel_to_opt(self, fidel):
     """ Returns True if fidel is the fidel_to_opt. """
@@ -531,7 +536,7 @@ class CPMultiFunctionCaller(MultiFunctionCaller):
                argmax=None, maxval=None, argmin=None, minval=None,
                noise_type='no_noise', noise_scale=None,
                fidel_space=None, fidel_cost_func=None, fidel_to_opt=None,
-               fidel_space_orderings=None):
+               fidel_space_orderings=None, *args, **kwargs):
     """ Constructor. """
     self.raw_funcs = raw_funcs
     self.domain_orderings = domain_orderings
@@ -539,8 +544,8 @@ class CPMultiFunctionCaller(MultiFunctionCaller):
     super(CPMultiFunctionCaller, self).__init__(funcs, domain, descr,
       argmax=argmax, maxval=maxval, argmin=argmin, minval=minval,
       noise_type=noise_type, noise_scale=noise_scale,
-      fidel_space=fidel_space, fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt
-      )
+      fidel_space=fidel_space, fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt,
+      *args, **kwargs)
     self._set_up_point_reconfiguration()
 
   def _set_up_point_reconfiguration(self):
@@ -640,10 +645,10 @@ def get_multifunction_caller_from_config(raw_funcs, domain_config_file, descr=''
     return CPMultiFunctionCaller(funcs, config.domain, descr, raw_funcs,
              config.domain_orderings, fidel_space=fidel_space,
              fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt,
-             fidel_space_orderings=fidel_space_orderings, **kwargs)
+             fidel_space_orderings=fidel_space_orderings, config=config, **kwargs)
   else:
     return CPFunctionCaller(funcs[0], config.domain, descr, raw_funcs[0],
              config.domain_orderings, fidel_space=fidel_space,
              fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt,
-             fidel_space_orderings=fidel_space_orderings, **kwargs)
+             fidel_space_orderings=fidel_space_orderings, config=config, **kwargs)
 
