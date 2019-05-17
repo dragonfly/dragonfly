@@ -396,7 +396,7 @@ class ExperimentDesigner(object):
     """ Handles previous evaluations. """
     if hasattr(self.options, 'prev_evaluations') and \
        self.options.prev_evaluations is not None:
-      ret = self._exd_child_handle_prev_evals()
+      ret = self._exd_child_handle_prev_evals_in_options()
     else:
       ret = 0
     if ret > 0:
