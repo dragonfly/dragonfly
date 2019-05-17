@@ -6,12 +6,12 @@
 
 # NB: In this file, the acronym MOO/moo refers to multi-objective optimisation. --KK
 
-from __future__ import division
-
 # pylint: disable=abstract-class-little-used
 # pylint: disable=invalid-name
 
-
+from __future__ import division
+from argparse import Namespace
+import numpy as np
 # Local imports
 from ..exd.exd_core import ExperimentDesigner, exd_core_args
 from ..exd.experiment_caller import MultiFunctionCaller, FunctionCaller
@@ -72,10 +72,10 @@ class MultiObjectiveOptimiser(ExperimentDesigner):
     self.to_copy_from_qinfo_to_history['val'] = 'query_vals'
     self.to_copy_from_qinfo_to_history['true_val'] = 'query_true_vals'
     # Set up previous evaluations
-    self.history.prev_eval_points = []
-    self.history.prev_eval_vals = []
     self.prev_eval_vals = []
     self.prev_eval_true_vals = []
+    self.history.prev_eval_vals = self.prev_eval_vals
+    self.history.prev_eval_true_vals = self.prev_eval_true_vals
 
   def _multi_opt_method_set_up(self):
     """ Any set up for the specific optimisation method. """
@@ -145,8 +145,9 @@ class MultiObjectiveOptimiser(ExperimentDesigner):
     #pylint: disable=no-self-use
     return ''
 
-  def _exd_child_handle_prev_evals(self):
+  def _exd_child_handle_prev_evals_in_options(self):
     """ Handles pre-evaluations. """
+    ret = 0
     for qinfo in self.options.prev_evaluations.qinfos:
       if self.multi_func_caller.is_mf():
         raise NotImplementedError(_NO_MF_FOR_MOO_ERR_MSG)
@@ -154,8 +155,48 @@ class MultiObjectiveOptimiser(ExperimentDesigner):
         self._update_opt_point_and_val(qinfo)
       self.prev_eval_points.append(qinfo.point)
       self.prev_eval_vals.append(qinfo.val)
-    self.history.prev_eval_points = self.prev_eval_points
-    self.history.prev_eval_vals = self.prev_eval_vals
+      if hasattr(qinfo, 'true_val'):
+        self.prev_eval_true_vals.append(qinfo.true_val)
+      else:
+        self.prev_eval_true_vals.append([-np.inf] * len(qinfo.val))
+      ret += 1
+    return ret
+
+  def _child_handle_data_loaded_from_file(self, loaded_data_from_file):
+    """ Handles evaluations from file. """
+    query_points = loaded_data_from_file['points']
+    num_pts_in_file = len(query_points)
+    query_vals = loaded_data_from_file['vals']
+    assert num_pts_in_file == len(query_vals)
+    if 'true_vals' in loaded_data_from_file:
+      query_true_vals = loaded_data_from_file['true_vals']
+      assert num_pts_in_file == len(query_vals)
+    else:
+      query_true_vals = [[-np.inf] * self.multi_func_caller.num_funcs] * len(query_vals)
+    # Multi-fidelity
+    if self.multi_func_caller.is_mf():
+      raise NotImplementedError('Not implemented multi-fidelity MOO yet.')
+    # Now Iterate through each point
+    for pt, val, true_val in zip(query_points, query_vals, query_true_vals):
+      qinfo = Namespace(point=pt, val=val, true_val=true_val)
+      if self.multi_func_caller.is_mf():
+        raise NotImplementedError('Not implemented multi-fidelity MOO yet.')
+      else:
+        self._update_opt_point_and_val(qinfo)
+      self.prev_eval_points.append(qinfo.point)
+      self.prev_eval_vals.append(qinfo.val)
+      self.prev_eval_true_vals.append(qinfo.true_val)
+    return num_pts_in_file
+
+  def _exd_child_get_data_to_save(self):
+    """ Return data to save. """
+    ret = {'points': self.prev_eval_points + self.history.query_points,
+           'vals': self.prev_eval_vals + self.history.query_vals,
+           'true_vals': self.prev_eval_true_vals + self.history.query_true_vals}
+    if self.multi_func_caller.is_mf():
+      raise NotImplementedError('Not implemented multi-fidelity MOO yet.')
+    num_data_saved = len(ret['points'])
+    return ret, num_data_saved
 
   def _child_run_experiments_initialise(self):
     """ Handles any initialisation before running experiments. """

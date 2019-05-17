@@ -84,12 +84,12 @@ def maximise_multifidelity_function(func, fidel_space, domain, fidel_to_opt,
   if fidel_space.get_type() == 'euclidean' and domain.get_type() == 'euclidean':
     func_caller = EuclideanFunctionCaller(func, domain, vectorised=False,
                     raw_fidel_space=fidel_space, fidel_cost_func=fidel_cost_func,
-                    raw_fidel_to_opt=fidel_to_opt)
+                    raw_fidel_to_opt=fidel_to_opt, config=config)
   else:
     func_caller = CPFunctionCaller(func, domain, '', raw_func=raw_func,
       domain_orderings=config.domain_orderings, fidel_space=fidel_space,
       fidel_cost_func=fidel_cost_func, fidel_to_opt=fidel_to_opt,
-      fidel_space_orderings=config.fidel_space_orderings)
+      fidel_space_orderings=config.fidel_space_orderings, config=config)
   # load options
   options = load_options_for_method(opt_method, 'mfopt', domain, capital_type, options)
   # Create worker manager
@@ -183,10 +183,10 @@ def maximise_function(func, domain, max_capital, opt_method='bo',
   func = preproc_func_list[0]
   # Load arguments depending on domain type
   if domain.get_type() == 'euclidean':
-    func_caller = EuclideanFunctionCaller(func, domain, vectorised=False)
+    func_caller = EuclideanFunctionCaller(func, domain, vectorised=False, config=config)
   else:
     func_caller = CPFunctionCaller(func, domain, raw_func=raw_func,
-                    domain_orderings=config.domain_orderings)
+                    domain_orderings=config.domain_orderings, config=config)
   # load options
   options = load_options_for_method(opt_method, 'opt', domain, capital_type, options)
   # Create worker manager and function caller

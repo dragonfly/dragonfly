@@ -425,7 +425,7 @@ def sample_from_cp_domain(cp_domain, num_samples, domain_samplers=None,
     if len(ret) >= num_samples:
       ret = ret[:num_samples]
       break
-    num_samples_to_draw = 2 * max_num_retries_for_constraint_satisfaction
+    num_samples_to_draw = 2 * num_samples
   # Check if the number of samples is too small and print a warning accordingly.
   if len(ret) < num_samples and verbose_constraint_satisfaction:
     if len(ret) == 0:

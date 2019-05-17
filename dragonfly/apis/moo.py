@@ -77,10 +77,10 @@ def multiobjective_maximise_functions(funcs, domain, max_capital, opt_method='bo
   # Load arguments depending on domain type
   if domain.get_type() == 'euclidean':
     multi_func_caller = EuclideanMultiFunctionCaller(mfc_funcs_arg, domain,
-                                                     vectorised=False)
+                                                     vectorised=False, config=config)
   else:
     multi_func_caller = CPMultiFunctionCaller(mfc_funcs_arg, domain, raw_funcs=raw_funcs,
-                          domain_orderings=config.domain_orderings)
+                          domain_orderings=config.domain_orderings, config=config)
   # load options
   options = load_options_for_method(opt_method, 'moo', domain, capital_type, options)
   # Create worker manager and function caller

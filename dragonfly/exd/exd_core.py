@@ -10,11 +10,14 @@
 # pylint: disable=redefined-builtin
 
 from __future__ import division
-import time
 from argparse import Namespace
 import numpy as np
+import os
+import time
 # Local imports
 from .exd_utils import EVAL_ERROR_CODE
+from .exd_utils import postprocess_data_to_save_for_domain, \
+                       preprocess_loaded_data_for_domain
 from ..utils.option_handler import get_option_specs
 from ..utils.reporters import get_reporter
 
@@ -35,9 +38,9 @@ exd_core_args = [
   get_option_specs('init_capital', False, 'default',
     ('The capital to be used for initialisation.')),
   get_option_specs('init_capital_frac', False, None,
-    ('The fraction of the total capital to be used for initialisation.')),
+    'The fraction of the total capital to be used for initialisation.'),
   get_option_specs('num_init_evals', False, 20,
-    ('The number of evaluations for initialisation. If <0, will use default.')),
+    'The number of evaluations for initialisation. If <0, will use default.'),
   # The amount of effort we will use for initialisation is prioritised by init_capital,
   # init_capital_frac and num_init_evals.
   get_option_specs('prev_evaluations', False, None,
@@ -46,6 +49,18 @@ exd_core_args = [
     'A function to obtain initial qinfos.'),
   get_option_specs('init_method', False, 'rand',
     'Method to obtain initial queries. Is used if get_initial_qinfos is None.'),
+  # Save and load results
+  get_option_specs('progress_load_from_and_save_to', False, None,
+    ('Load progress (from possibly a previous run) from and save results to this file. ' +
+     'Overrides the progress_save_to and progress_load_from options.')),
+  get_option_specs('progress_load_from', False, None,
+    'Load progress (from possibly a previous run) from this file.'),
+  get_option_specs('progress_save_to', False, None,
+    'Save progress to this file.'),
+  get_option_specs('progress_save_every', False, 5,
+    'Save progress to progress_save_to every progress_save_every iterations.'),
+  get_option_specs('progress_report_on_each_save', False, True,
+    'If true, will report each time results are saved.'),
   ]
 
 
@@ -119,11 +134,14 @@ class ExperimentDesigner(object):
       }
     # Set pre_eval_points and results
     self.prev_eval_points = []
+    self.history.prev_eval_points = self.prev_eval_points
     # Multi-fidelity Set up
     if self.is_an_mf_method() or self.experiment_caller.is_mf():
       self._mf_set_up()
     # Call the child set up.
     self._exd_child_set_up()
+    # Saving and loading set up
+    self._save_and_load_set_up()
     # Post child set up.
     method_prefix = 'asy' if self.is_asynchronous() else 'syn'
     self.full_method_name = method_prefix + '-' + self._get_method_str()
@@ -141,6 +159,35 @@ class ExperimentDesigner(object):
     self.eval_fidels_in_progress = []
     # Set up previous evaluations
     self.prev_eval_fidels = []
+
+  def _save_and_load_set_up(self):
+    """ Saving and loading set up. """
+    # First set up file names ------------------------------------------------------------
+    if self.options.progress_load_from_and_save_to:
+      if isinstance(self.options.progress_load_from_and_save_to, str):
+        lfast = [self.options.progress_load_from_and_save_to]
+      else:
+        lfast = self.options.progress_load_from_and_save_to
+      lfast = [elem for elem in lfast if os.path.exists(elem)]
+      if len(lfast) > 0:
+        load_from = lfast
+      else:
+        load_from = None
+      save_to = self.options.progress_load_from_and_save_to
+    else:
+      load_from = None
+      save_to = None
+      if self.options.progress_load_from:
+        load_from = self.options.progress_load_from
+      if self.options.progress_save_to:
+        save_to = self.options.progress_save_to
+    # save file names in progress_io_params
+    if isinstance(load_from, str):
+      load_from = [load_from]
+    if isinstance(save_to, (list, tuple)):
+      save_to = save_to[0]
+    self.progress_io_params = Namespace(load_from=load_from, save_to=save_to)
+    self.last_progress_saved_at = 0
 
   def _exd_child_set_up(self):
     """ Set up for a child class of Blackbox Experiment designer. """
@@ -243,9 +290,12 @@ class ExperimentDesigner(object):
     """ Perform initial queries. """
     # If we already have some pre_eval points then do this.
     # pylint: disable=too-many-branches
-    if (hasattr(self.options, 'prev_evaluations') and
-        self.options.prev_evaluations is not None):
-      self._exd_child_handle_prev_evals()
+    num_data_loaded_from_file = self._load_prev_evaluations_data_from_file()
+    num_data_loaded_from_options = self._handle_prev_evals_in_options()
+    if num_data_loaded_from_file + num_data_loaded_from_options > 0:
+      # If data is given in a file or in self.options.prev_evaluations then use that as
+      # the initial set.
+      pass
     else:
       # Set the initial capital
       if self.options.init_capital == 'default':
@@ -306,7 +356,54 @@ class ExperimentDesigner(object):
             self._wait_for_a_free_worker()
             self._dispatch_single_experiment_to_worker_manager(qinfo)
 
-  def _exd_child_handle_prev_evals(self):
+  def _load_prev_evaluations_data_from_file(self):
+    """ Load data from a prior file. """
+    # pylint: disable=broad-except
+    # pylint: disable=unexpected-keyword-arg
+    def _raise_load_file_exception(_file_name, err_msg):
+      """ Raises an error message. """
+      raise Exception('Could not pickle load data from %s. Returned error: \n%s'%(
+                      _file_name, err_msg))
+    if self.progress_io_params.load_from is None:
+      return 0
+    else:
+      ret = 0
+      import pickle
+      for load_file_name in self.progress_io_params.load_from:
+        try:
+          load_file_handle = open(load_file_name, 'rb')
+        except IOError as e:
+          _raise_load_file_exception(load_file_name, e)
+        try:
+          pickle_loaded_data = pickle.load(load_file_handle)
+        except Exception as e1:
+          try:
+            pickle_loaded_data = pickle.load(load_file_handle, encoding='latin1')
+          except Exception as e2:
+            _raise_load_file_exception(load_file_name, '%s\n%s'%(e1, e2))
+        loaded_data = preprocess_loaded_data_for_domain(pickle_loaded_data,
+                                                        self.experiment_caller)
+        ret += self._child_handle_data_loaded_from_file(loaded_data)
+        self.reporter.writeln('Loaded %d data from files %s.'%(
+                              ret, self.progress_io_params.load_from))
+      return ret
+
+  def _child_handle_data_loaded_from_file(self, loaded_data_from_file):
+    """ A child class handles the data loaded and returns the number of data. """
+    raise NotImplementedError('Implement in a child class.')
+
+  def _handle_prev_evals_in_options(self):
+    """ Handles previous evaluations. """
+    if hasattr(self.options, 'prev_evaluations') and \
+       self.options.prev_evaluations is not None:
+      ret = self._exd_child_handle_prev_evals()
+    else:
+      ret = 0
+    if ret > 0:
+      self.reporter.writeln('Loaded %d data from self.options.prev_evaluations.')
+    return ret
+
+  def _exd_child_handle_prev_evals_in_options(self):
     """ Handles pre-evaluations. """
     raise NotImplementedError('Implement in a child class of BlackboxExperimenter.')
 
@@ -495,6 +592,26 @@ class ExperimentDesigner(object):
     max_query_receive_times = max(query_receive_times)
     return max_query_receive_times
 
+  # Methods for saving progress --------------------------------------------------
+  def _save_progress_to_file(self):
+    """ Saves progress to file. """
+    self.last_progress_saved_at = self.step_idx
+    if self.progress_io_params.save_to is None:
+      return
+    data_to_save, num_data = self._exd_child_get_data_to_save()
+    data_to_save = postprocess_data_to_save_for_domain(data_to_save,
+                                                       self.experiment_caller)
+    save_file_handle = open(self.progress_io_params.save_to, 'wb')
+    import pickle
+    pickle.dump(data_to_save, save_file_handle)
+    if self.options.progress_report_on_each_save:
+      self.reporter.writeln('Saved %d data to %s.'%(
+        num_data, os.path.abspath(self.progress_io_params.save_to)))
+
+  def _exd_child_get_data_to_save(self):
+    """ Returns data to be saved as a dictionary. """
+    raise NotImplementedError('Implement in a child class.')
+
   # Methods for running experiments ----------------------------------------------
   def _asynchronous_run_experiment_routine(self):
     """ Optimisation routine for asynchronous part. """
@@ -519,6 +636,8 @@ class ExperimentDesigner(object):
     self._report_curr_results()
     # Store additional data
     self.history.num_jobs_per_worker = np.array(self._get_jobs_for_each_worker())
+    # Save results
+    self._save_progress_to_file()
 
   def _main_loop_pre(self):
     """ Anything to be done before each iteration of the main loop. Mostly in case
@@ -550,6 +669,8 @@ class ExperimentDesigner(object):
       # Book keeeping
       if self.step_idx - self.last_model_build_at >= self.options.build_new_model_every:
         self._build_new_model()
+      if self.step_idx - self.last_progress_saved_at >= self.options.progress_save_every:
+        self._save_progress_to_file()
       # Main loop post
       self._main_loop_post()
 
