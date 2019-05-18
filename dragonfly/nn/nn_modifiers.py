@@ -715,8 +715,8 @@ def modify_several_layers(nn, inc_or_dec, layer_group_desc,
   # Now decide which groups to change
   num_groups = int(layer_group_desc[-1])
   group_idx = int(layer_group_desc[0])
-  start_idx = (group_idx - 1) * num_modifiable_layers / num_groups
-  end_idx = group_idx * num_modifiable_layers / num_groups
+  start_idx = (group_idx - 1) * num_modifiable_layers // num_groups
+  end_idx = group_idx * num_modifiable_layers // num_groups
   modify_layer_idxs = modifiable_layers[start_idx:end_idx]
   modify_vals = [round(change_ratio * nn.num_units_in_each_layer[i])
                  for i in modify_layer_idxs]
@@ -982,7 +982,7 @@ class NNModifier(object):
     """ Returns a list of new neural networks which have undergone a single modification
         from nn. """
     prims_by_type, type_prob_masses = self.get_primitives_grouped_by_type(nn, **kwargs)
-    groups = prims_by_type.keys()
+    groups = list(prims_by_type.keys())
     if num_single_step_modifications == 'all':
       prims_by_group = prims_by_type.values()
       modifiers = [elem for group_prims in prims_by_group for elem in group_prims]

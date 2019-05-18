@@ -149,16 +149,15 @@ class MultiObjectiveOptimiser(ExperimentDesigner):
     """ Handles pre-evaluations. """
     ret = 0
     for qinfo in self.options.prev_evaluations.qinfos:
+      if not hasattr(qinfo, 'true_val'):
+        qinfo.true_val = [-np.inf] * len(qinfo.val)
       if self.multi_func_caller.is_mf():
         raise NotImplementedError(_NO_MF_FOR_MOO_ERR_MSG)
       else:
         self._update_opt_point_and_val(qinfo)
       self.prev_eval_points.append(qinfo.point)
       self.prev_eval_vals.append(qinfo.val)
-      if hasattr(qinfo, 'true_val'):
-        self.prev_eval_true_vals.append(qinfo.true_val)
-      else:
-        self.prev_eval_true_vals.append([-np.inf] * len(qinfo.val))
+      self.prev_eval_true_vals.append(qinfo.true_val)
       ret += 1
     return ret
 

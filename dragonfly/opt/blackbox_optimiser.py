@@ -164,6 +164,8 @@ class BlackboxOptimiser(ExperimentDesigner):
     """ Handles prev_evaluations. """
     ret = 0
     for qinfo in self.options.prev_evaluations.qinfos:
+      if not hasattr(qinfo, 'true_val'):
+        qinfo.true_val = -np.inf
       if self.func_caller.is_mf():
         eval_fidel = qinfo.fidel if hasattr(qinfo, 'fidel') else \
                      self.func_caller.fidel_to_opt
@@ -174,10 +176,7 @@ class BlackboxOptimiser(ExperimentDesigner):
         self._update_opt_point_and_val(qinfo)
       self.prev_eval_points.append(qinfo.point)
       self.prev_eval_vals.append(qinfo.val)
-      if hasattr(qinfo, 'true_val'):
-        self.prev_eval_true_vals.append(qinfo.true_val)
-      else:
-        self.prev_eval_true_vals.append(-np.inf)
+      self.prev_eval_true_vals.append(qinfo.true_val)
       ret += 1
     return ret
 
