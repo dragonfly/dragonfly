@@ -5,7 +5,10 @@
 
 # pylint: disable=invalid-name
 
-from park2_4 import park2_4_z
+try:
+  from .park2_4 import park2_4_z
+except ImportError:
+  from .park2_4 import park2_4_z
 
 # Write a function like this called 'obj'.
 def park2_4_mf(z, x):

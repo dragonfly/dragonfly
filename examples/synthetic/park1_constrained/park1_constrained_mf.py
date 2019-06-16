@@ -4,7 +4,10 @@
 """
 
 # pylint: disable=invalid-name
-from park1_constrained import park1_constrained_z_x
+try:
+  from park1_constrained import park1_constrained_z_x
+except ImportError:
+  from .park1_constrained import park1_constrained_z_x
 
 
 def park1_constrained_mf(z, x):

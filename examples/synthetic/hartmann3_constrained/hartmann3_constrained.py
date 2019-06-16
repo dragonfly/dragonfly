@@ -5,7 +5,10 @@
 
 # pylint: disable=invalid-name
 
-from hartmann3_constrained_mf import hartmann3_constrained_mf, OPT_TO_FIDEL_PT
+try:
+  from hartmann3_constrained_mf import hartmann3_constrained_mf, OPT_TO_FIDEL_PT
+except ImportError:
+  from .hartmann3_constrained_mf import hartmann3_constrained_mf, OPT_TO_FIDEL_PT
 
 
 def hartmann3_constrained(x):

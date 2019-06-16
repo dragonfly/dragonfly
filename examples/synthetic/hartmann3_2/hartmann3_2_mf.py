@@ -9,7 +9,10 @@
 
 import numpy as np
 # Local
-from hartmann3_2 import hartmann3_2_alpha
+try:
+  from hartmann3_2 import hartmann3_2_alpha
+except ImportError:
+  from .hartmann3_2 import hartmann3_2_alpha
 
 
 def hartmann3_2_mf(z, x):

@@ -7,7 +7,10 @@
 # pylint: disable=invalid-name
 # pylint: disable=bad-whitespace
 
-from borehole_constrained import borehole_constrained_z
+try:
+  from borehole_constrained import borehole_constrained_z
+except ImportError:
+  from .borehole_constrained import borehole_constrained_z
 
 def borehole_constrained_mf(z, x):
   """ Computes the Bore Hole function. """

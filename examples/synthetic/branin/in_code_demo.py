@@ -8,7 +8,10 @@
 from __future__ import print_function
 from dragonfly import maximise_function
 # Local imports
-from .branin import branin
+try:
+  from .branin import branin
+except ImportError:
+  from branin import branin
 
 def main():
   """ Main function. """
