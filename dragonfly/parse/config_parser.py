@@ -146,7 +146,10 @@ def load_parameter(parameter, key=None):
     elif param['type'] == 'discrete':
       if _items == '':
         raise ValueError('List of items required')
-      param['items'] = unicode_to_str(_items).split('-')
+      if isinstance(_items, list):
+        param['items'] = [unicode_to_str(i) for i in _items]
+      else:
+        param['items'] = unicode_to_str(_items).split('-')
     elif param['type'] == 'discrete_numeric':
       if _items == '':
         raise ValueError('List or range of items required')
