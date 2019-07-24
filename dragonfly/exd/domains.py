@@ -132,7 +132,8 @@ class IntegralDomain(Domain):
 
   def members_are_equal(self, point_1, point_2):
     """ Compares two members and returns True if they are the same. """
-    return self.compute_distance(point_1, point_2) < 1e-8 * self.diameter
+    dist = self.compute_distance(point_1, point_2)
+    return dist == 0 or dist < 1e-8 * self.diameter
 
   @classmethod
   def compute_distance(cls, point_1, point_2):
