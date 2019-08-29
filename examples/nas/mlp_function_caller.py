@@ -7,7 +7,12 @@
 # pylint: disable=arguments-differ
 # pylint: disable=invalid-name
 
-import cPickle as pic
+import sys
+
+if sys.version_info[0] < 3:
+  import cPickle as pic
+else:
+  import pickle as pic
 from copy import deepcopy
 import os
 import shutil
@@ -37,14 +42,15 @@ class MLPFunctionCaller(NNFunctionCaller):
   def __init__(self, config, train_params, descr='', debug_mode=False,
                reporter='silent', tmp_dir='/tmp_mlp'):
     """ Constructor. """
-    # NNFunctionCaller.__init__(self, config, train_params, descr='', debug_mode=False,
-    #                           reporter='silent')
     super(MLPFunctionCaller, self).__init__(config, train_params, descr, debug_mode,
                                             reporter)
     self.root_tmp_dir = tmp_dir
     # Load data
     with open(self.train_params.data_train_file, 'rb') as input_file:
-      data = pic.load(input_file)
+      if sys.version_info[0] < 3:
+        data = pic.load(input_file)
+      else:
+        data = pic.load(input_file, encoding='latin1')
     self.data_train = data['train']
     self.data_vali = data['vali']
     self.reporter.writeln('Loaded data: ' + self.train_params.data_train_file)

@@ -42,8 +42,8 @@ def main():
   config = load_config_file(config_file)
 
   # Specify optimisation method -----------------------------------------------------
-#   opt_method = 'bo'
-  opt_method = 'ga'
+  opt_method = 'bo'
+#   opt_method = 'ga'
 #   opt_method = 'rand'
 
   # Specify options

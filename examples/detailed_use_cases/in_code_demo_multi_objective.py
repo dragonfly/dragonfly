@@ -40,8 +40,8 @@ def main():
   moo_objectives = (compute_objectives, num_objectives)
 
   # Specify optimisation method --------------------------------------------------------
-#   opt_method = 'bo'
-  opt_method = 'rand'
+  opt_method = 'bo'
+#   opt_method = 'rand'
 
   # Specify options
   options = Namespace(

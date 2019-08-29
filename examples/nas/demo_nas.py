@@ -13,7 +13,7 @@ import os
 import shutil
 # Local
 from mlp_function_caller import MLPFunctionCaller
-from cnn_function_caller import CNNFunctionCaller
+# from cnn_function_caller import CNNFunctionCaller
 from dragonfly.opt.gp_bandit import bo_from_func_caller
 from dragonfly.exd.worker_manager import MultiProcessingWorkerManager
 from dragonfly.utils.reporters import get_reporter
@@ -48,11 +48,11 @@ except ImportError as e:
 # <time> is a time stamp.
 
 # DATASET = 'cifar10';
-# DATASET = 'slice';
+DATASET = 'slice';
 # DATASET = 'indoor'
 
 # Which GPU IDs are available
-# GPU_IDS = [0, 3]
+GPU_IDS = [0]
 # GPU_IDS = [1, 2]
 
 # Config file which specifies the domain
@@ -70,9 +70,9 @@ def get_train_file_name(dataset):
   """ Return train params. """
   # get file name
   if dataset == 'slice':
-    train_pickle_file = 'SliceLocalization.p'
+    train_pickle_file = 'slice_localisation.p'
   elif dataset == 'indoor':
-    train_pickle_file = 'IndoorLoc.p'
+    train_pickle_file = 'indoor_location.p'
   return train_pickle_file
 
 # Specify the budget (in seconds) -- this is 8 hours
