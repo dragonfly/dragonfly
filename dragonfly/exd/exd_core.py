@@ -591,6 +591,20 @@ class ExperimentDesigner(object):
     # Compute the maximum of all receive times
     max_query_receive_times = max(query_receive_times)
     return max_query_receive_times
+  
+  # Methods for exposing ask-tell interface
+  def initialise(self):
+    """Initialise optimiser for ask-tell interface"""
+    pass
+
+  def get_recommendation(self):
+    """Get recommended point as part of the ask interface.
+    Wrapper for _determine_next_query."""
+    pass
+
+  def add_data(self, x, y):
+    """Add data points to be evaluated to return recommendations."""
+    pass
 
   # Methods for saving progress --------------------------------------------------
   def _save_progress_to_file(self):
