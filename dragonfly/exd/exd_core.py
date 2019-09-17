@@ -599,11 +599,21 @@ class ExperimentDesigner(object):
 
   def get_recommendation(self):
     """Get recommended point as part of the ask interface.
-    Wrapper for _determine_next_query."""
+    Wrapper for _determine_next_query.
+    """
     pass
 
   def add_data(self, x, y):
-    """Add data points to be evaluated to return recommendations."""
+    """Add data points to be evaluated to return recommendations.
+    
+    Args:
+      x (:obj:`list` of float or of :obj:`list` of float): Contains the
+        explanatory variable value(s) of the points. Multiple x values
+        are passed in as a list of lists.
+      y (float or :obj:`list` of float): Contains the response variable
+        value(s) of the points. Multiple y values are passed in as a list
+        of floats.
+    """    
     pass
 
   # Methods for saving progress --------------------------------------------------
