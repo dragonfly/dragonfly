@@ -595,13 +595,13 @@ class ExperimentDesigner(object):
   # Methods for exposing ask-tell interface
   def initialise(self):
     """Initialise optimiser for ask-tell interface"""
-    pass
+    raise NotImplementedError('Implement in a child class.')
 
   def get_recommendation(self):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.
     """
-    pass
+    raise NotImplementedError('Implement in a child class.')
 
   def add_data(self, x, y):
     """Add data points to be evaluated to return recommendations.
@@ -614,7 +614,7 @@ class ExperimentDesigner(object):
         value(s) of the points. Multiple y values are passed in as a list
         of floats.
     """    
-    pass
+    raise NotImplementedError('Implement in a child class.')
 
   # Methods for saving progress --------------------------------------------------
   def _save_progress_to_file(self):
