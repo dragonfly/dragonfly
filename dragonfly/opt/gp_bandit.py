@@ -542,22 +542,21 @@ class GPBandit(BlackboxOptimiser):
         self._main_loop_pre_boca()
 
   # Methods for ask-tell interface
-    def initialise(self):
+  def initialise(self):
     """Initialise optimiser for ask-tell interface"""
     self.initialise_capital()
     self.perform_initial_queries()
     self._child_run_experiments_initialise()
 
-  def get_recommendation(self):
+  def ask(self):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.
     """
     return self._determine_next_query()
 
-  def add_data(self, x, y):
+  def tell(self, x, y):
     """Add data points to be evaluated to return recommendations."""
     pass
-
 # GP Bandit class ends here ==========================================================
 
 

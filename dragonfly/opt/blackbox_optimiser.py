@@ -240,6 +240,19 @@ class BlackboxOptimiser(ExperimentDesigner):
   def _get_final_return_quantities(self):
     """ Return the curr_opt_val, curr_opt_point and history. """
     return self.curr_opt_val, self.curr_opt_point, self.history
+  
+  # Methods for ask-tell interface
+  def initialise(self):
+    """Initialise optimiser for ask-tell interface"""
+    pass
+
+  def ask(self):
+    """Get recommended point as part of the ask interface."""
+    pass
+
+  def tell(self, x, y):
+    """Add data points to be evaluated to return recommendations."""
+    pass
 
 
 # An initialiser class for Optimisers ----------------------------------------------------
