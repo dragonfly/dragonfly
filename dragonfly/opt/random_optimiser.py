@@ -21,6 +21,9 @@ from ..utils.option_handler import load_options
 from ..utils.reporters import get_reporter
 from ..utils.general_utils import map_to_bounds
 
+from skopt.utils import create_result
+from skopt.space import Space
+
 random_optimiser_args = blackbox_opt_args
 euclidean_random_optimiser_args = random_optimiser_args
 cp_random_optimiser_args = random_optimiser_args
@@ -93,18 +96,41 @@ class EuclideanRandomOptimiser(RandomOptimiser):
     """ Determines the next query. """
     qinfo = Namespace(point=map_to_bounds(np.random.random(self.domain.dim),
                                           self.domain.bounds))
+    self.Xi.append(qinfo)
+    # TODO: append to yi
     return qinfo
 
   def _determine_next_batch_of_queries(self, batch_size):
     """ Determines the next batch of queries. """
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
+    self.Xi.extend(qinfos)
+    # TODO: extend to yi
     return qinfos
 
   def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
     return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
                                         self.domain.bounds)
+  
+  # Methods for ask-tell interface
+  def initialise(self):
+    self.Xi = []
+    self.yi = []
+    self.space = Space(self.domain.dim)
+  
+  def ask(self, n_points=1):
+    """Get recommended point as part of the ask interface.
+    Wrapper for _determine_next_query.
+    """
+    if n_points > 1:
+      return self._determine_next_batch_of_queries(n_points)
+    return self._determine_next_query()
 
+  def tell(self):
+    """Add data points to be evaluated to return recommendations.
+    In random optimiser, the next point selected is random, 
+    """    
+    return create_result(self.Xi, self.yi, self.space)
 
 # Multi-fidelity Random Optimiser for Euclidean Spaces -------------------------------
 class MFEuclideanRandomOptimiser(RandomOptimiser):

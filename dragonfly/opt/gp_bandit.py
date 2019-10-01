@@ -540,23 +540,7 @@ class GPBandit(BlackboxOptimiser):
     if self.is_an_mf_method():
       if self.options.mf_strategy == 'boca':
         self._main_loop_pre_boca()
-
-  # Methods for ask-tell interface
-  def initialise(self):
-    """Initialise optimiser for ask-tell interface"""
-    self.initialise_capital()
-    self.perform_initial_queries()
-    self._child_run_experiments_initialise()
-
-  def ask(self):
-    """Get recommended point as part of the ask interface.
-    Wrapper for _determine_next_query.
-    """
-    return self._determine_next_query()
-
-  def tell(self, x, y):
-    """Add data points to be evaluated to return recommendations."""
-    pass
+   
 # GP Bandit class ends here ==========================================================
 
 
