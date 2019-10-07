@@ -96,15 +96,11 @@ class EuclideanRandomOptimiser(RandomOptimiser):
     """ Determines the next query. """
     qinfo = Namespace(point=map_to_bounds(np.random.random(self.domain.dim),
                                           self.domain.bounds))
-    self.Xi.append(qinfo)
-    # TODO: append to yi
     return qinfo
 
   def _determine_next_batch_of_queries(self, batch_size):
     """ Determines the next batch of queries. """
     qinfos = [self._determine_next_query() for _ in range(batch_size)]
-    self.Xi.extend(qinfos)
-    # TODO: extend to yi
     return qinfos
 
   def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
@@ -114,23 +110,33 @@ class EuclideanRandomOptimiser(RandomOptimiser):
   
   # Methods for ask-tell interface
   def initialise(self):
-    self.Xi = []
-    self.yi = []
-    self.space = Space(self.domain.dim)
+    pass # not sure what to do here
   
   def ask(self, n_points=1):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.
     """
     if n_points > 1:
-      return self._determine_next_batch_of_queries(n_points)
-    return self._determine_next_query()
+      return [x.point for x in self._determine_next_batch_of_queries(n_points)]
+    return self._determine_next_query().point
 
-  def tell(self):
+  def tell(self, x, y):
     """Add data points to be evaluated to return recommendations.
     In random optimiser, the next point selected is random, 
-    """    
-    return create_result(self.Xi, self.yi, self.space)
+    """
+    qinfos = self._generate_qinfos(x, y)
+    return self._add_data_to_model(qinfos)
+
+  def _generate_qinfos(self, x, y):
+    """Helper function for generating qinfos"""
+    qinfos = []
+    if isinstance(y, list):
+      if len(x) != len(y):
+        raise ValueError("Differing lengths of x and y values")
+      qinfos = [Namespace(point=x[i], y=y[i]) for i in range(len(y))]
+    else:
+      qinfos.append(Namespace(point=x, y=y))
+    return qinfos
 
 # Multi-fidelity Random Optimiser for Euclidean Spaces -------------------------------
 class MFEuclideanRandomOptimiser(RandomOptimiser):

@@ -597,13 +597,13 @@ class ExperimentDesigner(object):
     """Initialise optimiser for ask-tell interface"""
     raise NotImplementedError('Implement in a child class.')
 
-  def get_recommendation(self):
+  def ask(self):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.
     """
     raise NotImplementedError('Implement in a child class.')
 
-  def add_data(self, x, y):
+  def tell(self, x, y):
     """Add data points to be evaluated to return recommendations.
     
     Args:
