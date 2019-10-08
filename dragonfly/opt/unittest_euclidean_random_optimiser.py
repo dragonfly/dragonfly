@@ -91,7 +91,6 @@ class EuclideanOptimisersBaseTestCase(object):
     self.report('')
     return opt_val, opt_point, history
 
-
 # A test class for MF random optimisers ---------------------------------------------
 def get_multi_fidelity_history_str(history):
   """ Prints the history of the multifidelity optimisation. """
@@ -165,7 +164,21 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     """ Runs optimiser. """
     return random_optimiser.random_optimiser_from_func_caller(
              func_caller, worker_manager, max_capital, mode)
+  
+  def test_ask_tell(self):
+    """ Testing random optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    opt = random_optimiser.EuclideanRandomOptimiser(self.func_caller, self.worker_manager_1)
 
+    def evaluate(x):
+      return sum(x)
+
+    for i in range(100):
+      x = opt.ask()
+      y = evaluate(x)
+      told = opt.tell(x, y)
+      print("told", told)
+      self.report('x: %s, qinfo: %s'%(x, opt.tell(x, y)))
 
 class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):
 # class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase):

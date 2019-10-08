@@ -122,7 +122,7 @@ class EuclideanRandomOptimiser(RandomOptimiser):
 
   def tell(self, x, y):
     """Add data points to be evaluated to return recommendations.
-    In random optimiser, the next point selected is random, 
+    In random optimiser, the next point selected is random
     """
     qinfos = self._generate_qinfos(x, y)
     return self._add_data_to_model(qinfos)
@@ -136,6 +136,7 @@ class EuclideanRandomOptimiser(RandomOptimiser):
       qinfos = [Namespace(point=x[i], y=y[i]) for i in range(len(y))]
     else:
       qinfos.append(Namespace(point=x, y=y))
+    print("inside", qinfos)
     return qinfos
 
 # Multi-fidelity Random Optimiser for Euclidean Spaces -------------------------------
