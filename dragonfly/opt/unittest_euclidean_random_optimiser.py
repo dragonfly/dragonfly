@@ -177,7 +177,6 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
       x = opt.ask()
       y = evaluate(x)
       told = opt.tell(x, y)
-      print("told", told)
       self.report('x: %s, qinfo: %s'%(x, opt.tell(x, y)))
 
 class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):

@@ -83,35 +83,7 @@ class RandomOptimiser(BlackboxOptimiser):
     """ Builds a new model. """
     pass
 
-
-# Random optimiser for Euclidean spaces --------------------------------------------
-class EuclideanRandomOptimiser(RandomOptimiser):
-  """ A class which optimises in Euclidean spaces using random evaluations. """
-
-  def is_an_mf_method(self):
-    """ Returns False since this is not a MF method. """
-    return False
-
-  def _determine_next_query(self):
-    """ Determines the next query. """
-    qinfo = Namespace(point=map_to_bounds(np.random.random(self.domain.dim),
-                                          self.domain.bounds))
-    return qinfo
-
-  def _determine_next_batch_of_queries(self, batch_size):
-    """ Determines the next batch of queries. """
-    qinfos = [self._determine_next_query() for _ in range(batch_size)]
-    return qinfos
-
-  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
-    """ Returns initial qinfos. """
-    return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
-                                        self.domain.bounds)
-  
-  # Methods for ask-tell interface
-  def initialise(self):
-    pass # not sure what to do here
-  
+  # Methods for ask-tell interface  
   def ask(self, n_points=1):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.
@@ -136,8 +108,31 @@ class EuclideanRandomOptimiser(RandomOptimiser):
       qinfos = [Namespace(point=x[i], y=y[i]) for i in range(len(y))]
     else:
       qinfos.append(Namespace(point=x, y=y))
-    print("inside", qinfos)
     return qinfos
+
+# Random optimiser for Euclidean spaces --------------------------------------------
+class EuclideanRandomOptimiser(RandomOptimiser):
+  """ A class which optimises in Euclidean spaces using random evaluations. """
+
+  def is_an_mf_method(self):
+    """ Returns False since this is not a MF method. """
+    return False
+
+  def _determine_next_query(self):
+    """ Determines the next query. """
+    qinfo = Namespace(point=map_to_bounds(np.random.random(self.domain.dim),
+                                          self.domain.bounds))
+    return qinfo
+
+  def _determine_next_batch_of_queries(self, batch_size):
+    """ Determines the next batch of queries. """
+    qinfos = [self._determine_next_query() for _ in range(batch_size)]
+    return qinfos
+
+  def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
+    """ Returns initial qinfos. """
+    return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
+                                        self.domain.bounds)
 
 # Multi-fidelity Random Optimiser for Euclidean Spaces -------------------------------
 class MFEuclideanRandomOptimiser(RandomOptimiser):

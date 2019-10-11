@@ -242,11 +242,7 @@ class BlackboxOptimiser(ExperimentDesigner):
     return self.curr_opt_val, self.curr_opt_point, self.history
   
   # Methods for ask-tell interface
-  def initialise(self):
-    """Initialise optimiser for ask-tell interface"""
-    pass
-
-  def ask(self):
+  def ask(self, n_points=1):
     """Get recommended point as part of the ask interface."""
     pass
 
