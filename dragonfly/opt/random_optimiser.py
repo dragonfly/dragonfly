@@ -86,11 +86,21 @@ class RandomOptimiser(BlackboxOptimiser):
   # Methods for ask-tell interface  
   def ask(self, n_points=1):
     """Get recommended point as part of the ask interface.
-    Wrapper for _determine_next_query.
+    Wrapper for _determine_next_query, but also `tell`s the point for the optimiser.
     """
     if n_points > 1:
+      qinfos = self._determine_next_batch_of_queries(n_points)
+      for qinfo in qinfos:
+        qinfo = self.func_caller.eval_from_qinfo(qinfo)
+        x, y = qinfo.point, qinfo.val
+        self.tell(x, y)
       return [x.point for x in self._determine_next_batch_of_queries(n_points)]
-    return self._determine_next_query().point
+    else:
+      qinfo = self._determine_next_query()
+      qinfo = self.func_caller.eval_from_qinfo(qinfo)
+      x, y = qinfo.point, qinfo.val
+      self.tell(x, y)
+      return x
 
   def tell(self, x, y):
     """Add data points to be evaluated to return recommendations.

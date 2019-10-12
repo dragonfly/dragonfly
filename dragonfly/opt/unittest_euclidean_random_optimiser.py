@@ -173,11 +173,12 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     def evaluate(x):
       return sum(x)
 
-    for i in range(100):
+    for _ in range(100):
       x = opt.ask()
       y = evaluate(x)
-      told = opt.tell(x, y)
-      self.report('x: %s, qinfo: %s'%(x, opt.tell(x, y)))
+      opt.tell(x, y)
+      self.report('x: %s, y: %s'%(x, y))
+    super(EuclideanRandomOptimiserTestCase, self).test_optimisation_single()
 
 class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):
 # class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase):
