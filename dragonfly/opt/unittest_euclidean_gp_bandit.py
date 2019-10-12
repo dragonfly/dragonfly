@@ -13,7 +13,6 @@ from ..utils.base_test_class import BaseTestClass, execute_tests
 from ..utils.option_handler import load_options
 
 
-@unittest.skip
 class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
 # class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase):
   """ Unit tests for the GP Bandit in Euclidean spaces. """
@@ -31,7 +30,23 @@ class EuclideanGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
     return gp_bandit.gpb_from_func_caller(func_caller, worker_manager, max_capital,
              mode=mode, is_mf=False, *args, **kwargs)
 
+  def test_ask_tell(self):
+    """ Testing random optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    opt = gp_bandit.EuclideanGPBandit(self.func_caller, self.worker_manager_1)
 
+    def evaluate(x):
+      return self.func_caller.eval_single(x)[0] # Get only the value
+
+    for _ in range(100):
+      x = opt.ask()
+      y = evaluate(x)
+      opt.tell(x, y)
+      self.report('x: %s, y: %s'%(x, y))
+    super(EuclideanGPBanditTestCase, self).test_optimisation_single()
+
+
+@unittest.skip
 # class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
 class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase):
   """ Unit tests for Additive GP Bandit in Euclidean spaces. """

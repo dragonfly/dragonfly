@@ -33,7 +33,19 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
                             CPOptimiserBaseTestCase,
                             BaseTestClass):
   """ Unit tests for GA optimiser on cartesian product spaces. """
-  pass
+  def test_ask_tell(self):
+    """ Testing random optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    opt = cp_ga_optimiser.CPGAOptimiser(self.func_caller, self.worker_manager_1)
+
+    def evaluate(x):
+      return self.func_caller.eval_single(x)[0] # Get only the value
+
+    for _ in range(100):
+      x = opt.ask()
+      y = evaluate(x)
+      opt.tell(x, y)
+      self.report('x: %s, y: %s'%(x, y))
 
 
 if __name__ == '__main__':

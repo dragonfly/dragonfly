@@ -171,7 +171,7 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     opt = random_optimiser.EuclideanRandomOptimiser(self.func_caller, self.worker_manager_1)
 
     def evaluate(x):
-      return sum(x)
+      return self.func_caller.eval_single(x)[0] # Get only the value
 
     for _ in range(100):
       x = opt.ask()

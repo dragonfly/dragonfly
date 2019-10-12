@@ -83,43 +83,6 @@ class RandomOptimiser(BlackboxOptimiser):
     """ Builds a new model. """
     pass
 
-  # Methods for ask-tell interface  
-  def ask(self, n_points=1):
-    """Get recommended point as part of the ask interface.
-    Wrapper for _determine_next_query, but also `tell`s the point for the optimiser.
-    """
-    if n_points > 1:
-      qinfos = self._determine_next_batch_of_queries(n_points)
-      for qinfo in qinfos:
-        qinfo = self.func_caller.eval_from_qinfo(qinfo)
-        x, y = qinfo.point, qinfo.val
-        self.tell(x, y)
-      return [x.point for x in self._determine_next_batch_of_queries(n_points)]
-    else:
-      qinfo = self._determine_next_query()
-      qinfo = self.func_caller.eval_from_qinfo(qinfo)
-      x, y = qinfo.point, qinfo.val
-      self.tell(x, y)
-      return x
-
-  def tell(self, x, y):
-    """Add data points to be evaluated to return recommendations.
-    In random optimiser, the next point selected is random
-    """
-    qinfos = self._generate_qinfos(x, y)
-    return self._add_data_to_model(qinfos)
-
-  def _generate_qinfos(self, x, y):
-    """Helper function for generating qinfos"""
-    qinfos = []
-    if isinstance(y, list):
-      if len(x) != len(y):
-        raise ValueError("Differing lengths of x and y values")
-      qinfos = [Namespace(point=x[i], y=y[i]) for i in range(len(y))]
-    else:
-      qinfos.append(Namespace(point=x, y=y))
-    return qinfos
-
 # Random optimiser for Euclidean spaces --------------------------------------------
 class EuclideanRandomOptimiser(RandomOptimiser):
   """ A class which optimises in Euclidean spaces using random evaluations. """
