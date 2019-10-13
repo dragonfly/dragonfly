@@ -593,6 +593,12 @@ class ExperimentDesigner(object):
     return max_query_receive_times
   
   # Methods for exposing ask-tell interface
+  def initialise(self):
+    """ Initialisation for ask-tell interface. """
+    self.initialise_capital()
+    self.perform_initial_queries()
+    self._child_run_experiments_initialise()
+
   def ask(self, n_points=1):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.

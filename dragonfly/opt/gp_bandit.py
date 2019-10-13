@@ -540,6 +540,10 @@ class GPBandit(BlackboxOptimiser):
     if self.is_an_mf_method():
       if self.options.mf_strategy == 'boca':
         self._main_loop_pre_boca()
+  
+  def initialise(self):
+    super(GPBandit, self).initialise()
+    self._main_loop_pre()
    
 # GP Bandit class ends here ==========================================================
 
