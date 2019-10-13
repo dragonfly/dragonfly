@@ -59,7 +59,6 @@ class EuclideanGPBanditAskTellTestCase(EuclideanOptimisersBaseTestCase, BaseTest
       y = evaluate(x)
       opt.tell(x, y)
       self.report('x: %s, y: %s'%(x, y))
-    # super(EuclideanGPBanditTestCase, self).test_optimisation_single()
 
 @unittest.skip
 # class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
