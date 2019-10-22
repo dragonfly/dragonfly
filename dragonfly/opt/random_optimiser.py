@@ -21,9 +21,6 @@ from ..utils.option_handler import load_options
 from ..utils.reporters import get_reporter
 from ..utils.general_utils import map_to_bounds
 
-from skopt.utils import create_result
-from skopt.space import Space
-
 random_optimiser_args = blackbox_opt_args
 euclidean_random_optimiser_args = random_optimiser_args
 cp_random_optimiser_args = random_optimiser_args

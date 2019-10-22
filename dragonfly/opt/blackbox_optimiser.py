@@ -247,19 +247,9 @@ class BlackboxOptimiser(ExperimentDesigner):
     Wrapper for _determine_next_query.
     """
     if n_points > 1:
-      # qinfos = self._determine_next_batch_of_queries(n_points)
-      # for qinfo in qinfos:
-      #   qinfo = self.func_caller.eval_from_qinfo(qinfo)
-      #   x, y = qinfo.point, qinfo.val
-      #   self.tell(x, y)
       return [x.point for x in self._determine_next_batch_of_queries(n_points)]
     else:
       return self._determine_next_query().point
-      # qinfo = self._determine_next_query()
-      # qinfo = self.func_caller.eval_from_qinfo(qinfo)
-      # x, y = qinfo.point, qinfo.val
-      # self.tell(x, y)
-      # return x
 
   def tell(self, x, y):
     """Add data points to be evaluated to return recommendations.
