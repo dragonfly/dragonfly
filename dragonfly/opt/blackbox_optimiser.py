@@ -242,31 +242,26 @@ class BlackboxOptimiser(ExperimentDesigner):
     return self.curr_opt_val, self.curr_opt_point, self.history
   
   # Methods for ask-tell interface  
-  def ask(self, n_points=1):
+  def ask(self, n_points=None):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.
     """
-    if n_points > 1:
+    if n_points:
       return [x.point for x in self._determine_next_batch_of_queries(n_points)]
     else:
       return self._determine_next_query().point
 
-  def tell(self, x, y):
-    """Add data points to be evaluated to return recommendations.
-    In random optimiser, the next point selected is random
-    """
-    qinfos = self._generate_qinfos(x, y)
+  def tell(self, points):
+    """Add data points to be evaluated to return recommendations."""
+    qinfos = self._generate_qinfos(points)
     self._add_data_to_model(qinfos)
 
-  def _generate_qinfos(self, x, y):
+  def _generate_qinfos(self, points):
     """Helper function for generating qinfos"""
-    qinfos = []
-    if isinstance(y, list):
-      if len(x) != len(y):
-        raise ValueError("Differing lengths of x and y values")
-      qinfos = [Namespace(point=x[i], val=y[i]) for i in range(len(y))]
+    if self.is_an_mf_method():
+      qinfos = [Namespace(point=x, val=y, fidel=z) for x, y, z in points]
     else:
-      qinfos.append(Namespace(point=x, val=y))
+      qinfos = [Namespace(point=x, val=y) for x, y in points]
     return qinfos
 
 

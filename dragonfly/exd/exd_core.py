@@ -599,25 +599,25 @@ class ExperimentDesigner(object):
     self.perform_initial_queries()
     self._child_run_experiments_initialise()
 
-  def ask(self, n_points=1):
+  def ask(self, n_points=None):
     """Get recommended point as part of the ask interface.
     Wrapper for _determine_next_query.
 
     Args:
-      n_points (int): Represents the number of points to ask for.
+      n_points (int or None): Represents the number of points to ask for.
+      None will prompt ask() to return a single point, whereas an int will 
+      prompt ask() to return a list of `n_points` points.
     """
     raise NotImplementedError('Implement in a child class.')
 
-  def tell(self, x, y):
+  def tell(self, points):
     """Add data points to be evaluated to return recommendations.
     
     Args:
-      x (:obj:`list` of float or of :obj:`list` of float): Contains the
-        explanatory variable value(s) of the points. Multiple x values
-        are passed in as a list of lists.
-      y (float or :obj:`list` of float): Contains the response variable
-        value(s) of the points. Multiple y values are passed in as a list
-        of floats.
+      points (:obj:`list` of :obj:`tuples`): Contains tuples that hold
+        the explanatory variable value(s) of the points as its first value,
+        the response variable value(s) as its second value, and a third 
+        z-value for multifidelity optimisation.
     """    
     raise NotImplementedError('Implement in a child class.')
 
