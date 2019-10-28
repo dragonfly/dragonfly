@@ -8,6 +8,7 @@
 
 import numpy as np
 # Local imports
+from ..exd import domains
 from . import random_optimiser as random_optimiser
 from ..exd.worker_manager import SyntheticWorkerManager
 from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str, \
@@ -168,17 +169,24 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
   def test_ask_tell(self):
     """ Testing random optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
-    opt = random_optimiser.EuclideanRandomOptimiser(self.func_caller, self.worker_manager_1)
+    domain = domains.EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]])
+    opt = random_optimiser.EuclideanRandomOptimiser(ask_tell_mode=True, domain=domain)
     opt.initialise()
 
     def evaluate(x):
-      return self.func_caller.eval_single(x)[0] # Get only the value
+      return sum(x)
 
+    best_x, best_y = None, float('-inf')
     for _ in range(100):
       x = opt.ask()
       y = evaluate(x)
-      opt.tell(x, y)
+      opt.tell([(x, y)])
       self.report('x: %s, y: %s'%(x, y))
+      if y > best_y:
+        best_x, best_y = x, y
+    self.report("-----------------------------------------------------")
+    self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+    
 
 class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):
 # class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase):

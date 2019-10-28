@@ -79,7 +79,7 @@ class ExperimentDesigner(object):
 
   # Methods needed for construction -------------------------------------------------
   def __init__(self, experiment_caller, worker_manager, model=None,
-               options=None, reporter=None):
+               options=None, reporter=None, ask_tell_mode=False):
     """ Constructor.
         experiment_caller is an ExperimentCaller instance.
         worker_manager is a WorkerManager instance.
@@ -91,6 +91,7 @@ class ExperimentDesigner(object):
     self.options = options
     self.reporter = get_reporter(reporter)
     self.model = model
+    self.ask_tell_mode = ask_tell_mode
     # Other set up
     self._set_up()
 
@@ -596,8 +597,8 @@ class ExperimentDesigner(object):
   def initialise(self):
     """ Initialisation for ask-tell interface. """
     self.initialise_capital()
-    self.perform_initial_queries()
-    self._child_run_experiments_initialise()
+    # self.perform_initial_queries()
+    # self._child_run_experiments_initialise()
 
   def ask(self, n_points=None):
     """Get recommended point as part of the ask interface.

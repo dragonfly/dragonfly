@@ -13,8 +13,9 @@ from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain
 from ..exd import domains
 from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
 from ..exd.exd_core import mf_exd_args
-from ..exd.experiment_caller import CPFunctionCaller
+from ..exd.experiment_caller import CPFunctionCaller, EuclideanFunctionCaller
 from ..exd.cp_domain_utils import sample_from_cp_domain
+from ..exd.worker_manager import SyntheticWorkerManager
 from .blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args, \
                                    CalledMFOptimiserWithSFCaller
 from ..utils.option_handler import load_options
@@ -58,11 +59,19 @@ class RandomOptimiser(BlackboxOptimiser):
   #pylint: disable=abstract-method
 
   # Constructor.
-  def __init__(self, func_caller, worker_manager, options=None, reporter=None):
+  def __init__(self, func_caller=None, worker_manager=None, options=None, 
+               reporter=None, ask_tell_mode=False, domain=None):
     """ Constructor. """
     options = load_options(random_optimiser_args, partial_options=options)
+    if ask_tell_mode:
+      if domain is None:
+        raise ValueError("`domain` must be specified in `ask_tell_mode`.")
+      func_caller = EuclideanFunctionCaller(None, domain)
+    if worker_manager is None:
+      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(RandomOptimiser, self).__init__(func_caller, worker_manager, model=None,
-                                          options=options, reporter=reporter)
+                                          options=options, reporter=reporter, 
+                                          ask_tell_mode=ask_tell_mode)
 
   def _opt_method_set_up(self):
     """ Any set up specific to otptimisation. """

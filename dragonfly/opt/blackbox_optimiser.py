@@ -33,12 +33,12 @@ class BlackboxOptimiser(ExperimentDesigner):
   # pylint: disable=attribute-defined-outside-init
 
   def __init__(self, func_caller, worker_manager, model=None, options=None,
-               reporter=None):
+               reporter=None, ask_tell_mode=False):
     """ Constructor. """
     self.func_caller = func_caller
     self.domain = self.func_caller.domain
     super(BlackboxOptimiser, self).__init__(func_caller, worker_manager, model,
-                                            options, reporter)
+                                            options, reporter, ask_tell_mode)
 
   def _exd_child_set_up(self):
     """ Set up for the optimisation. """
