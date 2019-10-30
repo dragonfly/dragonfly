@@ -247,21 +247,33 @@ class BlackboxOptimiser(ExperimentDesigner):
     Wrapper for _determine_next_query.
     """
     if n_points:
-      return [x.point for x in self._determine_next_batch_of_queries(n_points)]
+      points = []
+      while self.first_qinfos and n_points > 0:
+        qinfo = self.first_qinfos.pop(0)
+        points.append(qinfo.point)
+        n_points -= 1
+      return points + [x.point for x in self._determine_next_batch_of_queries(n_points) if n_points > 0]
     else:
-      return self._determine_next_query().point
+      if self.first_qinfos:
+        return self.first_qinfos.pop(0).point
+      else:
+        return self._determine_next_query().point
 
   def tell(self, points):
     """Add data points to be evaluated to return recommendations."""
     qinfos = self._generate_qinfos(points)
+    for qinfo in qinfos:
+      self._dispatch_single_experiment_to_worker_manager(qinfo)
+      # self.worker_manager._read_result_from_worker_and_update(qinfo.worker_id)
+      self._update_history(qinfo)
     self._add_data_to_model(qinfos)
 
   def _generate_qinfos(self, points):
     """Helper function for generating qinfos"""
     if self.is_an_mf_method():
-      qinfos = [Namespace(point=x, val=y, fidel=z) for x, y, z in points]
+      qinfos = [Namespace(point=x, val=y, true_val=y, fidel=z) for x, y, z in points]
     else:
-      qinfos = [Namespace(point=x, val=y) for x, y in points]
+      qinfos = [Namespace(point=x, val=y, true_val=y) for x, y in points]
     return qinfos
 
 

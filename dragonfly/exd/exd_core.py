@@ -319,6 +319,7 @@ class ExperimentDesigner(object):
       if self.init_capital is not None:
         initial_qinfos_w_init_capital = []
         _num_tries_for_init_pool_sampling = 0
+        points = 0
         while True:
           if len(initial_qinfos_w_init_capital) == 0:
             if self.options.capital_type == 'return_value':
@@ -337,15 +338,21 @@ class ExperimentDesigner(object):
                     'this problem persists.')%(_num_tries_for_init_pool_sampling))
             continue
           qinfo = initial_qinfos_w_init_capital.pop(0)
-          self.step_idx += 1
-          self._wait_for_a_free_worker()
-          if self._terminate_initialisation():
-            cap_frac = (np.nan if self.available_capital <= 0 else
-                        self.get_curr_spent_capital()/self.available_capital)
-            self.reporter.writeln('Capital spent on initialisation: %0.4f(%0.4f).'%(
-                self.get_curr_spent_capital(), cap_frac))
-            break
-          self._dispatch_single_experiment_to_worker_manager(qinfo)
+          if self.ask_tell_mode:
+            self.first_qinfos.append(qinfo)
+            points += 1
+            if points > self.available_capital:
+              break
+          else:
+            self.step_idx += 1
+            self._wait_for_a_free_worker()
+            if self._terminate_initialisation():
+              cap_frac = (np.nan if self.available_capital <= 0 else
+                          self.get_curr_spent_capital()/self.available_capital)
+              self.reporter.writeln('Capital spent on initialisation: %0.4f(%0.4f).'%(
+                  self.get_curr_spent_capital(), cap_frac))
+              break
+            self._dispatch_single_experiment_to_worker_manager(qinfo)
       else:
         num_init_evals = int(self.options.num_init_evals)
         if num_init_evals > 0:
@@ -353,9 +360,12 @@ class ExperimentDesigner(object):
           init_qinfos = get_initial_qinfos(num_init_evals,
                                            verbose_constraint_satisfaction=False)
           for qinfo in init_qinfos:
-            self.step_idx += 1
-            self._wait_for_a_free_worker()
-            self._dispatch_single_experiment_to_worker_manager(qinfo)
+            if self.ask_tell_mode:
+              self.first_qinfos.append(qinfo)
+            else:
+              self.step_idx += 1
+              self._wait_for_a_free_worker()
+              self._dispatch_single_experiment_to_worker_manager(qinfo)
 
   def _load_prev_evaluations_data_from_file(self):
     """ Load data from a prior file. """
@@ -510,7 +520,7 @@ class ExperimentDesigner(object):
     # Create a new qinfo namespace and dispatch new job.
     qinfo.send_time = self.get_curr_spent_capital()
     qinfo.step_idx = self.step_idx
-    self.worker_manager.dispatch_single_experiment(self.experiment_caller, qinfo)
+    self.worker_manager.dispatch_single_experiment(self.experiment_caller, qinfo, **{"ask_tell_mode": self.ask_tell_mode})
     self._add_to_in_progress([qinfo])
 
   def _dispatch_batch_of_experiments_to_worker_manager(self, qinfos):
@@ -597,8 +607,9 @@ class ExperimentDesigner(object):
   def initialise(self):
     """ Initialisation for ask-tell interface. """
     self.initialise_capital()
-    # self.perform_initial_queries()
-    # self._child_run_experiments_initialise()
+    self.first_qinfos = []
+    self.perform_initial_queries()
+    self._child_run_experiments_initialise()
 
   def ask(self, n_points=None):
     """Get recommended point as part of the ask interface.

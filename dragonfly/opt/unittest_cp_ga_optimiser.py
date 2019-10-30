@@ -45,15 +45,19 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
     def evaluate(x):
       return sum(x[0]) + sum(x[1])
 
-    func_caller = CPFunctionCaller(evaluate, domains.CartesianProductDomain(list_of_domains), domain_orderings=None)
-    opt = cp_ga_optimiser.CPGAOptimiser(func_caller, self.worker_manager_1)
+    opt = cp_ga_optimiser.CPGAOptimiser(ask_tell_mode=True, domain=list_of_domains)
     opt.initialise()
 
+    best_x, best_y = None, float('-inf')
     for _ in range(100):
       x = opt.ask()
       y = evaluate(x)
-      opt.tell(x, y)
+      opt.tell([(x, y)])
       self.report('x: %s, y: %s'%(x, y))
+      if y > best_y:
+        best_x, best_y = x, y
+    self.report("-----------------------------------------------------")
+    self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
 
 
 if __name__ == '__main__':

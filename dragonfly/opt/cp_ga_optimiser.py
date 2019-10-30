@@ -13,6 +13,8 @@ from scipy.spatial.distance import cdist
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                             load_cp_domain_from_config_file
 from ..exd.experiment_caller import ExperimentCaller, CPFunctionCaller
+from ..exd.domains import CartesianProductDomain
+from ..exd.worker_manager import SyntheticWorkerManager
 from ..exd.exd_utils import get_cp_domain_initial_qinfos
 from .ga_optimiser import GAOptimiser, ga_opt_args
 from ..utils.general_utils import project_to_bounds
@@ -131,13 +133,20 @@ def get_default_mutation_op(dom):
 class CPGAOptimiser(GAOptimiser):
   """ A GA Optimiser for Cartesian Product Domains. """
 
-  def __init__(self, func_caller, worker_manager, single_mutation_ops=None,
-               single_crossover_ops=None, options=None, reporter=None):
+  def __init__(self, func_caller=None, worker_manager=None, single_mutation_ops=None,
+               single_crossover_ops=None, options=None, reporter=None, 
+               ask_tell_mode=False, domain=None):
     """ Constructor. """
     options = load_options(cpga_opt_args, partial_options=options)
+    if ask_tell_mode:
+      if domain is None:
+        raise ValueError("`domain` must be specified in `ask_tell_mode`.")
+      func_caller = CPFunctionCaller(None, CartesianProductDomain(domain), domain_orderings=None)
+    if worker_manager is None:
+      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(CPGAOptimiser, self).__init__(func_caller, worker_manager,
       mutation_op=self._mutation_op, crossover_op=self._crossover_op,
-      options=options, reporter=reporter)
+      options=options, reporter=reporter, ask_tell_mode=ask_tell_mode)
     self._set_up_single_mutation_ops(single_mutation_ops)
     self._set_up_single_crossover_ops(single_crossover_ops)
 
