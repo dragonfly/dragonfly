@@ -264,7 +264,6 @@ class BlackboxOptimiser(ExperimentDesigner):
     qinfos = self._generate_qinfos(points)
     for qinfo in qinfos:
       self._dispatch_single_experiment_to_worker_manager(qinfo)
-      # self.worker_manager._read_result_from_worker_and_update(qinfo.worker_id)
       self._update_history(qinfo)
     self._add_data_to_model(qinfos)
 

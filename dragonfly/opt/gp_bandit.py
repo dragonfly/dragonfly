@@ -543,9 +543,18 @@ class GPBandit(BlackboxOptimiser):
       if self.options.mf_strategy == 'boca':
         self._main_loop_pre_boca()
   
-  def initialise(self):
-    super(GPBandit, self).initialise()
-    self._main_loop_pre()
+  def ask(self, n_points=None):
+    """ Determines next point to evaluate. 
+    Method is overridden to create the next GP here.
+    """
+    if n_points and n_points > len(self.first_qinfos):
+      points = super(GPBandit, self).ask(len(self.first_qinfos))
+      self._main_loop_pre() # next GP set up in here
+      points.extend(super(GPBandit, self).ask(n_points - len(self.first_qinfos)))
+      return points
+    elif n_points is None and len(self.first_qinfos) == 0:
+      self._main_loop_pre()
+    return super(GPBandit, self).ask()
    
 # GP Bandit class ends here ==========================================================
 

@@ -14,7 +14,7 @@ from ..exd.worker_manager import SyntheticWorkerManager
 from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str, \
                                   get_rounded_list
 from ..utils.base_test_class import BaseTestClass, execute_tests
-from ..utils.euclidean_synthetic_functions import get_syn_func_caller
+from ..utils.euclidean_synthetic_functions import get_syn_func_caller, get_mf_cost_function
 from ..utils import reporters
 
 
@@ -145,6 +145,33 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
       super(MFEuclideanOptimisersBaseTestCase, self).test_optimisation_asynchronous()
     mf_history_str = get_multi_fidelity_history_str(history)
     self.report(mf_history_str)
+  
+  def test_ask_tell(self):
+    """ Testing random optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    domain = domains.EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]])
+    fidel_bounds = [[0, 5]]
+    fidel_to_opt = [[2]]
+    fidel_cost = get_mf_cost_function(fidel_bounds)
+    opt = random_optimiser.MFEuclideanRandomOptimiser(ask_tell_mode=True, domain=domain,
+                                                      fidel_space=fidel_bounds, 
+                                                      fidel_cost_func=fidel_cost, 
+                                                      fidel_to_opt=fidel_to_opt)
+    opt.initialise()
+
+    def evaluate(x):
+      return sum(x)
+
+    best_x, best_y = None, float('-inf')
+    for _ in range(100):
+      x = opt.ask()
+      y = evaluate(x)
+      opt.tell([(x, y)])
+      self.report('x: %s, y: %s'%(x, y))
+      if y > best_y:
+        best_x, best_y = x, y
+    self.report("-----------------------------------------------------")
+    self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
 
 
 # Now the Testcases for Random Euclidean Optimisers =================================
