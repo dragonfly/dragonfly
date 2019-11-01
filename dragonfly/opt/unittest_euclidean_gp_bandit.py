@@ -8,6 +8,7 @@ import unittest
 from ..gp.euclidean_gp import euclidean_gp_args
 from . import gp_bandit
 from ..exd import domains
+from ..exd.experiment_caller import EuclideanFunctionCaller
 from .unittest_euclidean_random_optimiser import EuclideanOptimisersBaseTestCase, \
                                                     MFEuclideanOptimisersBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
@@ -50,7 +51,8 @@ class EuclideanGPBanditAskTellTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     """ Testing random optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
     domain = domains.EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]])
-    opt = gp_bandit.EuclideanGPBandit(ask_tell_mode=True, domain=domain)
+    func_caller = EuclideanFunctionCaller(None, domain)
+    opt = gp_bandit.EuclideanGPBandit(func_caller, ask_tell_mode=True)
     opt.initialise()
 
     def evaluate(x):

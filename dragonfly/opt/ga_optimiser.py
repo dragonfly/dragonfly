@@ -28,7 +28,7 @@ ga_opt_args = ga_specific_opt_args + blackbox_opt_args
 class GAOptimiser(BlackboxOptimiser):
   """ Class for optimisation based on Genetic algorithms. """
 
-  def __init__(self, func_caller=None, worker_manager=None, mutation_op=None, crossover_op=None,
+  def __init__(self, func_caller, worker_manager, mutation_op=None, crossover_op=None,
                options=None, reporter=None, ask_tell_mode=False):
     """ Constructor.
       mutation_op: A function which takes in a list of objects and modifies them.

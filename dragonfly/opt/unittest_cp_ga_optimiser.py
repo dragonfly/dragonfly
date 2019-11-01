@@ -9,6 +9,7 @@
 # Local
 from . import cp_ga_optimiser
 from ..exd import domains
+from ..exd.domains import CartesianProductDomain
 from ..exd.experiment_caller import CPFunctionCaller
 from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
@@ -45,7 +46,8 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
     def evaluate(x):
       return sum(x[0]) + sum(x[1])
 
-    opt = cp_ga_optimiser.CPGAOptimiser(ask_tell_mode=True, domain=list_of_domains)
+    func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=None)
+    opt = cp_ga_optimiser.CPGAOptimiser(func_caller, ask_tell_mode=True)
     opt.initialise()
 
     best_x, best_y = None, float('-inf')

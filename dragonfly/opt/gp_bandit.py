@@ -17,7 +17,7 @@ from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain
                                 load_cp_domain_from_config_file, load_config_file
 from ..exd.exd_core import mf_exd_args
 from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
-from ..exd.experiment_caller import CPFunctionCaller, EuclideanFunctionCaller, get_multifunction_caller_from_config
+from ..exd.experiment_caller import CPFunctionCaller, get_multifunction_caller_from_config
 from ..exd.worker_manager import SyntheticWorkerManager
 from ..gp.euclidean_gp import EuclideanGPFitter, euclidean_gp_args, \
                             EuclideanMFGPFitter, euclidean_mf_gp_args
@@ -564,13 +564,9 @@ class EuclideanGPBandit(GPBandit):
   """ A GP Bandit for Euclidean Spaces. """
 
   # Constructor.
-  def __init__(self, func_caller=None, worker_manager=None, is_mf=False,
+  def __init__(self, func_caller, worker_manager=None, is_mf=False,
                options=None, reporter=None, ask_tell_mode=False, domain=None):
     """ Constructor. """
-    if ask_tell_mode:
-      if domain is None:
-        raise ValueError("`domain` must be specified in `ask_tell_mode`.")
-      func_caller = EuclideanFunctionCaller(None, domain)
     if worker_manager is None:
       worker_manager = SyntheticWorkerManager(1, time_distro='const')
     if is_mf:

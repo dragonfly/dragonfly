@@ -13,8 +13,7 @@ from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain
 from ..exd import domains
 from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
 from ..exd.exd_core import mf_exd_args
-from ..exd.experiment_caller import CPFunctionCaller, EuclideanFunctionCaller, \
-                                    EuclideanMultiFunctionCaller
+from ..exd.experiment_caller import CPFunctionCaller
 from ..exd.cp_domain_utils import sample_from_cp_domain
 from ..exd.worker_manager import SyntheticWorkerManager
 from .blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args, \
@@ -60,7 +59,7 @@ class RandomOptimiser(BlackboxOptimiser):
   #pylint: disable=abstract-method
 
   # Constructor.
-  def __init__(self, func_caller=None, worker_manager=None, options=None, 
+  def __init__(self, func_caller, worker_manager, options=None, 
                reporter=None, ask_tell_mode=False):
     """ Constructor. """
     options = load_options(random_optimiser_args, partial_options=options)
@@ -88,12 +87,8 @@ class RandomOptimiser(BlackboxOptimiser):
 class EuclideanRandomOptimiser(RandomOptimiser):
   """ A class which optimises in Euclidean spaces using random evaluations. """
 
-  def __init__(self, func_caller=None, worker_manager=None, options=None, 
-               reporter=None, ask_tell_mode=False, domain=None):
-    if ask_tell_mode:
-      if domain is None:
-        raise ValueError("`domain` must be specified in `ask_tell_mode`.")
-      func_caller = EuclideanFunctionCaller(None, domain)
+  def __init__(self, func_caller, worker_manager=None, options=None, 
+               reporter=None, ask_tell_mode=False):
     if worker_manager is None:
       worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(EuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
@@ -127,23 +122,12 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
   """
 
   # Constructor.
-  def __init__(self, func_caller=None, worker_manager=None, call_fidel_to_opt_prob=0.25,
-               ask_tell_mode=False, domain=None, *args, **kwargs):
+  def __init__(self, func_caller, worker_manager=None, call_fidel_to_opt_prob=0.25,
+               ask_tell_mode=False, *args, **kwargs):
     """ Constructor.
         call_fidel_to_opt_prob is the probability with which we will choose
         fidel_to_opt as the fidel.
     """
-    if ask_tell_mode:
-      if domain is None:
-        raise ValueError("`domain` must be specified in `ask_tell_mode`.")
-      fidel_space = kwargs.pop("fidel_space")
-      fidel_cost_func = kwargs.pop("fidel_cost_func")
-      fidel_to_opt = kwargs.pop("fidel_to_opt")
-      print("blah", fidel_space, fidel_cost_func, fidel_to_opt)
-      func_caller = EuclideanMultiFunctionCaller(None, domain, raw_fidel_space=fidel_space,
-                                                 fidel_cost_func=fidel_cost_func, 
-                                                 raw_fidel_to_opt=fidel_to_opt, 
-                                                 *args, **kwargs)
     if worker_manager is None:
       worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(MFEuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
