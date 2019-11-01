@@ -89,6 +89,7 @@ class EuclideanRandomOptimiser(RandomOptimiser):
 
   def __init__(self, func_caller, worker_manager=None, options=None, 
                reporter=None, ask_tell_mode=False):
+    options = load_options(euclidean_random_optimiser_args, partial_options=options)
     if worker_manager is None:
       worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(EuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
@@ -128,9 +129,11 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
         call_fidel_to_opt_prob is the probability with which we will choose
         fidel_to_opt as the fidel.
     """
+    options = load_options(mf_euclidean_random_optimiser_args, partial_options=kwargs.pop("options", None))
     if worker_manager is None:
       worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(MFEuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
+                                                     options=options,
                                                      ask_tell_mode=ask_tell_mode,
                                                      *args, **kwargs)
     self.call_fidel_to_opt_prob = call_fidel_to_opt_prob
@@ -162,7 +165,6 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
 
   def _get_initial_qinfos(self, num_init_evals, *args, **kwargs):
     """ Returns initial qinfos. """
-    print("options", self.options)
     return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
              self.domain.bounds, self.options.fidel_init_method, self.fidel_space.bounds,
              self.func_caller.fidel_to_opt,
@@ -172,6 +174,14 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
 # A random optimiser in Cartesian product spaces --------------------------------------
 class CPRandomOptimiser(RandomOptimiser):
   """ A random optimiser for cartesian product domains. """
+  def __init__(self, func_caller, worker_manager=None, options=None, 
+              reporter=None, ask_tell_mode=False):
+    options = load_options(cp_random_optimiser_args, partial_options=options)
+    if worker_manager is None:
+      worker_manager = SyntheticWorkerManager(1, time_distro='const')
+    super(CPRandomOptimiser, self).__init__(func_caller, worker_manager,
+                                            options=options, reporter=reporter, 
+                                            ask_tell_mode=ask_tell_mode)
 
   def is_an_mf_method(self):
     """ Returns False since it is not a False method. """
@@ -202,6 +212,7 @@ class MFCPRandomOptimiser(RandomOptimiser):
   def __init__(self, func_caller, worker_manager, call_fidel_to_opt_prob=0.25,
                *args, **kwargs):
     """ Constructor. """
+    options = load_options(mf_cp_random_optimiser_args, partial_options=options)
     super(MFCPRandomOptimiser, self).__init__(func_caller, worker_manager,
                                               *args, **kwargs)
     self.call_fidel_to_opt_prob = call_fidel_to_opt_prob

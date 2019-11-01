@@ -250,14 +250,29 @@ class BlackboxOptimiser(ExperimentDesigner):
       points = []
       while self.first_qinfos and n_points > 0:
         qinfo = self.first_qinfos.pop(0)
-        points.append(qinfo.point)
+        if self.is_an_mf_method():
+          points.append((qinfo.fidel, qinfo.point))
+        else:
+          points.append(qinfo.point)
         n_points -= 1
-      return points + [x.point for x in self._determine_next_batch_of_queries(n_points) if n_points > 0]
+      new_points = self._determine_next_batch_of_queries(n_points) if n_points > 0 else []
+      if self.is_an_mf_method():
+        return points + [(x.fidel, x.point) for x in new_points]
+      else:
+        return points + [x.point for x in new_points]
     else:
       if self.first_qinfos:
-        return self.first_qinfos.pop(0).point
+        qinfo = self.first_qinfos.pop(0)
+        if self.is_an_mf_method():
+          return qinfo.fidel, qinfo.point
+        else:
+          return qinfo.point
       else:
-        return self._determine_next_query().point
+        qinfo = self._determine_next_query()
+        if self.is_an_mf_method():
+          return qinfo.fidel, qinfo.point
+        else:
+          return qinfo.point
 
   def tell(self, points):
     """Add data points to be evaluated to return recommendations."""
@@ -270,7 +285,7 @@ class BlackboxOptimiser(ExperimentDesigner):
   def _generate_qinfos(self, points):
     """Helper function for generating qinfos"""
     if self.is_an_mf_method():
-      qinfos = [Namespace(point=x, val=y, true_val=y, fidel=z) for x, y, z in points]
+      qinfos = [Namespace(point=x, val=y, true_val=y, fidel=z) for z, x, y in points]
     else:
       qinfos = [Namespace(point=x, val=y, true_val=y) for x, y in points]
     return qinfos

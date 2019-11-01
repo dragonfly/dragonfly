@@ -147,6 +147,34 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
     mf_history_str = get_multi_fidelity_history_str(history)
     self.report(mf_history_str)
 
+  def test_ask_tell(self):
+    """ Testing random optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    domain = domains.EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]])
+    fidel_bounds = [[0, 5]]
+    fidel_space = domains.EuclideanDomain(fidel_bounds)
+    fidel_to_opt = [[2]]
+    fidel_cost = get_mf_cost_function(fidel_bounds)
+    func_caller = EuclideanFunctionCaller(None, domain, raw_fidel_space=fidel_space,
+                                          fidel_cost_func=fidel_cost, raw_fidel_to_opt=fidel_to_opt)
+    opt = random_optimiser.MFEuclideanRandomOptimiser(func_caller, ask_tell_mode=True)
+    opt.initialise()
+
+    def evaluate(x):
+      return sum(x)
+
+    best_z, best_x, best_y = None, None, float('-inf')
+    for _ in range(100):
+      point = opt.ask()
+      z, x = point[0], point[1]
+      y = evaluate(x)
+      opt.tell([(z, x, y)])
+      self.report('z: %s, x: %s, y: %s'%(z, x, y))
+      if y > best_y:
+        best_z, best_x, best_y = z, x, y
+    self.report("-----------------------------------------------------")
+    self.report("Optimal Value: %s, Optimal Point: %s (Fidel: %s)"%(best_y, best_x, best_z))
+
 # Now the Testcases for Random Euclidean Optimisers =================================
 
 class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):
