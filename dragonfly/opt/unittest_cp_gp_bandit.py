@@ -6,6 +6,8 @@ import unittest
 
 # Local imports
 from . import gp_bandit
+from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
+from ..exd.experiment_caller import CPFunctionCaller
 from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
@@ -27,6 +29,45 @@ class CPGPBanditTestCaseDefinitions(object):
                                           worker_manager=worker_manager,
                                           max_capital=max_capital, is_mf=False,
                                           mode=mode, *args, **kwargs)
+
+class CPGPBanditAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
+  """ Unit test for the GP Bandit in Euclidean spaces for the ask-tell interface. """
+  def test_instantiation(self):
+    pass
+  
+  def test_optimisation_single(self):
+    pass
+
+  def test_optimisation_asynchronous(self):
+    pass
+
+  def test_optimisation_synchronous(self):
+    pass
+
+  def test_ask_tell(self):
+    """ Testing CP GP Bandit optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    list_of_domains = [
+      EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
+      IntegralDomain([[0, 10], [-10, 100], [45, 78.4]]),
+    ]
+    def evaluate(x):
+      return sum(x[0]) + sum(x[1])
+
+    func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=None)
+    opt = gp_bandit.CPGPBandit(func_caller, ask_tell_mode=True)
+    opt.initialise()
+
+    best_x, best_y = None, float('-inf')
+    for _ in range(100):
+      x = opt.ask()
+      y = evaluate(x)
+      opt.tell([(x, y)])
+      self.report('x: %s, y: %s'%(x, y))
+      if y > best_y:
+        best_x, best_y = x, y
+    self.report("-----------------------------------------------------")
+    self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
 
 
 @unittest.skip

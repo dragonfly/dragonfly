@@ -565,7 +565,7 @@ class EuclideanGPBandit(GPBandit):
 
   # Constructor.
   def __init__(self, func_caller, worker_manager=None, is_mf=False,
-               options=None, reporter=None, ask_tell_mode=False, domain=None):
+               options=None, reporter=None, ask_tell_mode=False):
     """ Constructor. """
     if worker_manager is None:
       worker_manager = SyntheticWorkerManager(1, time_distro='const')
@@ -762,10 +762,13 @@ class EuclideanGPBandit(GPBandit):
 class CPGPBandit(GPBandit):
   """ A GP Bandit class on Cartesian product spaces. """
 
-  def __init__(self, func_caller, worker_manager, is_mf=False,
-               domain_dist_computers=None, options=None, reporter=None):
+  def __init__(self, func_caller, worker_manager=None, is_mf=False,
+               domain_dist_computers=None, options=None, reporter=None,
+               ask_tell_mode=False):
     """ Constructor. """
     # First load up options
+    if worker_manager is None:
+      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     if is_mf:
       all_args = get_all_mf_euc_gp_bandit_args()
     else:
@@ -773,7 +776,8 @@ class CPGPBandit(GPBandit):
     options = load_options(all_args, partial_options=options)
     self.domain_dist_computers = domain_dist_computers
     super(CPGPBandit, self).__init__(func_caller, worker_manager, is_mf=is_mf,
-                                     options=options, reporter=reporter)
+                                     options=options, reporter=reporter,
+                                     ask_tell_mode=ask_tell_mode)
 
   def _child_opt_method_set_up(self):
     """ Set up for child class. Override this method in child class. """

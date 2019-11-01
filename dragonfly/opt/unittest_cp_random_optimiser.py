@@ -17,6 +17,7 @@ try:
   from ..test_data.park2_4.park2_4 import park2_4
   from ..test_data.park2_4.park2_4_mf import park2_4_mf
   from ..test_data.park2_4.park2_4_mf import cost as cost_park2_4_mf
+  from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
   from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                   get_raw_point_from_processed_point, \
                                   load_cp_domain_from_config_file, \
@@ -142,6 +143,46 @@ class CPOptimiserBaseTestCase(object):
                               self.worker_manager_3, self.max_capital, 'syn')
       self._test_optimiser_results(opt_val, opt_point, history, dcf)
       self.report('')
+
+@unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
+class CPRandomOptimiserAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
+  """ Unit test for the GP Bandit in Euclidean spaces for the ask-tell interface. """
+  def test_instantiation(self):
+    pass
+  
+  def test_optimisation_single(self):
+    pass
+
+  def test_optimisation_asynchronous(self):
+    pass
+
+  def test_optimisation_synchronous(self):
+    pass
+
+  def test_ask_tell(self):
+    """ Testing CP GP Bandit optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    list_of_domains = [
+      EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
+      IntegralDomain([[0, 10], [-10, 100], [45, 78.4]]),
+    ]
+    def evaluate(x):
+      return sum(x[0]) + sum(x[1])
+
+    func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=None)
+    opt = random_optimiser.CPRandomOptimiser(func_caller, ask_tell_mode=True)
+    opt.initialise()
+
+    best_x, best_y = None, float('-inf')
+    for _ in range(100):
+      x = opt.ask()
+      y = evaluate(x)
+      opt.tell([(x, y)])
+      self.report('x: %s, y: %s'%(x, y))
+      if y > best_y:
+        best_x, best_y = x, y
+    self.report("-----------------------------------------------------")
+    self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
 
 
 @unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
