@@ -8,6 +8,7 @@ import unittest
 from . import gp_bandit
 from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
 from ..exd.experiment_caller import CPFunctionCaller
+from ..exd.cp_domain_utils import load_config_file
 from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
@@ -47,14 +48,11 @@ class CPGPBanditAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
   def test_ask_tell(self):
     """ Testing CP GP Bandit optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
-    list_of_domains = [
-      EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
-      IntegralDomain([[0, 10], [-10, 100], [45, 78.4]]),
-    ]
+    config = load_config_file('dragonfly/test_data/park2_4/config.json')
     def evaluate(x):
       return sum(x[0]) + sum(x[1])
 
-    func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=None)
+    func_caller = CPFunctionCaller(None, config.domain, domain_orderings=config.domain_orderings)
     opt = gp_bandit.CPGPBandit(func_caller, ask_tell_mode=True)
     opt.initialise()
 
