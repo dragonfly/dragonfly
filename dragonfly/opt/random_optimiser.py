@@ -212,7 +212,6 @@ class MFCPRandomOptimiser(RandomOptimiser):
   def __init__(self, func_caller, worker_manager, call_fidel_to_opt_prob=0.25,
                *args, **kwargs):
     """ Constructor. """
-    options = load_options(mf_cp_random_optimiser_args, partial_options=options)
     super(MFCPRandomOptimiser, self).__init__(func_caller, worker_manager,
                                               *args, **kwargs)
     self.call_fidel_to_opt_prob = call_fidel_to_opt_prob
