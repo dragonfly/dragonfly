@@ -57,7 +57,7 @@ class CPGPBanditAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
     opt.initialise()
 
     best_x, best_y = None, float('-inf')
-    for _ in range(100):
+    for _ in range(20):
       x = opt.ask()
       y = evaluate(x)
       opt.tell([(x, y)])

@@ -79,4 +79,4 @@ install:
 
 script: 
   - bash run_all_tests.sh sanity $DIRECT_STATE
-  - travis_wait bash run_all_tests.sh
+  - bash run_all_tests.sh
