@@ -161,7 +161,7 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
     opt.initialise()
 
     def evaluate(x):
-      return sum(x)
+      return get_syn_func_caller('hartmann6', fidel_dim=fidel_space, noise_type='gauss', noise_scale=0.1).func
 
     best_z, best_x, best_y = None, None, float('-inf')
     for _ in range(20):
@@ -203,7 +203,7 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     opt.initialise()
 
     def evaluate(x):
-      return sum(x)
+      return get_syn_func_caller('hartmann6', noise_type='gauss', noise_scale=0.1).func
 
     best_x, best_y = None, float('-inf')
     for _ in range(20):

@@ -9,8 +9,9 @@
 # Local
 from . import cp_ga_optimiser
 from ..exd import domains
-from ..exd.domains import CartesianProductDomain
+from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
 from ..exd.experiment_caller import CPFunctionCaller
+from ..test_data.park1_3.park1_3 import park1_3
 from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
 
@@ -40,11 +41,12 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
     """ Testing random optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
     list_of_domains = [
-      domains.EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
-      domains.IntegralDomain([[0, 10], [-10, 100], [45, 78.4]]),
+      EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
+      IntegralDomain([[0, 10], [0, 100], [45, 78.4]]),
+      EuclideanDomain([[10, 20], [15, 25], [20, 30]])
     ]
     def evaluate(x):
-      return sum(x[0]) + sum(x[1])
+      return sum(park1_3(x))
 
     func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=None)
     opt = cp_ga_optimiser.CPGAOptimiser(func_caller, ask_tell_mode=True)

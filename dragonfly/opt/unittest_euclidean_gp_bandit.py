@@ -56,7 +56,7 @@ class EuclideanGPBanditAskTellTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     opt.initialise()
 
     def evaluate(x):
-      return sum(x)
+      return get_syn_func_caller('hartmann6', noise_type='gauss', noise_scale=0.1).func
 
     best_x, best_y = None, float('-inf')
     for _ in range(20):
