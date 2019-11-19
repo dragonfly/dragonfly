@@ -160,14 +160,14 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
     opt = random_optimiser.MFEuclideanRandomOptimiser(func_caller, ask_tell_mode=True)
     opt.initialise()
 
-    def evaluate(x):
-      return get_syn_func_caller('hartmann6', fidel_dim=fidel_space, noise_type='gauss', noise_scale=0.1).func
+    def evaluate(z, x):
+      return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1, fidel_dim=1).func(z, x)
 
     best_z, best_x, best_y = None, None, float('-inf')
     for _ in range(20):
       point = opt.ask()
       z, x = point[0], point[1]
-      y = evaluate(x)
+      y = evaluate(z, x)
       opt.tell([(z, x, y)])
       self.report('z: %s, x: %s, y: %s'%(z, x, y))
       if y > best_y:
@@ -203,7 +203,7 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     opt.initialise()
 
     def evaluate(x):
-      return get_syn_func_caller('hartmann6', noise_type='gauss', noise_scale=0.1).func
+      return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1).func(x)
 
     best_x, best_y = None, float('-inf')
     for _ in range(20):

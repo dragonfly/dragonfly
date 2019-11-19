@@ -12,6 +12,7 @@ from ..exd.experiment_caller import EuclideanFunctionCaller
 from .unittest_euclidean_random_optimiser import EuclideanOptimisersBaseTestCase, \
                                                     MFEuclideanOptimisersBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
+from ..utils.euclidean_synthetic_functions import get_syn_func_caller
 from ..utils.option_handler import load_options
 
 
@@ -56,7 +57,7 @@ class EuclideanGPBanditAskTellTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     opt.initialise()
 
     def evaluate(x):
-      return get_syn_func_caller('hartmann6', noise_type='gauss', noise_scale=0.1).func
+      return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1).func(x)
 
     best_x, best_y = None, float('-inf')
     for _ in range(20):
