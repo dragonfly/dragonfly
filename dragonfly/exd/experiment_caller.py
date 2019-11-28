@@ -219,10 +219,6 @@ class ExperimentCaller(object):
   # Eval from qinfo
   def eval_from_qinfo(self, qinfo, *args, **kwargs):
     """ Evaluates from a qinfo object. Returns the qinfo. """
-    ask_tell_mode = kwargs.pop("ask_tell_mode", False)
-    if ask_tell_mode:
-      # Skip evaluation, since there is no func in the function caller
-      return qinfo
     if not hasattr(qinfo, 'fidel'):
       _, qinfo = self.eval_single(qinfo.point, qinfo, *args, **kwargs)
       return qinfo

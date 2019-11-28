@@ -136,8 +136,6 @@ class CPGAOptimiser(GAOptimiser):
                single_crossover_ops=None, options=None, reporter=None, ask_tell_mode=False):
     """ Constructor. """
     options = load_options(cpga_opt_args, partial_options=options)
-    if worker_manager is None:
-      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(CPGAOptimiser, self).__init__(func_caller, worker_manager,
       mutation_op=self._mutation_op, crossover_op=self._crossover_op,
       options=options, reporter=reporter, ask_tell_mode=ask_tell_mode)

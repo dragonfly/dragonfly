@@ -78,7 +78,7 @@ class ExperimentDesigner(object):
   #pylint: disable=too-many-instance-attributes
 
   # Methods needed for construction -------------------------------------------------
-  def __init__(self, experiment_caller, worker_manager, model=None,
+  def __init__(self, experiment_caller, worker_manager=None, model=None,
                options=None, reporter=None, ask_tell_mode=False):
     """ Constructor.
         experiment_caller is an ExperimentCaller instance.
@@ -103,10 +103,11 @@ class ExperimentDesigner(object):
     self.step_idx = 0
     self.num_succ_queries = 0
     # Initialise worker manager
-    self.worker_manager.set_experiment_designer(self)
-    copyable_params_from_worker_manager = ['num_workers']
-    for param in copyable_params_from_worker_manager:
-      setattr(self, param, getattr(self.worker_manager, param))
+    if not self.ask_tell_mode:
+      self.worker_manager.set_experiment_designer(self)
+      copyable_params_from_worker_manager = ['num_workers']
+      for param in copyable_params_from_worker_manager:
+        setattr(self, param, getattr(self.worker_manager, param))
     # Other book keeping stuff
     self.last_report_at = 0
     self.last_model_build_at = 0
@@ -122,9 +123,9 @@ class ExperimentDesigner(object):
                              query_eval_times=[],
                              query_worker_ids=[],
                              query_qinfos=[],
-                             job_idxs_of_workers={k:[] for k in
-                                                  self.worker_manager.worker_ids},
                             )
+    if not self.ask_tell_mode:
+      self.history.job_idxs_of_workers = {k: [] for k in self.worker_manager.worker_ids}
     self.to_copy_from_qinfo_to_history = {
         'step_idx': 'query_step_idxs',
         'point': 'query_points',
@@ -214,7 +215,8 @@ class ExperimentDesigner(object):
   def _update_history(self, qinfo):
     """ qinfo is a namespace information about the query. """
     # Update the number of jobs done by each worker regardless
-    self.history.job_idxs_of_workers[qinfo.worker_id].append(qinfo.step_idx)
+    if not self.ask_tell_mode:
+      self.history.job_idxs_of_workers[qinfo.worker_id].append(qinfo.step_idx)
     self.history.query_qinfos.append(qinfo) # Save the qinfo
     # Now store in history
     for qinfo_name, history_name in self.to_copy_from_qinfo_to_history.items():
@@ -520,7 +522,15 @@ class ExperimentDesigner(object):
     # Create a new qinfo namespace and dispatch new job.
     qinfo.send_time = self.get_curr_spent_capital()
     qinfo.step_idx = self.step_idx
-    self.worker_manager.dispatch_single_experiment(self.experiment_caller, qinfo, **{"ask_tell_mode": self.ask_tell_mode})
+    self.worker_manager.dispatch_single_experiment(self.experiment_caller, qinfo)
+    self._add_to_in_progress([qinfo])
+  
+  def _dispatch_single_experiment_ask_tell_mode(self, qinfo):
+    """ Dispatches an experiment in ask-tell mode. """
+    qinfo.send_time = self.get_curr_spent_capital()
+    qinfo.step_idx = self.step_idx
+    qinfo.eval_time = 1.0
+    qinfo.receive_time = qinfo.send_time + qinfo.eval_time
     self._add_to_in_progress([qinfo])
 
   def _dispatch_batch_of_experiments_to_worker_manager(self, qinfos):

@@ -59,7 +59,7 @@ class RandomOptimiser(BlackboxOptimiser):
   #pylint: disable=abstract-method
 
   # Constructor.
-  def __init__(self, func_caller, worker_manager, options=None, 
+  def __init__(self, func_caller, worker_manager=None, options=None, 
                reporter=None, ask_tell_mode=False):
     """ Constructor. """
     options = load_options(random_optimiser_args, partial_options=options)
@@ -90,8 +90,6 @@ class EuclideanRandomOptimiser(RandomOptimiser):
   def __init__(self, func_caller, worker_manager=None, options=None, 
                reporter=None, ask_tell_mode=False):
     options = load_options(euclidean_random_optimiser_args, partial_options=options)
-    if worker_manager is None:
-      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(EuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
                                                    options=options, reporter=reporter, 
                                                    ask_tell_mode=ask_tell_mode)
@@ -130,8 +128,6 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
         fidel_to_opt as the fidel.
     """
     options = load_options(mf_euclidean_random_optimiser_args, partial_options=kwargs.pop("options", None))
-    if worker_manager is None:
-      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(MFEuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
                                                      options=options,
                                                      ask_tell_mode=ask_tell_mode,
@@ -177,8 +173,6 @@ class CPRandomOptimiser(RandomOptimiser):
   def __init__(self, func_caller, worker_manager=None, options=None, 
               reporter=None, ask_tell_mode=False):
     options = load_options(cp_random_optimiser_args, partial_options=options)
-    if worker_manager is None:
-      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     super(CPRandomOptimiser, self).__init__(func_caller, worker_manager,
                                             options=options, reporter=reporter, 
                                             ask_tell_mode=ask_tell_mode)

@@ -176,7 +176,7 @@ class GPBandit(BlackboxOptimiser):
   # pylint: disable=attribute-defined-outside-init
 
   # Constructor.
-  def __init__(self, func_caller, worker_manager, is_mf=False,
+  def __init__(self, func_caller, worker_manager=None, is_mf=False,
                options=None, reporter=None, ask_tell_mode=False):
     """ Constructor. """
     self._is_mf = is_mf
@@ -567,8 +567,6 @@ class EuclideanGPBandit(GPBandit):
   def __init__(self, func_caller, worker_manager=None, is_mf=False,
                options=None, reporter=None, ask_tell_mode=False):
     """ Constructor. """
-    if worker_manager is None:
-      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     if is_mf:
       all_args = get_all_mf_euc_gp_bandit_args()
     else:
@@ -767,8 +765,6 @@ class CPGPBandit(GPBandit):
                ask_tell_mode=False):
     """ Constructor. """
     # First load up options
-    if worker_manager is None:
-      worker_manager = SyntheticWorkerManager(1, time_distro='const')
     if is_mf:
       all_args = get_all_mf_euc_gp_bandit_args()
     else:

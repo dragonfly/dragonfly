@@ -32,7 +32,7 @@ class BlackboxOptimiser(ExperimentDesigner):
   """ Blackbox Optimiser Class. """
   # pylint: disable=attribute-defined-outside-init
 
-  def __init__(self, func_caller, worker_manager, model=None, options=None,
+  def __init__(self, func_caller, worker_manager=None, model=None, options=None,
                reporter=None, ask_tell_mode=False):
     """ Constructor. """
     self.func_caller = func_caller
@@ -278,7 +278,7 @@ class BlackboxOptimiser(ExperimentDesigner):
     """Add data points to be evaluated to return recommendations."""
     qinfos = self._generate_qinfos(points)
     for qinfo in qinfos:
-      self._dispatch_single_experiment_to_worker_manager(qinfo)
+      self._dispatch_single_experiment_ask_tell_mode(qinfo)
       self._update_history(qinfo)
     self._add_data_to_model(qinfos)
 
