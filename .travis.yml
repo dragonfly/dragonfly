@@ -2,7 +2,6 @@ language: python
 os:
   - linux
 python:
-  - "2.7"
   - "3.5"
   - "3.6"
 env:
@@ -35,12 +34,6 @@ osx-setup-steps: &osx-setup-steps
 # that is what pyenv uses for the installs. The extra "python" label to fix the display in the UI.
 matrix:
   include:
-    - python: 2.7
-      env: PYTHON=2.7.12 DIRECT_STATE=direct OPT_STATE=-optimal
-      <<: *osx-setup-steps
-    - python: 2.7
-      env: PYTHON=2.7.12 DIRECT_STATE=-direct OPT_STATE=-optimal
-      <<: *osx-setup-steps
     - python: 3.5
       env: PYTHON=3.5.6 DIRECT_STATE=direct OPT_STATE=-optimal
       <<: *osx-setup-steps
