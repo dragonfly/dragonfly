@@ -161,10 +161,8 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
     opt = random_optimiser.MFEuclideanRandomOptimiser(func_caller, ask_tell_mode=True)
     opt.initialise()
 
-    euclidean_func_caller = get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1, fidel_dim=1)
-
     def evaluate(z, x):
-      return euclidean_func_caller.func(z, x)
+      return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1, fidel_dim=1).func(z, x)
 
     best_z, best_x, best_y = None, None, float('-inf')
     for _ in range(20):
