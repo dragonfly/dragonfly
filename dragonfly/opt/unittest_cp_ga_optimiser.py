@@ -8,7 +8,9 @@
 
 # Local
 from . import cp_ga_optimiser
+from ..apis.opt import maximise_function
 from ..exd import domains
+from ..exd.cp_domain_utils import load_cp_domain_from_config_file, load_config_file
 from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
 from ..exd.experiment_caller import CPFunctionCaller
 from ..test_data.park1_3.park1_3 import park1_3
@@ -40,15 +42,12 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
   def test_ask_tell(self):
     """ Testing random optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
-    list_of_domains = [
-      EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
-      IntegralDomain([[0, 10], [0, 100], [45, 78.4]]),
-      EuclideanDomain([[10, 20], [15, 25], [20, 30]])
-    ]
-    def evaluate(x):
-      return sum(park1_3(x))
 
-    func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=None)
+    domain, orderings = load_cp_domain_from_config_file('dragonfly/test_data/park1_3/config.json')
+    def evaluate(x):
+      return park1_3(x)
+
+    func_caller = CPFunctionCaller(None, domain, domain_orderings=orderings)
     opt = cp_ga_optimiser.CPGAOptimiser(func_caller, ask_tell_mode=True)
     opt.initialise()
 
@@ -62,6 +61,12 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
         best_x, best_y = x, y
     self.report("-----------------------------------------------------")
     self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+
+    self.report("-----------------------------------------------------")
+    config = load_config_file('dragonfly/test_data/park1_3/config.json')
+    self.report("Regular optimisation using maximise_function")
+    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='ga', config=config)
+    self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 
 if __name__ == '__main__':

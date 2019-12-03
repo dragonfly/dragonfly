@@ -251,28 +251,56 @@ class BlackboxOptimiser(ExperimentDesigner):
       while self.first_qinfos and n_points > 0:
         qinfo = self.first_qinfos.pop(0)
         if self.is_an_mf_method():
-          points.append((qinfo.fidel, qinfo.point))
+          if self.domain.get_type() == 'euclidean':
+            points.append(self.func_caller.get_raw_fidel_domain_coords(qinfo.fidel, qinfo.point))
+          else:
+            points.append((self.func_caller.get_raw_fidel_from_processed(qinfo.fidel), 
+              self.func_caller.get_raw_domain_point_from_processed(qinfo.point)))
         else:
-          points.append(qinfo.point)
+          if self.domain.get_type() == 'euclidean':
+            points.append(self.func_caller.get_raw_domain_coords(qinfo.point))
+          else:
+            points.append(self.func_caller.get_raw_domain_point_from_processed(qinfo.point))
         n_points -= 1
       new_points = self._determine_next_batch_of_queries(n_points) if n_points > 0 else []
       if self.is_an_mf_method():
-        return points + [(x.fidel, x.point) for x in new_points]
+        if self.domain.get_type() == 'euclidean':
+          return points + [self.func_caller.get_raw_fidel_domain_coords(x.fidel, x.point) for x in new_points]
+        else:
+          return points + [(self.func_caller.get_raw_fidel_from_processed(x.fidel), 
+            self.func_caller.get_raw_domain_point_from_processed(x.point)) for x in new_points]
       else:
-        return points + [x.point for x in new_points]
+        if self.domain.get_type() == 'euclidean':
+          return points + [self.func_caller.get_raw_domain_coords(x.point) for x in new_points]
+        else:
+          return points + [self.func_caller.get_raw_domain_point_from_processed(x.point) for x in new_points]
     else:
       if self.first_qinfos:
         qinfo = self.first_qinfos.pop(0)
         if self.is_an_mf_method():
-          return qinfo.fidel, qinfo.point
+          if self.domain.get_type() == 'euclidean':
+            return self.func_caller.get_raw_fidel_domain_coords(qinfo.fidel, qinfo.point)
+          else:
+            return self.func_caller.get_raw_fidel_from_processed(qinfo.fidel), \
+              self.func_caller.get_raw_domain_point_from_processed(qinfo.point)
         else:
-          return qinfo.point
+          if self.domain.get_type() == 'euclidean':
+            return self.func_caller.get_raw_domain_coords(qinfo.point)
+          else:
+            return self.func_caller.get_raw_domain_point_from_processed(qinfo.point)
       else:
         qinfo = self._determine_next_query()
         if self.is_an_mf_method():
-          return qinfo.fidel, qinfo.point
+          if self.domain.get_type() == 'euclidean':
+            return self.func_caller.get_raw_fidel_domain_coords(qinfo.fidel, qinfo.point)
+          else:
+            return self.func_caller.get_raw_fidel_from_processed(qinfo.fidel), \
+              self.func_caller.get_raw_domain_point_from_processed(qinfo.point)
         else:
-          return qinfo.point
+          if self.domain.get_type() == 'euclidean':
+            return self.func_caller.get_raw_domain_coords(qinfo.point)
+          else:
+            return self.func_caller.get_raw_domain_point_from_processed(qinfo.point)
 
   def tell(self, points):
     """Add data points to be evaluated to return recommendations."""
@@ -284,10 +312,22 @@ class BlackboxOptimiser(ExperimentDesigner):
 
   def _generate_qinfos(self, points):
     """Helper function for generating qinfos"""
+    qinfos = []
     if self.is_an_mf_method():
-      qinfos = [Namespace(point=x, val=y, true_val=y, fidel=z) for z, x, y in points]
+      for point in points:
+        if self.domain.get_type() == 'euclidean':
+          z, x = self.func_caller.get_normalised_fidel_domain_coords(point[0], point[1])
+        else:
+          z, x = self.func_caller.get_processed_fidel_from_raw(point[0]), \
+            self.func_caller.get_processed_domain_point_from_raw(point[1])
+        qinfos.append(Namespace(point=x, val=point[2], true_val=point[2], fidel=z))
     else:
-      qinfos = [Namespace(point=x, val=y, true_val=y) for x, y in points]
+      for point in points:
+        if self.domain.get_type() == 'euclidean':
+          x = self.func_caller.get_normalised_domain_coords(point[0])
+        else:
+          x = self.func_caller.get_processed_domain_point_from_raw(point[0])
+        qinfos.append(Namespace(point=x, val=point[1], true_val=point[1]))
     return qinfos
 
 

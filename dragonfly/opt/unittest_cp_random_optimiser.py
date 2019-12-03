@@ -17,14 +17,15 @@ try:
   from ..test_data.park2_4.park2_4 import park2_4
   from ..test_data.park2_4.park2_4_mf import park2_4_mf
   from ..test_data.park2_4.park2_4_mf import cost as cost_park2_4_mf
-  from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
   from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                   get_raw_point_from_processed_point, \
                                   load_cp_domain_from_config_file, \
-                                  load_config_file
+                                  load_config_file, load_config
+  from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
   from ..exd.experiment_caller import CPFunctionCaller, \
                                       get_multifunction_caller_from_config
   from ..exd.worker_manager import SyntheticWorkerManager
+  from ..apis.opt import maximise_function
   from . import random_optimiser
   from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str
   from ..utils.base_test_class import BaseTestClass, execute_tests
@@ -160,17 +161,14 @@ class CPRandomOptimiserAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
     pass
 
   def test_ask_tell(self):
-    """ Testing CP GP Bandit optimiser with ask tell interface. """
+    """ Testing CP Random optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
-    list_of_domains = [
-      EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
-      IntegralDomain([[0, 10], [0, 100], [45, 78.4]]),
-      EuclideanDomain([[10, 20], [15, 25], [20, 30]])
-    ]
+    
+    domain, orderings = load_cp_domain_from_config_file('dragonfly/test_data/park1_3/config.json')
     def evaluate(x):
-      return sum(park1_3(x))
+      return park1_3(x)
 
-    func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=None)
+    func_caller = CPFunctionCaller(None, domain, domain_orderings=orderings)
     opt = random_optimiser.CPRandomOptimiser(func_caller, ask_tell_mode=True)
     opt.initialise()
 
@@ -184,6 +182,12 @@ class CPRandomOptimiserAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
         best_x, best_y = x, y
     self.report("-----------------------------------------------------")
     self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+
+    self.report("-----------------------------------------------------")
+    config = load_config_file('dragonfly/test_data/park1_3/config.json')
+    self.report("Regular optimisation using maximise_function")
+    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='rand', config=config)
+    self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 
 @unittest.skipIf(not RUN_TESTS, "Unable to import submodules")

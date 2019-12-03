@@ -12,6 +12,7 @@ from ..exd import domains
 from . import random_optimiser as random_optimiser
 from ..exd.experiment_caller import EuclideanFunctionCaller
 from ..exd.worker_manager import SyntheticWorkerManager
+from ..apis.opt import maximise_function, maximise_multifidelity_function
 from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str, \
                                   get_rounded_list
 from ..utils.base_test_class import BaseTestClass, execute_tests
@@ -151,17 +152,19 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
     """ Testing random optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
     domain = domains.EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]])
-    fidel_bounds = [[0, 5]]
+    fidel_bounds = [[0, 1]]
     fidel_space = domains.EuclideanDomain(fidel_bounds)
-    fidel_to_opt = [[2]]
+    fidel_to_opt = [0.5]
     fidel_cost = get_mf_cost_function(fidel_bounds)
     func_caller = EuclideanFunctionCaller(None, domain, raw_fidel_space=fidel_space,
                                           fidel_cost_func=fidel_cost, raw_fidel_to_opt=fidel_to_opt)
     opt = random_optimiser.MFEuclideanRandomOptimiser(func_caller, ask_tell_mode=True)
     opt.initialise()
 
+    euclidean_func_caller = get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1, fidel_dim=1)
+
     def evaluate(z, x):
-      return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1, fidel_dim=1).func(z, x)
+      return euclidean_func_caller.func(z, x)
 
     best_z, best_x, best_y = None, None, float('-inf')
     for _ in range(20):
@@ -174,6 +177,11 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
         best_z, best_x, best_y = z, x, y
     self.report("-----------------------------------------------------")
     self.report("Optimal Value: %s, Optimal Point: %s (Fidel: %s)"%(best_y, best_x, best_z))
+
+    self.report("-----------------------------------------------------")
+    self.report("Regular optimisation using maximise_multifidelity_function")
+    val, pt, _ = maximise_multifidelity_function(evaluate, fidel_space, domain, fidel_to_opt, fidel_cost, 20, opt_method='rand')
+    self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 # Now the Testcases for Random Euclidean Optimisers =================================
 
@@ -204,7 +212,6 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
 
     def evaluate(x):
       return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1).func(x)
-
     best_x, best_y = None, float('-inf')
     for _ in range(20):
       x = opt.ask()
@@ -215,6 +222,11 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
         best_x, best_y = x, y
     self.report("-----------------------------------------------------")
     self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+
+    self.report("-----------------------------------------------------")
+    self.report("Regular optimisation using maximise_function")
+    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='rand')
+    self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
     
 
 class MFEucRandomOptimiserTestCase(MFEuclideanOptimisersBaseTestCase, BaseTestClass):

@@ -7,6 +7,7 @@ import unittest
 # Local imports
 from ..gp.euclidean_gp import euclidean_gp_args
 from . import gp_bandit
+from ..apis.opt import maximise_function
 from ..exd import domains
 from ..exd.experiment_caller import EuclideanFunctionCaller
 from .unittest_euclidean_random_optimiser import EuclideanOptimisersBaseTestCase, \
@@ -69,6 +70,11 @@ class EuclideanGPBanditAskTellTestCase(EuclideanOptimisersBaseTestCase, BaseTest
         best_x, best_y = x, y
     self.report("-----------------------------------------------------")
     self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+
+    self.report("-----------------------------------------------------")
+    self.report("Regular optimisation using maximise_function")
+    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='bo')
+    self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 @unittest.skip
 # class EuclideanAddGPBanditTestCase(EuclideanOptimisersBaseTestCase, BaseTestClass):

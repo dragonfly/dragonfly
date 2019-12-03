@@ -554,7 +554,7 @@ class GPBandit(BlackboxOptimiser):
       return points
     elif n_points is None and len(self.first_qinfos) == 0:
       self._main_loop_pre()
-    return super(GPBandit, self).ask()
+    return super(GPBandit, self).ask(n_points)
    
 # GP Bandit class ends here ==========================================================
 

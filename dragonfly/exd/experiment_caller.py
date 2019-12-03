@@ -418,14 +418,14 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
   # Methods required for normalising coordinates -----------------------------------------
   def get_normalised_fidel_coords(self, Z):
     """ Maps points in the original fidelity space to the cube. """
-    if self.domain_is_normalised:
+    if self.domain_is_normalised and Z is not None:
       return map_to_cube(Z, self.raw_fidel_space.bounds)
     else:
       return Z
 
   def get_normalised_domain_coords(self, X):
     """ Maps points in the original domain to the cube. """
-    if self.domain_is_normalised:
+    if self.domain_is_normalised and X is not None:
       return map_to_cube(X, self.raw_domain.bounds)
     else:
       return X
@@ -438,14 +438,14 @@ class EuclideanMultiFunctionCaller(MultiFunctionCaller):
 
   def get_raw_fidel_coords(self, Z):
     """ Maps points from the fidelity space cube to the original space. """
-    if self.domain_is_normalised:
+    if self.domain_is_normalised and Z is not None:
       return map_to_bounds(Z, self.raw_fidel_space.bounds)
     else:
       return Z
 
   def get_raw_domain_coords(self, X):
     """ Maps points from the domain cube to the original space. """
-    if self.domain_is_normalised:
+    if self.domain_is_normalised and X is not None:
       return map_to_bounds(X, self.raw_domain.bounds)
     else:
       return X
@@ -551,10 +551,14 @@ class CPMultiFunctionCaller(MultiFunctionCaller):
   def _set_up_point_reconfiguration(self):
     """ Sets up reconfiguring points if domain orderings etc. are not None. """
     if self.domain_orderings is not None or self.fidel_space_orderings is not None:
-      from .cp_domain_utils import get_raw_point_from_processed_point
+      from .cp_domain_utils import get_raw_point_from_processed_point, get_processed_point_from_raw_point
     if self.domain_orderings is not None:
       self.get_raw_domain_point_from_processed = \
         lambda pt: get_raw_point_from_processed_point(pt, self.domain,
+                     self.domain_orderings.index_ordering,
+                     self.domain_orderings.dim_ordering)
+      self.get_processed_domain_point_from_raw = \
+        lambda pt: get_processed_point_from_raw_point(pt, self.domain,
                      self.domain_orderings.index_ordering,
                      self.domain_orderings.dim_ordering)
     if self.fidel_space_orderings is not None:
@@ -562,6 +566,10 @@ class CPMultiFunctionCaller(MultiFunctionCaller):
         lambda pt: get_raw_point_from_processed_point(pt, self.fidel_space,
                      self.fidel_space_orderings.index_ordering,
                      self.fidel_space_orderings.dim_ordering)
+      self.get_processed_fidel_from_raw = \
+        lambda pt: get_processed_point_from_raw_point(pt, self.domain,
+                     self.fidel_space_orderings.index_ordering,
+                     eslf.fidel_space_orderings.dim_ordering)
 
   def _child_get_candidate_fidels(self, domain_point, filter_by_cost=True,
                                   *args, **kwargs):

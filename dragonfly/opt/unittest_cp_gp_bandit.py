@@ -6,9 +6,10 @@ import unittest
 
 # Local imports
 from . import gp_bandit
+from ..apis.opt import maximise_function
 from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
 from ..exd.experiment_caller import CPFunctionCaller
-from ..exd.cp_domain_utils import load_config_file
+from ..exd.cp_domain_utils import load_config_file, load_cp_domain_from_config_file
 from ..test_data.park1_3.park1_3 import park1_3
 from .unittest_cp_random_optimiser import CPOptimiserBaseTestCase
 from ..utils.base_test_class import BaseTestClass, execute_tests
@@ -49,16 +50,11 @@ class CPGPBanditAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
   def test_ask_tell(self):
     """ Testing CP GP Bandit optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
-    config = load_config_file('dragonfly/test_data/park1_3/config.json')
-    list_of_domains = [
-      EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]]),
-      IntegralDomain([[0, 10], [0, 100], [45, 78.4]]),
-      EuclideanDomain([[10, 20], [15, 25], [20, 30]])
-    ]
+    domain, orderings = load_cp_domain_from_config_file('dragonfly/test_data/park1_3/config.json')
     def evaluate(x):
-      return sum(park1_3(x))
+      return park1_3(x)
 
-    func_caller = CPFunctionCaller(None, CartesianProductDomain(list_of_domains), domain_orderings=config.domain_orderings)
+    func_caller = CPFunctionCaller(None, domain, domain_orderings=orderings)
     opt = gp_bandit.CPGPBandit(func_caller, ask_tell_mode=True)
     opt.initialise()
 
@@ -72,6 +68,12 @@ class CPGPBanditAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
         best_x, best_y = x, y
     self.report("-----------------------------------------------------")
     self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+
+    self.report("-----------------------------------------------------")
+    config = load_config_file('dragonfly/test_data/park1_3/config.json')
+    self.report("Regular optimisation using maximise_function")
+    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='bo', config=config)
+    self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 
 @unittest.skip
