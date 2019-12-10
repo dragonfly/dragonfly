@@ -6,6 +6,7 @@
 from __future__ import print_function
 from argparse import Namespace
 from dragonfly import load_config_file, maximise_function, maximise_multifidelity_function
+from dragonfly.apis.api_utils import preprocess_multifidelity_arguments
 from dragonfly.exd.experiment_caller import CPFunctionCaller
 from dragonfly.opt import random_optimiser, cp_ga_optimiser, gp_bandit
 # Local imports
@@ -35,14 +36,15 @@ def main():
 
   # Specify optimisation method -----------------------------------------------------
   opt_method = 'bo'
-#   opt_method = 'ga'
-#   opt_method = 'rand'
+  # opt_method = 'ga'
+  # opt_method = 'rand'
 
   # Optimise
   max_capital = 60
   domain, domain_orderings = config.domain, config.domain_orderings
   if PROBLEM in ['3d', '3d_euc', '5d']:
-    # Create function caller. Note there is no function passed in to the Function Caller object.
+    # Create function caller.
+    # Note there is no function passed in to the Function Caller object.
     func_caller = CPFunctionCaller(None, domain, domain_orderings=domain_orderings)
 
     if opt_method == 'bo':
@@ -70,12 +72,19 @@ def main():
     print("-------------")
     print("Compare with maximise_function API:")
     opt_val, opt_pt, history = maximise_function(objective, config.domain, max_capital,
-                                 opt_method=opt_method, config=config, options=options)
+                                 opt_method=opt_method, config=config)
 
   else:
-    # Create function caller. Note there is no function passed in to the Function Caller object.
-    func_caller = CPFunctionCaller(None, domain, raw_fidel_space=config.fidel_space,
-                                          fidel_cost_func=mf_cost, raw_fidel_to_opt=config.fidel_to_opt)
+    # Create function caller.
+    # Note there is no function passed in to the Function Caller object.
+    (ask_tell_fidel_space, ask_tell_domain, _, ask_tell_mf_cost, ask_tell_fidel_to_opt, ask_tell_config, _) = \
+      preprocess_multifidelity_arguments(config.fidel_space, domain, [objective],
+                                         mf_cost, config.fidel_to_opt, config)
+    func_caller = CPFunctionCaller(None, ask_tell_domain, domain_orderings=domain_orderings,
+                                   fidel_space=ask_tell_fidel_space, fidel_cost_func=ask_tell_mf_cost,
+                                   fidel_to_opt=ask_tell_fidel_to_opt,
+                                   fidel_space_orderings=config.fidel_space_orderings,
+                                   config=ask_tell_config)
     if opt_method == 'bo':
       opt = gp_bandit.CPGPBandit(func_caller, is_mf=True, ask_tell_mode=True)
     else:
@@ -89,20 +98,20 @@ def main():
     for _ in range(max_capital):
       point = opt.ask()
       z, x = point[0], point[1]
-      y = evaluate(z, x)
+      y = objective(z, x)
       opt.tell([(z, x, y)])
       print('z: %s, x: %s, y: %s'%(z, x, y))
       if y > best_y:
         best_z, best_x, best_y = z, x, y
     print("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
 
-    # Compare results with the maximise_function API
+    # Compare results with the maximise_multifidelity_function API
     print("-------------")
-    print("Compare with maximise_function API:")    
+    print("Compare with maximise_multifidelity_function API:")
     opt_val, opt_pt, history = maximise_multifidelity_function(objective,
                                  config.fidel_space, config.domain, config.fidel_to_opt,
                                  mf_cost, max_capital, opt_method=opt_method,
-                                 config=config, options=options)
+                                 config=config)
 
   print('opt_pt: %s'%(str(opt_pt)))
   print('opt_val: %s'%(str(opt_val)))

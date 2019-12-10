@@ -52,7 +52,7 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
     opt.initialise()
 
     best_x, best_y = None, float('-inf')
-    for _ in range(20):
+    for _ in range(60):
       x = opt.ask()
       y = evaluate(x)
       opt.tell([(x, y)])
@@ -65,7 +65,7 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
     self.report("-----------------------------------------------------")
     config = load_config_file('dragonfly/test_data/park1_3/config.json')
     self.report("Regular optimisation using maximise_function")
-    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='ga', config=config)
+    val, pt, _ = maximise_function(evaluate, domain, 60, opt_method='ga', config=config)
     self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 

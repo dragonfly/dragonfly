@@ -567,9 +567,9 @@ class CPMultiFunctionCaller(MultiFunctionCaller):
                      self.fidel_space_orderings.index_ordering,
                      self.fidel_space_orderings.dim_ordering)
       self.get_processed_fidel_from_raw = \
-        lambda pt: get_processed_point_from_raw_point(pt, self.domain,
+        lambda pt: get_processed_point_from_raw_point(pt, self.fidel_space,
                      self.fidel_space_orderings.index_ordering,
-                     eslf.fidel_space_orderings.dim_ordering)
+                     self.fidel_space_orderings.dim_ordering)
 
   def _child_get_candidate_fidels(self, domain_point, filter_by_cost=True,
                                   *args, **kwargs):

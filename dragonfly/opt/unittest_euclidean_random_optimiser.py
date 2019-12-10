@@ -165,7 +165,7 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
       return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1, fidel_dim=1).func(z, x)
 
     best_z, best_x, best_y = None, None, float('-inf')
-    for _ in range(20):
+    for _ in range(60):
       point = opt.ask()
       z, x = point[0], point[1]
       y = evaluate(z, x)
@@ -178,7 +178,7 @@ class MFEuclideanOptimisersBaseTestCase(EuclideanOptimisersBaseTestCase):
 
     self.report("-----------------------------------------------------")
     self.report("Regular optimisation using maximise_multifidelity_function")
-    val, pt, _ = maximise_multifidelity_function(evaluate, fidel_space, domain, fidel_to_opt, fidel_cost, 20, opt_method='rand')
+    val, pt, _ = maximise_multifidelity_function(evaluate, fidel_space, domain, fidel_to_opt, fidel_cost, 60, opt_method='rand')
     self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 # Now the Testcases for Random Euclidean Optimisers =================================
@@ -211,7 +211,7 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     def evaluate(x):
       return get_syn_func_caller('hartmann3', noise_type='gauss', noise_scale=0.1).func(x)
     best_x, best_y = None, float('-inf')
-    for _ in range(20):
+    for _ in range(60):
       x = opt.ask()
       y = evaluate(x)
       opt.tell([(x, y)])
@@ -223,7 +223,7 @@ class EuclideanRandomOptimiserTestCase(EuclideanOptimisersBaseTestCase, BaseTest
 
     self.report("-----------------------------------------------------")
     self.report("Regular optimisation using maximise_function")
-    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='rand')
+    val, pt, _ = maximise_function(evaluate, domain, 60, opt_method='rand')
     self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
     
 
