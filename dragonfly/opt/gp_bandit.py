@@ -743,6 +743,11 @@ class EuclideanGPBandit(GPBandit):
       lead_const = 10 * min(5, self.domain.get_dim())**2
       self.get_acq_opt_max_evals = lambda t: np.clip(lead_const * np.sqrt(min(t, 1000)),
                                                      2000, 3e4)
+  
+  def ask(self, n_points=None):
+    if not self.first_qinfos:
+      self._main_loop_pre()
+    return super(EuclideanGPBandit, self).ask(n_points)
 
 
 class CPGPBandit(GPBandit):
@@ -940,6 +945,10 @@ class CPGPBandit(GPBandit):
              domain_lists_of_dists=self.domain_lists_of_dists,
              domain_dist_computers=self.domain_dist_computers,
              options=gpf_options, reporter=self.reporter)
+  
+  def ask(self, n_points=None):
+    self._main_loop_pre()
+    return super(CPGPBandit, self).ask(n_points)
 
 
 # APIs for Euclidean GP Bandit optimisation. ---------------------------------------------

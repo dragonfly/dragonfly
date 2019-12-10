@@ -249,7 +249,6 @@ class BlackboxOptimiser(ExperimentDesigner):
     if n_points:
       points = []
       while self.first_qinfos and n_points > 0:
-        self._main_loop_pre()
         qinfo = self.first_qinfos.pop(0)
         if self.is_an_mf_method():
           if self.domain.get_type() == 'euclidean':
@@ -265,7 +264,6 @@ class BlackboxOptimiser(ExperimentDesigner):
         n_points -= 1
       new_points = []
       while n_points > 0:
-        self._main_loop_pre()
         new_points.append(self._determine_next_query())
       if self.is_an_mf_method():
         if self.domain.get_type() == 'euclidean':
@@ -280,7 +278,6 @@ class BlackboxOptimiser(ExperimentDesigner):
           return points + [self.func_caller.get_raw_domain_point_from_processed(x.point) for x in new_points]
     else:
       if self.first_qinfos:
-        self._main_loop_pre()
         qinfo = self.first_qinfos.pop(0)
         if self.is_an_mf_method():
           if self.domain.get_type() == 'euclidean':
@@ -294,7 +291,6 @@ class BlackboxOptimiser(ExperimentDesigner):
           else:
             return self.func_caller.get_raw_domain_point_from_processed(qinfo.point)
       else:
-        self._main_loop_pre()
         qinfo = self._determine_next_query()
         if self.is_an_mf_method():
           if self.domain.get_type() == 'euclidean':

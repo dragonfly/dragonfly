@@ -50,7 +50,7 @@ class EuclideanGPBanditAskTellTestCase(EuclideanOptimisersBaseTestCase, BaseTest
     pass
 
   def test_ask_tell(self):
-    """ Testing random optimiser with ask tell interface. """
+    """ Testing GP Bandit optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
     domain = domains.EuclideanDomain([[0, 2.3], [3.4, 8.9], [0.12, 1.0]])
     func_caller = EuclideanFunctionCaller(None, domain)
