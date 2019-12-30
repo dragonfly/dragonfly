@@ -6,6 +6,8 @@
 # pylint: disable=invalid-name
 # pylint: disable=maybe-no-member
 # pylint: disable=no-member
+# pylint: disable=bad-indentation
+# pylint: disable=bad-continuation
 
 
 from argparse import Namespace
@@ -175,8 +177,11 @@ def preprocess_multifidelity_arguments(fidel_space, domain, funcs, fidel_cost_fu
   elif fidel_space.get_type() == 'cartesian_product' and \
        domain.get_type() == 'cartesian_product':
     if fidel_space.num_domains == 1 and \
-         fidel_space.list_of_domains[0].get_type() == 'euclidean' and \
-       domain.num_domains == 1 and domain.list_of_domains[0].get_type() == 'euclidean':
+        fidel_space.list_of_domains[0].get_type() == 'euclidean' and \
+        (not hasattr(fidel_space, 'domain_constraints')) and \
+        fidel_space.domain_constraints is None and \
+        domain.num_domains == 1 and domain.list_of_domains[0].get_type() == 'euclidean' and \
+        (not hasattr(domain, 'domain_constraints')) and domain.domain_constraints is None:
       # Change the fidelity space
       fidel_space = fidel_space.list_of_domains[0]
       config.fidel_space_orderings.dim_ordering = \
@@ -234,7 +239,8 @@ def preprocess_arguments(domain, funcs, config):
   elif domain.get_type() == 'euclidean':
     pass
   elif domain.get_type() == 'cartesian_product':
-    if domain.num_domains == 1 and domain.list_of_domains[0].get_type() == 'euclidean':
+    if domain.num_domains == 1 and domain.list_of_domains[0].get_type() == 'euclidean' and \
+       (not hasattr(domain, 'domain_constraints')) and domain.domain_constraints is None:
       domain = domain.list_of_domains[0]
       config.domain_orderings.dim_ordering = config.domain_orderings.dim_ordering[0]
       config.domain_orderings.index_ordering = config.domain_orderings.index_ordering[0]
