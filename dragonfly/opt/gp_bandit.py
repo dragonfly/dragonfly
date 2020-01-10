@@ -947,7 +947,8 @@ class CPGPBandit(GPBandit):
              options=gpf_options, reporter=self.reporter)
   
   def ask(self, n_points=None):
-    self._main_loop_pre()
+    if not self.first_qinfos:
+      self._main_loop_pre()
     return super(CPGPBandit, self).ask(n_points)
 
 

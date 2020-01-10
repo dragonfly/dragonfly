@@ -7,7 +7,7 @@ from __future__ import print_function
 from argparse import Namespace
 from dragonfly import load_config_file, maximise_function, maximise_multifidelity_function
 from dragonfly.apis.api_utils import preprocess_multifidelity_arguments
-from dragonfly.exd.experiment_caller import CPFunctionCaller
+from dragonfly.exd.experiment_caller import CPFunctionCaller, EuclideanFunctionCaller
 from dragonfly.opt import random_optimiser, cp_ga_optimiser, gp_bandit
 # Local imports
 import obj_3d
@@ -15,9 +15,9 @@ import obj_3d_mf
 import obj_5d
 
 # choose problem
-PROBLEM = '3d'      # Optimisation problem with 3 variables
+# PROBLEM = '3d'      # Optimisation problem with 3 variables
 # PROBLEM = '3d_mf'   # Optimisation problem with 3 variables and 1 fidelity variable
-# PROBLEM = '3d_euc'  # Optimisation problem with 3 variables all of which are continuous
+PROBLEM = '3d_euc'  # Optimisation problem with 3 variables all of which are continuous
 # PROBLEM = '5d'      # Optimisation problem with 5 variables
 
 # chooser dict
@@ -42,7 +42,7 @@ def main():
   # Optimise
   max_capital = 60
   domain, domain_orderings = config.domain, config.domain_orderings
-  if PROBLEM in ['3d', '3d_euc', '5d']:
+  if PROBLEM in ['3d', '5d']:
     # Create function caller.
     # Note there is no function passed in to the Function Caller object.
     func_caller = CPFunctionCaller(None, domain, domain_orderings=domain_orderings)
@@ -53,6 +53,37 @@ def main():
       opt = cp_ga_optimiser.CPGAOptimiser(func_caller, ask_tell_mode=True)
     elif opt_method == 'rand':
       opt = random_optimiser.CPRandomOptimiser(func_caller, ask_tell_mode=True)
+    opt.initialise()
+
+    # Optimize using the ask-tell interface
+    # User continually asks for the next point to evaluate, then tells the optimizer the
+    # new result to perform Bayesian optimisation.
+    best_x, best_y = None, float('-inf')
+    for _ in range(max_capital):
+      x = opt.ask()
+      y = objective(x)
+      opt.tell([(x, y)])
+      print('x: %s, y: %s'%(x, y))
+      if y > best_y:
+        best_x, best_y = x, y
+    print("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+
+    # Compare results with the maximise_function API
+    print("-------------")
+    print("Compare with maximise_function API:")
+    opt_val, opt_pt, history = maximise_function(objective, config.domain, max_capital,
+                                 opt_method=opt_method, config=config)
+  
+  elif PROBLEM == '3d_euc':
+    # Create function caller.
+    # Note there is no function passed in to the Function Caller object.
+    domain = domain.list_of_domains[0]
+    func_caller = EuclideanFunctionCaller(None, domain)
+
+    if opt_method == 'bo':
+      opt = gp_bandit.EuclideanGPBandit(func_caller, ask_tell_mode=True)
+    elif opt_method == 'ga':
+      raise ValueError("Invalid opt_method %s"%(opt_method))   
     opt.initialise()
 
     # Optimize using the ask-tell interface

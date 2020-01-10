@@ -310,6 +310,7 @@ class BlackboxOptimiser(ExperimentDesigner):
     for qinfo in qinfos:
       self._dispatch_single_experiment_ask_tell_mode(qinfo)
       self._update_history(qinfo)
+      self._remove_from_in_progress(qinfo)
     self._add_data_to_model(qinfos)
 
   def _generate_qinfos(self, points):
