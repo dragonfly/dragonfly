@@ -10,7 +10,7 @@ from dragonfly import maximise_function
 # Local imports
 try:
   from .branin import branin
-except ImportError:
+except:
   from branin import branin
 
 def main():

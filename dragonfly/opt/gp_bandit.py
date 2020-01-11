@@ -147,9 +147,9 @@ def get_all_mf_cp_gp_bandit_args(additional_args=None):
 def get_default_acquisition_for_domain(domain):
   """ Returns the default acquisition for the domain. """
   if domain.get_type() == 'euclidean':
-    return 'ei-ucb-ttei-ts-add_ucb'
+    return 'ei-ucb-ttei-add_ucb'
   else:
-    return 'ei-ucb-ttei-ts'
+    return 'ei-ucb-ttei'
 
 def get_default_acq_opt_method_for_domain(domain):
   """ Returns the default acquisition optimisation method for the domain. """

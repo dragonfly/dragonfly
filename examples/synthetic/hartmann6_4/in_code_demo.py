@@ -31,11 +31,14 @@ def main():
   config_params = {'domain': domain_vars, 'fidel_space': fidel_vars,
                    'fidel_to_opt': fidel_to_opt}
   config = load_config(config_params)
+  opt_method = 'bo'
+#   opt_method = 'rand'
   # Optimise
   mf_opt_val, mf_opt_pt, history = maximise_multifidelity_function(mf_objective,
                                      config.fidel_space, config.domain,
                                      config.fidel_to_opt, mf_cost, 
-                                     max_mf_capital, config=config)
+                                     max_mf_capital, config=config,
+                                     opt_method=opt_method)
   print(mf_opt_pt, mf_opt_val)
 
   # Non-MF version
@@ -44,7 +47,7 @@ def main():
   max_capital = 100 # Optimisation budget (max number of evaluations)
   # Optimise
   opt_val, opt_pt, history = maximise_function(objective, config.domain,
-                                               max_num_evals, config=config)
+                                               max_num_evals, config=config, opt_method=opt_method)
   print(opt_pt, opt_val)
 
 
