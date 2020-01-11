@@ -343,7 +343,7 @@ class ExperimentDesigner(object):
           if self.ask_tell_mode:
             self.first_qinfos.append(qinfo)
             points += 1
-            if points > self.available_capital:
+            if points > self.init_capital:
               break
           else:
             self.step_idx += 1
