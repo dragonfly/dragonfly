@@ -40,7 +40,7 @@ class CPGAOPtimiserTestCase(CPGAOPtimiserTestCaseDefinitions,
                             BaseTestClass):
   """ Unit tests for GA optimiser on cartesian product spaces. """
   def test_ask_tell(self):
-    """ Testing random optimiser with ask tell interface. """
+    """ Testing GA optimiser with ask tell interface. """
     self.report('Testing %s using the ask-tell interface.'%(type(self)))
 
     domain, orderings = load_cp_domain_from_config_file('dragonfly/test_data/park1_3/config.json')
