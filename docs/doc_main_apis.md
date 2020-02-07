@@ -127,7 +127,7 @@ path_name to a configuration file or has configuration parameters.
 
 **Returns:**
 <ul>
-<li> `'opt_val'`: The maximum value found during the optimisation procdure. </li>
+<li> `'opt_val'`: The maximum value found during the optimisation procedure. </li>
 <li> `'opt_pt'`: The corresponding optimum point. </li>
 <li> `'history'`: A record of the optimisation procedure which include the point evaluated
            and the values at each time step. </li>
@@ -204,7 +204,7 @@ path_name to a configuration file or has configuration parameters.
 
 **Returns:**
 <ul>
-<li> `'pareto_values'`: The pareto optimal values found during the optimisation procdure. </li>
+<li> `'pareto_values'`: The pareto optimal values found during the optimisation procedure. </li>
 <li> `'pareto_points'`: The corresponding pareto optimum points in the domain. </li>
 <li> `'history'`: A record of the optimisation procedure which include the point evaluated
          and the values at each time step. </li>
