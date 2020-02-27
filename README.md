@@ -127,7 +127,7 @@ for more detailed examples.
 **In Ask-Tell Mode**:
 Ask-tell mode provides you more control over your experiments where you can supply past results
 to our API in order to obtain a recommendation.
-See the [following example](examples/detailed_use_cases/in_code_demo_ask_tell.py) for an example.
+See the [following example](examples/detailed_use_cases/in_code_demo_ask_tell.py) for more details.
 
 
 For a comprehensive list of uses cases, including multi-objective optimisation,
