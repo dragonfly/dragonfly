@@ -78,8 +78,7 @@ To help get started, we have provided some examples in the
 See our readthedocs getting started pages
 ([command line](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
 [Python](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/),
-[Ask-Tell](https://dragonfly-opt.readthedocs.io/en/master/getting_started_ask_tell/)
-)
+[Ask-Tell](https://dragonfly-opt.readthedocs.io/en/master/getting_started_ask_tell/))
 for examples and use cases.
 
 **Command line**:
@@ -125,13 +124,18 @@ and
 [here](examples/nas/demo_nas.py)
 for more detailed examples.
 
+**In Ask-Tell Mode**:
+Ask-tell mode provides you more control over your experiments where you can supply past results
+to our API in order to obtain a recommendation.
+See the [following example](examples/detailed_use_cases/in_code_demo_ask_tell.py) for an example.
 
 
 For a comprehensive list of uses cases, including multi-objective optimisation,
 multi-fidelity optimisation, neural architecture search, and other optimisation
 methods (besides Bayesian optimisation), see our readthe docs pages
 ([command line](https://dragonfly-opt.readthedocs.io/en/master/getting_started_cli/),
-[Python](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/)).
+[Python](https://dragonfly-opt.readthedocs.io/en/master/getting_started_py/),
+[Ask-Tell](https://dragonfly-opt.readthedocs.io/en/master/getting_started_ask_tell/))).
 
 
 &nbsp;
@@ -139,17 +143,17 @@ methods (besides Bayesian optimisation), see our readthe docs pages
 ### Contributors
 
 Kirthevasan Kandasamy: [github](https://github.com/kirthevasank),
-[webpage](http://www.cs.cmu.edu/~kkandasa/)
+[webpage](http://www.cs.cmu.edu/~kkandasa/)  
 Karun Raju Vysyaraju: [github](https://github.com/karunraju),
-[linkedin](https://www.linkedin.com/in/karunrajuvysyaraju)
+[linkedin](https://www.linkedin.com/in/karunrajuvysyaraju)  
 Anthony Yu: [github](https://github.com/anthonyhsyu),
-[linkedin](https://www.linkedin.com/in/anthony-yu-5239a877/)
+[linkedin](https://www.linkedin.com/in/anthony-yu-5239a877/)  
 Willie Neiswanger: [github](https://github.com/willieneis),
-[webpage](http://www.cs.cmu.edu/~wdn/)
+[webpage](http://www.cs.cmu.edu/~wdn/)  
 Biswajit Paria: [github](https://github.com/biswajitsc),
-[webpage](https://biswajitsc.github.io/)
+[webpage](https://biswajitsc.github.io/)  
 Chris Collins: [github](https://github.com/crcollins/),
-[webpage](https://www.crcollins.com/)
+[webpage](https://www.crcollins.com/)  
 
 
 ### Acknowledgements
