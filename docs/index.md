@@ -24,6 +24,7 @@ on Linux, macOS, and Windows platforms.
   * [Installation](install.md)
   * [Getting started -- Command Line](getting_started_cli.md)
   * [Getting started -- Python](getting_started_py.md)
+  * [Getting started -- Ask-Tell](getting_started_ask_tell.md)
 
 <h3>Documentation</h3>
   * [Main APIs](doc_main_apis.md)
