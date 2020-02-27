@@ -20,10 +20,12 @@ try:
   from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                   get_raw_point_from_processed_point, \
                                   load_cp_domain_from_config_file, \
-                                  load_config_file
+                                  load_config_file, load_config
+  from ..exd.domains import CartesianProductDomain, EuclideanDomain, IntegralDomain
   from ..exd.experiment_caller import CPFunctionCaller, \
                                       get_multifunction_caller_from_config
   from ..exd.worker_manager import SyntheticWorkerManager
+  from ..apis.opt import maximise_function
   from . import random_optimiser
   from ..utils.ancillary_utils import is_nondecreasing, get_list_of_floats_as_str
   from ..utils.base_test_class import BaseTestClass, execute_tests
@@ -142,6 +144,50 @@ class CPOptimiserBaseTestCase(object):
                               self.worker_manager_3, self.max_capital, 'syn')
       self._test_optimiser_results(opt_val, opt_point, history, dcf)
       self.report('')
+
+@unittest.skipIf(not RUN_TESTS, "Unable to import submodules")
+class CPRandomOptimiserAskTellTestCase(CPOptimiserBaseTestCase, BaseTestClass):
+  """ Unit test for the GP Bandit in Euclidean spaces for the ask-tell interface. """
+  def test_instantiation(self):
+    pass
+  
+  def test_optimisation_single(self):
+    pass
+
+  def test_optimisation_asynchronous(self):
+    pass
+
+  def test_optimisation_synchronous(self):
+    pass
+
+  def test_ask_tell(self):
+    """ Testing CP Random optimiser with ask tell interface. """
+    self.report('Testing %s using the ask-tell interface.'%(type(self)))
+    
+    domain, orderings = load_cp_domain_from_config_file('dragonfly/test_data/park1_3/config.json')
+    def evaluate(x):
+      return park1_3(x)
+
+    func_caller = CPFunctionCaller(None, domain, domain_orderings=orderings)
+    opt = random_optimiser.CPRandomOptimiser(func_caller, ask_tell_mode=True)
+    opt.initialise()
+
+    best_x, best_y = None, float('-inf')
+    for _ in range(20):
+      x = opt.ask()
+      y = evaluate(x)
+      opt.tell([(x, y)])
+      self.report('x: %s, y: %s'%(x, y))
+      if y > best_y:
+        best_x, best_y = x, y
+    self.report("-----------------------------------------------------")
+    self.report("Optimal Value: %s, Optimal Point: %s"%(best_y, best_x))
+
+    self.report("-----------------------------------------------------")
+    config = load_config_file('dragonfly/test_data/park1_3/config.json')
+    self.report("Regular optimisation using maximise_function")
+    val, pt, _ = maximise_function(evaluate, domain, 20, opt_method='rand', config=config)
+    self.report("Optimal Value: %s, Optimal Point: %s"%(val, pt))
 
 
 @unittest.skipIf(not RUN_TESTS, "Unable to import submodules")

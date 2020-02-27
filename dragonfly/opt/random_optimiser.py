@@ -15,6 +15,7 @@ from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_
 from ..exd.exd_core import mf_exd_args
 from ..exd.experiment_caller import CPFunctionCaller
 from ..exd.cp_domain_utils import sample_from_cp_domain
+from ..exd.worker_manager import SyntheticWorkerManager
 from .blackbox_optimiser import BlackboxOptimiser, blackbox_opt_args, \
                                    CalledMFOptimiserWithSFCaller
 from ..utils.option_handler import load_options
@@ -58,11 +59,13 @@ class RandomOptimiser(BlackboxOptimiser):
   #pylint: disable=abstract-method
 
   # Constructor.
-  def __init__(self, func_caller, worker_manager, options=None, reporter=None):
+  def __init__(self, func_caller, worker_manager=None, options=None, 
+               reporter=None, ask_tell_mode=False):
     """ Constructor. """
     options = load_options(random_optimiser_args, partial_options=options)
     super(RandomOptimiser, self).__init__(func_caller, worker_manager, model=None,
-                                          options=options, reporter=reporter)
+                                          options=options, reporter=reporter, 
+                                          ask_tell_mode=ask_tell_mode)
 
   def _opt_method_set_up(self):
     """ Any set up specific to otptimisation. """
@@ -80,11 +83,17 @@ class RandomOptimiser(BlackboxOptimiser):
     """ Builds a new model. """
     pass
 
-
 # Random optimiser for Euclidean spaces --------------------------------------------
 class EuclideanRandomOptimiser(RandomOptimiser):
   """ A class which optimises in Euclidean spaces using random evaluations. """
 
+  def __init__(self, func_caller, worker_manager=None, options=None, 
+               reporter=None, ask_tell_mode=False):
+    options = load_options(euclidean_random_optimiser_args, partial_options=options)
+    super(EuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
+                                                   options=options, reporter=reporter, 
+                                                   ask_tell_mode=ask_tell_mode)
+  
   def is_an_mf_method(self):
     """ Returns False since this is not a MF method. """
     return False
@@ -105,7 +114,6 @@ class EuclideanRandomOptimiser(RandomOptimiser):
     return get_euclidean_initial_qinfos(self.options.init_method, num_init_evals,
                                         self.domain.bounds)
 
-
 # Multi-fidelity Random Optimiser for Euclidean Spaces -------------------------------
 class MFEuclideanRandomOptimiser(RandomOptimiser):
   """ A class which optimises in Euclidean spaces using random evaluations and
@@ -113,13 +121,16 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
   """
 
   # Constructor.
-  def __init__(self, func_caller, worker_manager, call_fidel_to_opt_prob=0.25,
-               *args, **kwargs):
+  def __init__(self, func_caller, worker_manager=None, call_fidel_to_opt_prob=0.25,
+               ask_tell_mode=False, *args, **kwargs):
     """ Constructor.
         call_fidel_to_opt_prob is the probability with which we will choose
         fidel_to_opt as the fidel.
     """
+    options = load_options(mf_euclidean_random_optimiser_args, partial_options=kwargs.pop("options", None))
     super(MFEuclideanRandomOptimiser, self).__init__(func_caller, worker_manager,
+                                                     options=options,
+                                                     ask_tell_mode=ask_tell_mode,
                                                      *args, **kwargs)
     self.call_fidel_to_opt_prob = call_fidel_to_opt_prob
     if not func_caller.is_mf():
@@ -159,6 +170,12 @@ class MFEuclideanRandomOptimiser(RandomOptimiser):
 # A random optimiser in Cartesian product spaces --------------------------------------
 class CPRandomOptimiser(RandomOptimiser):
   """ A random optimiser for cartesian product domains. """
+  def __init__(self, func_caller, worker_manager=None, options=None, 
+              reporter=None, ask_tell_mode=False):
+    options = load_options(cp_random_optimiser_args, partial_options=options)
+    super(CPRandomOptimiser, self).__init__(func_caller, worker_manager,
+                                            options=options, reporter=reporter, 
+                                            ask_tell_mode=ask_tell_mode)
 
   def is_an_mf_method(self):
     """ Returns False since it is not a False method. """

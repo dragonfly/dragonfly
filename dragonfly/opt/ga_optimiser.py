@@ -28,8 +28,8 @@ ga_opt_args = ga_specific_opt_args + blackbox_opt_args
 class GAOptimiser(BlackboxOptimiser):
   """ Class for optimisation based on Genetic algorithms. """
 
-  def __init__(self, func_caller, worker_manager, mutation_op, crossover_op=None,
-               options=None, reporter=None):
+  def __init__(self, func_caller, worker_manager=None, mutation_op=None, crossover_op=None,
+               options=None, reporter=None, ask_tell_mode=False):
     """ Constructor.
       mutation_op: A function which takes in a list of objects and modifies them.
       crossover_op: A function which takes in two objects and performs a cross-over
@@ -41,7 +41,8 @@ class GAOptimiser(BlackboxOptimiser):
     # TODO: implement cross-over operation
     options = load_options(ga_opt_args, partial_options=options)
     super(GAOptimiser, self).__init__(func_caller, worker_manager, model=None,
-                                      options=options, reporter=reporter)
+                                      options=options, reporter=reporter,
+                                      ask_tell_mode=ask_tell_mode)
     self.mutation_op = mutation_op
     self.crossover_op = crossover_op
     self.to_eval_points = []

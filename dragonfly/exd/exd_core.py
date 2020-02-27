@@ -78,8 +78,8 @@ class ExperimentDesigner(object):
   #pylint: disable=too-many-instance-attributes
 
   # Methods needed for construction -------------------------------------------------
-  def __init__(self, experiment_caller, worker_manager, model=None,
-               options=None, reporter=None):
+  def __init__(self, experiment_caller, worker_manager=None, model=None,
+               options=None, reporter=None, ask_tell_mode=False):
     """ Constructor.
         experiment_caller is an ExperimentCaller instance.
         worker_manager is a WorkerManager instance.
@@ -91,6 +91,7 @@ class ExperimentDesigner(object):
     self.options = options
     self.reporter = get_reporter(reporter)
     self.model = model
+    self.ask_tell_mode = ask_tell_mode
     # Other set up
     self._set_up()
 
@@ -102,10 +103,11 @@ class ExperimentDesigner(object):
     self.step_idx = 0
     self.num_succ_queries = 0
     # Initialise worker manager
-    self.worker_manager.set_experiment_designer(self)
-    copyable_params_from_worker_manager = ['num_workers']
-    for param in copyable_params_from_worker_manager:
-      setattr(self, param, getattr(self.worker_manager, param))
+    if not self.ask_tell_mode:
+      self.worker_manager.set_experiment_designer(self)
+      copyable_params_from_worker_manager = ['num_workers']
+      for param in copyable_params_from_worker_manager:
+        setattr(self, param, getattr(self.worker_manager, param))
     # Other book keeping stuff
     self.last_report_at = 0
     self.last_model_build_at = 0
@@ -121,9 +123,9 @@ class ExperimentDesigner(object):
                              query_eval_times=[],
                              query_worker_ids=[],
                              query_qinfos=[],
-                             job_idxs_of_workers={k:[] for k in
-                                                  self.worker_manager.worker_ids},
                             )
+    if not self.ask_tell_mode:
+      self.history.job_idxs_of_workers = {k: [] for k in self.worker_manager.worker_ids}
     self.to_copy_from_qinfo_to_history = {
         'step_idx': 'query_step_idxs',
         'point': 'query_points',
@@ -213,7 +215,8 @@ class ExperimentDesigner(object):
   def _update_history(self, qinfo):
     """ qinfo is a namespace information about the query. """
     # Update the number of jobs done by each worker regardless
-    self.history.job_idxs_of_workers[qinfo.worker_id].append(qinfo.step_idx)
+    if not self.ask_tell_mode:
+      self.history.job_idxs_of_workers[qinfo.worker_id].append(qinfo.step_idx)
     self.history.query_qinfos.append(qinfo) # Save the qinfo
     # Now store in history
     for qinfo_name, history_name in self.to_copy_from_qinfo_to_history.items():
@@ -318,6 +321,7 @@ class ExperimentDesigner(object):
       if self.init_capital is not None:
         initial_qinfos_w_init_capital = []
         _num_tries_for_init_pool_sampling = 0
+        points = 0
         while True:
           if len(initial_qinfos_w_init_capital) == 0:
             if self.options.capital_type == 'return_value':
@@ -336,15 +340,21 @@ class ExperimentDesigner(object):
                     'this problem persists.')%(_num_tries_for_init_pool_sampling))
             continue
           qinfo = initial_qinfos_w_init_capital.pop(0)
-          self.step_idx += 1
-          self._wait_for_a_free_worker()
-          if self._terminate_initialisation():
-            cap_frac = (np.nan if self.available_capital <= 0 else
-                        self.get_curr_spent_capital()/self.available_capital)
-            self.reporter.writeln('Capital spent on initialisation: %0.4f(%0.4f).'%(
-                self.get_curr_spent_capital(), cap_frac))
-            break
-          self._dispatch_single_experiment_to_worker_manager(qinfo)
+          if self.ask_tell_mode:
+            self.first_qinfos.append(qinfo)
+            points += 1
+            if points > self.init_capital:
+              break
+          else:
+            self.step_idx += 1
+            self._wait_for_a_free_worker()
+            if self._terminate_initialisation():
+              cap_frac = (np.nan if self.available_capital <= 0 else
+                          self.get_curr_spent_capital()/self.available_capital)
+              self.reporter.writeln('Capital spent on initialisation: %0.4f(%0.4f).'%(
+                  self.get_curr_spent_capital(), cap_frac))
+              break
+            self._dispatch_single_experiment_to_worker_manager(qinfo)
       else:
         num_init_evals = int(self.options.num_init_evals)
         if num_init_evals > 0:
@@ -352,9 +362,12 @@ class ExperimentDesigner(object):
           init_qinfos = get_initial_qinfos(num_init_evals,
                                            verbose_constraint_satisfaction=False)
           for qinfo in init_qinfos:
-            self.step_idx += 1
-            self._wait_for_a_free_worker()
-            self._dispatch_single_experiment_to_worker_manager(qinfo)
+            if self.ask_tell_mode:
+              self.first_qinfos.append(qinfo)
+            else:
+              self.step_idx += 1
+              self._wait_for_a_free_worker()
+              self._dispatch_single_experiment_to_worker_manager(qinfo)
 
   def _load_prev_evaluations_data_from_file(self):
     """ Load data from a prior file. """
@@ -511,6 +524,14 @@ class ExperimentDesigner(object):
     qinfo.step_idx = self.step_idx
     self.worker_manager.dispatch_single_experiment(self.experiment_caller, qinfo)
     self._add_to_in_progress([qinfo])
+  
+  def _dispatch_single_experiment_ask_tell_mode(self, qinfo):
+    """ Dispatches an experiment in ask-tell mode. """
+    qinfo.send_time = self.get_curr_spent_capital()
+    qinfo.step_idx = self.step_idx
+    qinfo.eval_time = 1.0
+    qinfo.receive_time = qinfo.send_time + qinfo.eval_time
+    self._add_to_in_progress([qinfo])
 
   def _dispatch_batch_of_experiments_to_worker_manager(self, qinfos):
     """ Dispatches a batch of experiments to the worker manager. """
@@ -591,6 +612,36 @@ class ExperimentDesigner(object):
     # Compute the maximum of all receive times
     max_query_receive_times = max(query_receive_times)
     return max_query_receive_times
+  
+  # Methods for exposing ask-tell interface
+  def initialise(self):
+    """ Initialisation for ask-tell interface. """
+    self.initialise_capital()
+    self.first_qinfos = []
+    self.perform_initial_queries()
+    self._child_run_experiments_initialise()
+
+  def ask(self, n_points=None):
+    """Get recommended point as part of the ask interface.
+    Wrapper for _determine_next_query.
+
+    Args:
+      n_points (int or None): Represents the number of points to ask for.
+      None will prompt ask() to return a single point, whereas an int will 
+      prompt ask() to return a list of `n_points` points.
+    """
+    raise NotImplementedError('Implement in a child class.')
+
+  def tell(self, points):
+    """Add data points to be evaluated to return recommendations.
+    
+    Args:
+      points (:obj:`list` of :obj:`tuples`): Contains tuples that hold
+        the explanatory variable value(s) of the points as its first value,
+        the response variable value(s) as its second value, and a third 
+        z-value for multifidelity optimisation.
+    """    
+    raise NotImplementedError('Implement in a child class.')
 
   # Methods for saving progress --------------------------------------------------
   def _save_progress_to_file(self):

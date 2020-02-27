@@ -18,6 +18,7 @@ from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain
 from ..exd.exd_core import mf_exd_args
 from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
 from ..exd.experiment_caller import CPFunctionCaller, get_multifunction_caller_from_config
+from ..exd.worker_manager import SyntheticWorkerManager
 from ..gp.euclidean_gp import EuclideanGPFitter, euclidean_gp_args, \
                             EuclideanMFGPFitter, euclidean_mf_gp_args
 from ..gp.cartesian_product_gp import cartesian_product_gp_args, \
@@ -175,14 +176,15 @@ class GPBandit(BlackboxOptimiser):
   # pylint: disable=attribute-defined-outside-init
 
   # Constructor.
-  def __init__(self, func_caller, worker_manager, is_mf=False,
-               options=None, reporter=None):
+  def __init__(self, func_caller, worker_manager=None, is_mf=False,
+               options=None, reporter=None, ask_tell_mode=False):
     """ Constructor. """
     self._is_mf = is_mf
     if is_mf and not func_caller.is_mf():
       raise CalledMFOptimiserWithSFCaller(self, func_caller)
     super(GPBandit, self).__init__(func_caller, worker_manager, None,
-                                   options=options, reporter=reporter)
+                                   options=options, reporter=reporter,
+                                   ask_tell_mode=ask_tell_mode)
 
   def is_an_mf_method(self):
     """ Returns Truee since this is a MF method. """
@@ -540,6 +542,8 @@ class GPBandit(BlackboxOptimiser):
     if self.is_an_mf_method():
       if self.options.mf_strategy == 'boca':
         self._main_loop_pre_boca()
+  
+   
 # GP Bandit class ends here ==========================================================
 
 
@@ -548,8 +552,8 @@ class EuclideanGPBandit(GPBandit):
   """ A GP Bandit for Euclidean Spaces. """
 
   # Constructor.
-  def __init__(self, func_caller, worker_manager, is_mf=False,
-               options=None, reporter=None):
+  def __init__(self, func_caller, worker_manager=None, is_mf=False,
+               options=None, reporter=None, ask_tell_mode=False):
     """ Constructor. """
     if is_mf:
       all_args = get_all_mf_euc_gp_bandit_args()
@@ -557,7 +561,8 @@ class EuclideanGPBandit(GPBandit):
       all_args = get_all_euc_gp_bandit_args()
     options = load_options(all_args, partial_options=options)
     super(EuclideanGPBandit, self).__init__(func_caller, worker_manager, is_mf=is_mf,
-                                            options=options, reporter=reporter)
+                                            options=options, reporter=reporter,
+                                            ask_tell_mode=ask_tell_mode)
 
   def _get_mf_gp_fitter(self, reg_data, use_additive=False):
     """ Returns the Multi-fidelity GP Fitter. Can be overridded by a child class. """
@@ -738,13 +743,19 @@ class EuclideanGPBandit(GPBandit):
       lead_const = 10 * min(5, self.domain.get_dim())**2
       self.get_acq_opt_max_evals = lambda t: np.clip(lead_const * np.sqrt(min(t, 1000)),
                                                      2000, 3e4)
+  
+  def ask(self, n_points=None):
+    if not self.first_qinfos:
+      self._main_loop_pre()
+    return super(EuclideanGPBandit, self).ask(n_points)
 
 
 class CPGPBandit(GPBandit):
   """ A GP Bandit class on Cartesian product spaces. """
 
-  def __init__(self, func_caller, worker_manager, is_mf=False,
-               domain_dist_computers=None, options=None, reporter=None):
+  def __init__(self, func_caller, worker_manager=None, is_mf=False,
+               domain_dist_computers=None, options=None, reporter=None,
+               ask_tell_mode=False):
     """ Constructor. """
     # First load up options
     if is_mf:
@@ -754,7 +765,8 @@ class CPGPBandit(GPBandit):
     options = load_options(all_args, partial_options=options)
     self.domain_dist_computers = domain_dist_computers
     super(CPGPBandit, self).__init__(func_caller, worker_manager, is_mf=is_mf,
-                                     options=options, reporter=reporter)
+                                     options=options, reporter=reporter,
+                                     ask_tell_mode=ask_tell_mode)
 
   def _child_opt_method_set_up(self):
     """ Set up for child class. Override this method in child class. """
@@ -933,6 +945,11 @@ class CPGPBandit(GPBandit):
              domain_lists_of_dists=self.domain_lists_of_dists,
              domain_dist_computers=self.domain_dist_computers,
              options=gpf_options, reporter=self.reporter)
+  
+  def ask(self, n_points=None):
+    if not self.first_qinfos:
+      self._main_loop_pre()
+    return super(CPGPBandit, self).ask(n_points)
 
 
 # APIs for Euclidean GP Bandit optimisation. ---------------------------------------------
