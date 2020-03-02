@@ -9,6 +9,7 @@ pages:
   - 'Installation': 'install.md'
   - 'Getting Started - Command Line': 'getting_started_cli.md'
   - 'Getting Started - Code': 'getting_started_py.md'
+  - 'Getting Started - Ask Tell Mode': 'getting_started_ask_tell.md'
 - Documentation:
   - 'Main APIs' : 'doc_main_apis.md'
 - Miscellaneous:
