@@ -91,6 +91,9 @@ def main():
     # new result to perform Bayesian optimisation.
     best_x, best_y = None, float('-inf')
     for _ in range(max_capital):
+      # Optionally, you can add an integer argument `n_points` to ask to have it return
+      # `n_points` number of points. These points will be returned as a list.
+      # No argument for `n_points` returns a single point from ask.
       x = opt.ask()
       y = objective(x)
       opt.tell([(x, y)])
