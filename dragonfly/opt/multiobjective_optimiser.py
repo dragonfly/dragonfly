@@ -15,6 +15,7 @@ import numpy as np
 # Local imports
 from ..exd.exd_core import ExperimentDesigner, exd_core_args
 from ..exd.experiment_caller import MultiFunctionCaller, FunctionCaller
+from ..exd.exd_utils import EVAL_ERROR_CODE
 from ..utils.general_utils import update_pareto_set
 
 
@@ -110,6 +111,8 @@ class MultiObjectiveOptimiser(ExperimentDesigner):
       if not query_is_at_fidel_to_opt:
         # if the fidelity queried at is not fidel_to_opt, then return
         return
+    if qinfo.val == EVAL_ERROR_CODE:
+      return
     # Optimise curr_opt_val and curr_true_opt_val
     self.curr_pareto_vals, self.curr_pareto_points = update_pareto_set(
       self.curr_pareto_vals, self.curr_pareto_points, qinfo.val, qinfo.point)
