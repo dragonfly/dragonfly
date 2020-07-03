@@ -162,19 +162,20 @@ DOE grant DESC0011114, NSF grant IIS1563887, the DARPA D3M program, and AFRL.
 
 
 ### Citation
-If you use any part of this code in your work, please cite
-[this manuscript](https://arxiv.org/pdf/1903.06694.pdf).
+If you use any part of this code in your work, please cite our
+[JMLR paper](http://jmlr.org/papers/v21/18-223.html).
 
 ```
-@article{kandasamy2019tuning,
-    title={{Tuning Hyperparameters without Grad Students: Scalable and Robust Bayesian
-            Optimisation with Dragonfly}},
-    author={Kandasamy, Kirthevasan and Vysyaraju, Karun Raju and Neiswanger,
-            Willie and Paria, Biswajit and Collins, Christopher R. and Schneider, Jeff and
-            Poczos, Barnabas and Xing, Eric P},
-    journal={arXiv preprint arXiv:1903.06694},
-    year={2019}
-  }
+@article{JMLR:v21:18-223,
+  author  = {Kirthevasan Kandasamy and Karun Raju Vysyaraju and Willie Neiswanger and Biswajit Paria and Christopher R. Collins and Jeff Schneider and Barnabas Poczos and Eric P. Xing},
+  title   = {Tuning Hyperparameters without Grad Students: Scalable and Robust Bayesian Optimisation with Dragonfly},
+  journal = {Journal of Machine Learning Research},
+  year    = {2020},
+  volume  = {21},
+  number  = {81},
+  pages   = {1-27},
+  url     = {http://jmlr.org/papers/v21/18-223.html}
+}
 ```
 
 ### License
