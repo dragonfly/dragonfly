@@ -22,7 +22,7 @@ import numpy as np
 from ..exd.cp_domain_utils import get_processed_func_from_raw_func_for_cp_domain, \
                                 load_cp_domain_from_config_file
 from ..exd import domains
-from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos
+from ..exd.exd_utils import get_euclidean_initial_qinfos, get_cp_domain_initial_qinfos, EVAL_ERROR_CODE
 from ..exd.experiment_caller import CPMultiFunctionCaller
 from ..gp.euclidean_gp import EuclideanGPFitter
 from ..gp.cartesian_product_gp import CPGPFitter
@@ -259,10 +259,13 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
     # pylint: disable=no-member
     reg_X = self.prev_eval_points + self.history.query_points
     reg_Y = self.prev_eval_vals + self.history.query_vals
+    row_idx = [i for i,y in enumerate(reg_Y)
+               if y != EVAL_ERROR_CODE]
     if self.is_an_mf_method():
       raise NotImplementedError(_NO_MF_FOR_MOGPB_ERR_MSG)
     else:
-      return reg_X, [y[obj_ind] for y in reg_Y]
+      return ([reg_X[i] for i in row_idx],
+              [reg_Y[i][obj_ind] for i in row_idx])
 
   def _get_gp_fitter(self, gp_idx, use_additive=False):
     """ Returns a GP Fitter. """
@@ -324,6 +327,8 @@ class MultiObjectiveGPBandit(MultiObjectiveOptimiser, GPBandit):
     """ Add data to self.gp """
     if self.gps is None:
       return
+    qinfos = [qinfo for qinfo in qinfos
+              if qinfo.val != EVAL_ERROR_CODE]
     if len(qinfos) == 0:
       return
     new_points = [qinfo.point for qinfo in qinfos]

@@ -146,14 +146,20 @@ class ExperimentCaller(object):
     """ Returns the true value from the experiment. Can be overridden by child class if
         experiment is represented differently. """
     assert self.domain.is_a_member(point)
-    return self.experiment(point)
+    try:
+      return self.experiment(point)
+    except:
+      return EVAL_ERROR_CODE
 
   def _get_true_val_from_experiment_at_fidel_point(self, fidel, point):
     """ Returns the true value from the experiment. Can be overridden by child class if
         experiment is represented differently. """
     assert self.fidel_space.is_a_member(fidel)
     assert self.domain.is_a_member(point)
-    return self.experiment(fidel, point)
+    try:
+      return self.experiment(fidel, point)
+    except:
+      return EVAL_ERROR_CODE
 
   # Single fidelity evaluations --------------------------------------------
   def eval_single(self, point, qinfo=None, noisy=True):
