@@ -232,7 +232,7 @@ class GP(object):
     if param == 'noise_var':
       grad_m = self.noise_var*np.identity(len(self.X))
     elif param == 'noise_mean':
-      return np.asscalar(np.matmul(alpha, np.ones((len(self.Y), 1))))
+      return np.matmul(alpha, np.ones((len(self.Y), 1))).item()
     else:
       grad_m = self.kernel.gradient(param, self.X, self.X, *args)
     grad_m = np.matmul(alpha.T, np.matmul(alpha, grad_m)) - \
@@ -520,7 +520,7 @@ class GPFitter(object):
       elif self.options.mean_func_type == 'const':
         mean_func_const_value = self.options.mean_func_const
       elif self.options.mean_func_type == 'tune':
-        mean_func_const_value = np.asscalar(gp_cts_hps[0])
+        mean_func_const_value = gp_cts_hps[0].item()
         gp_cts_hps = gp_cts_hps[1:]
       else:
         mean_func_const_value = 0
@@ -604,7 +604,7 @@ class GPFitter(object):
                      for i in range(0, self.add_dim, self.group_size)]
         self.other_gp_params = Namespace(add_gp_groupings=groupings)
       elif type(self.hp_priors[self.curr_hp]).__name__ == "Categorical":
-        self.hps[self.curr_hp] = self.hp_priors[self.curr_hp].get_category(np.asscalar(x))
+        self.hps[self.curr_hp] = self.hp_priors[self.curr_hp].get_category(x.item())
       else:
         self.hps[self.curr_hp] = x
 
