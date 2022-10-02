@@ -165,7 +165,7 @@ DOE grant DESC0011114, NSF grant IIS1563887, the DARPA D3M program, and AFRL.
 If you use any part of this code in your work, please cite our
 [JMLR paper](http://jmlr.org/papers/v21/18-223.html).
 
-```
+```bibtex
 @article{JMLR:v21:18-223,
   author  = {Kirthevasan Kandasamy and Karun Raju Vysyaraju and Willie Neiswanger and Biswajit Paria and Christopher R. Collins and Jeff Schneider and Barnabas Poczos and Eric P. Xing},
   title   = {Tuning Hyperparameters without Grad Students: Scalable and Robust Bayesian Optimisation with Dragonfly},
@@ -185,5 +185,3 @@ This software is released under the MIT license. For more details, please refer
 For questions, please email kandasamy@cs.cmu.edu.
 
 "Copyright 2018-2019 Kirthevasan Kandasamy"
-
-
