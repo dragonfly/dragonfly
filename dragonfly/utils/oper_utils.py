@@ -337,7 +337,7 @@ def random_sample_from_discrete_euclidean_domain(valid_vectors, num_samples,
 def random_sample_from_integral_domain(bounds, num_samples, sample_type='rand'):
   """ Samples from a Integral Domain. """
   ret = random_sample_from_euclidean_domain(bounds, num_samples, sample_type)
-  return [x.astype(np.int) for x in ret]
+  return [x.astype(int) for x in ret]
 
 def random_sample_from_discrete_domain(dscr_vals, num_points=None):
   """ Samples from a discrete domain. """

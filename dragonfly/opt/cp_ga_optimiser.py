@@ -63,7 +63,7 @@ def discrete_euclidean_mutation(x, list_of_items, uniform_prob=0.2):
 def integral_gauss_mutation(x, bounds, sigmas=None):
   """ Defines a Euclidean Mutation. """
   ret = _get_gauss_perturbation(x, bounds, sigmas)
-  ret = ret.round().astype(np.int)
+  ret = ret.round().astype(int)
   return _return_ndarray_with_type(x, ret)
 
 def prod_discrete_random_mutation(x, list_of_list_of_items):
