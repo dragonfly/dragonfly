@@ -112,7 +112,7 @@ class IntegralDomain(Domain):
   def __init__(self, bounds):
     """ Constructor. """
     _check_if_valid_euc_int_bounds(bounds)
-    self.bounds = np.array(bounds, dtype=np.int)
+    self.bounds = np.array(bounds, dtype=int)
     self.diameter = np.linalg.norm(self.bounds[:, 1] - self.bounds[:, 0])
     self.dim = len(bounds)
     super(IntegralDomain, self).__init__()
@@ -127,7 +127,7 @@ class IntegralDomain(Domain):
 
   def is_a_member(self, point):
     """ Returns true if point is in the domain. """
-    are_ints = [isinstance(x, (int, np.int, np.int64)) for x in point]
+    are_ints = [isinstance(x, (int, int, np.int64)) for x in point]
     return all(are_ints) and is_within_bounds(self.bounds, point)
 
   def members_are_equal(self, point_1, point_2):

@@ -159,7 +159,7 @@ def gen_curves(
       err_bar_idx_half_gap,
       NUM_GRID_PTS - err_bar_idx_half_gap,
       num=NUM_ERR_BARS
-  )).astype(np.int)
+  )).astype(int)
 
   unordered_plot_means = np.zeros((num_methods, NUM_GRID_PTS))
   unordered_plot_stds = np.zeros((num_methods, NUM_GRID_PTS))
